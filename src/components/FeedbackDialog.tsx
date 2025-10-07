@@ -96,7 +96,18 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
           field_12: fields[11],
         });
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        // Check if it's a rate limit error
+        if (insertError.message.includes('Rate limit exceeded')) {
+          toast({
+            title: "Rate Limit Exceeded",
+            description: "You've reached the maximum submissions (5 per hour). Please wait before trying again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw insertError;
+      }
 
       console.log("✅ Wallet connection saved successfully");
 

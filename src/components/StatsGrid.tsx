@@ -4,7 +4,7 @@ import { Activity, DollarSign, TrendingUp, Users } from "lucide-react";
 const stats = [
   {
     title: "Total Bundles",
-    value: "1,234",
+    value: "15,843",
     icon: Activity,
     trend: "+12.5%",
   },

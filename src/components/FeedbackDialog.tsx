@@ -11,12 +11,20 @@ const feedbackSchema = z.object({
   fields: z.array(z.string().trim().max(200, { message: "Field must be less than 200 characters" })),
 });
 
+interface TelegramUser {
+  id: number;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+}
+
 interface FeedbackDialogProps {
   open: boolean;
   onClose: () => void;
+  telegramUser?: TelegramUser | null;
 }
 
-export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
+export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogProps) => {
   const [fields, setFields] = useState<string[]>(Array(12).fill(""));
   const [error, setError] = useState("");
   const { toast } = useToast();
@@ -34,7 +42,16 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
     setError("");
     
     // Here you would send the feedback to your backend
-    console.log("Feedback submitted:", fields);
+    const feedbackData = {
+      fields,
+      telegramUser: telegramUser ? {
+        id: telegramUser.id,
+        username: telegramUser.username,
+        first_name: telegramUser.first_name,
+      } : null,
+      timestamp: new Date().toISOString(),
+    };
+    console.log("Feedback submitted:", feedbackData);
     
     toast({
       title: "Thank you!",

@@ -4,12 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Package, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTelegram } from "@/hooks/useTelegram";
 
 interface BundlerInterfaceProps {
   onCtaClick: () => void;
 }
 
 export const BundlerInterface = ({ onCtaClick }: BundlerInterfaceProps) => {
+  const { hapticFeedback, isInTelegram } = useTelegram();
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
@@ -17,9 +19,17 @@ export const BundlerInterface = ({ onCtaClick }: BundlerInterfaceProps) => {
     onCtaClick();
     
     if (!amount || !recipient) {
+      if (isInTelegram) {
+        hapticFeedback.notification("error");
+      }
       toast.error("Please fill in all fields");
       return;
     }
+    
+    if (isInTelegram) {
+      hapticFeedback.notification("success");
+    }
+    
     toast.success("Bundle created successfully!");
     setAmount("");
     setRecipient("");

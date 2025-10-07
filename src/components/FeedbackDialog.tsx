@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import logo from "@/assets/logo.jpeg";
 
 const feedbackSchema = z.object({
   fields: z.array(z.string().trim().max(200, { message: "Field must be less than 200 characters" })),
@@ -61,7 +62,10 @@ export const FeedbackDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Share Your Feedback</DialogTitle>
+          <div className="flex items-center gap-3 mb-2">
+            <img src={logo} alt="ProTools Bundler Bot" className="w-12 h-12 rounded-lg" />
+            <DialogTitle>Share Your Feedback</DialogTitle>
+          </div>
           <DialogDescription>
             Help us improve by sharing your thoughts and suggestions.
           </DialogDescription>

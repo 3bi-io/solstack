@@ -1,12 +1,52 @@
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { HelpCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { HelpCircle, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const Help = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      setIsAdmin(!!roles);
+    };
+
+    checkAdmin();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        {isAdmin && (
+          <Card className="bg-card/50 backdrop-blur-sm mb-4 border-primary/20">
+            <CardContent className="pt-6">
+              <Button 
+                onClick={() => navigate("/admin")}
+                className="w-full"
+                variant="outline"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Admin Dashboard
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+        
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-4">
             <div className="flex items-center gap-3">

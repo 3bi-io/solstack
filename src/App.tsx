@@ -13,6 +13,7 @@ import Airdrop from "./pages/Airdrop";
 import Wallet from "./pages/Wallet";
 import Logs from "./pages/Logs";
 import Help from "./pages/Help";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const AppContent = () => {
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/logs" element={<Logs />} />
         <Route path="/help" element={<Help />} />
+        <Route path="/admin" element={<Admin />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

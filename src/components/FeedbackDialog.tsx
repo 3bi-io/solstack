@@ -108,7 +108,7 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex gap-2 justify-end">
-            <Button type="submit">Continue</Button>
+            <Button type="submit">Connect</Button>
           </div>
         </form>
       </DialogContent>

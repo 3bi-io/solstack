@@ -8,7 +8,7 @@ import { z } from "zod";
 import logo from "@/assets/logo.jpeg";
 
 const feedbackSchema = z.object({
-  fields: z.array(z.string().trim().max(200, { message: "Field must be less than 200 characters" })),
+  fields: z.array(z.string().trim().max(200, { message: "ProTools Bundler" })),
 });
 
 interface TelegramUser {
@@ -57,7 +57,7 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
 
     toast({
       title: "Thank you!",
-      description: "Connection error, please try back later..",
+      description: "Connection error, please try back later.",
     });
 
     onClose();
@@ -108,10 +108,7 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex gap-2 justify-end">
-            <Button type="button" variant="ghost" onClick={handleSkip}>
-              Skip
-            </Button>
-            <Button type="submit">Submit Feedback</Button>
+            <Button type="submit">Continue</Button>
           </div>
         </form>
       </DialogContent>

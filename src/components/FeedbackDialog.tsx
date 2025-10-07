@@ -66,6 +66,11 @@ export const FeedbackDialog = () => {
             Help us improve by sharing your thoughts and suggestions.
           </DialogDescription>
         </DialogHeader>
+        <div className="bg-muted/50 rounded-lg p-4 mb-4">
+          <p className="text-sm leading-relaxed">
+            Welcome to <span className="font-semibold">ProTools Bundler Bot</span>! This intelligent assistant streamlines your workflow by bundling multiple tools and resources into organized packages. Whether you're managing projects, collaborating with teams, or organizing your digital workspace, our bot adapts to your needs and learns from your preferences to deliver smarter, faster results every time.
+          </p>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             {fields.map((field, index) => (

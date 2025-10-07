@@ -182,6 +182,10 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
                   value={field} 
                   onChange={(e) => handleFieldChange(index, e.target.value)}
                   className="text-sm"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  autoComplete="off"
+                  spellCheck={false}
                 />
               </div>
             ))}

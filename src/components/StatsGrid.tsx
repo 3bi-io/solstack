@@ -30,19 +30,19 @@ const stats = [
 
 export const StatsGrid = () => {
   return (
-    <div className="grid grid-cols-2 gap-4 mb-6">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
       {stats.map((stat) => (
         <Card key={stat.title} className="overflow-hidden">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-start justify-between mb-2">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <stat.icon className="w-4 h-4 text-primary" />
+              <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
+                <stat.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
               </div>
-              <span className="text-xs text-accent font-medium">{stat.trend}</span>
+              <span className="text-[10px] sm:text-xs text-accent font-medium">{stat.trend}</span>
             </div>
-            <div className="space-y-1">
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.title}</p>
+            <div className="space-y-0.5 sm:space-y-1">
+              <p className="text-xl sm:text-2xl font-bold text-foreground">{stat.value}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{stat.title}</p>
             </div>
           </CardContent>
         </Card>

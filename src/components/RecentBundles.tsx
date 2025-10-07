@@ -29,39 +29,39 @@ const bundles = [
 export const RecentBundles = () => {
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-accent/10">
-            <Clock className="w-5 h-5 text-accent" />
+      <CardHeader className="pb-4">
+        <div className="flex items-start gap-2 sm:gap-3">
+          <div className="p-1.5 sm:p-2 rounded-lg bg-accent/10 flex-shrink-0">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
           </div>
-          <div>
-            <CardTitle>Recent Bundles</CardTitle>
-            <CardDescription>Your latest bundled transactions</CardDescription>
+          <div className="min-w-0 flex-1">
+            <CardTitle className="text-base sm:text-lg">Recent Bundles</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Your latest bundled transactions</CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 pt-0">
         {bundles.map((bundle) => (
           <div
             key={bundle.id}
-            className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors border border-border/30"
+            className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors border border-border/30"
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-background/50">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-background/50 flex-shrink-0">
                 {bundle.status === "completed" ? (
-                  <CheckCircle2 className="w-4 h-4 text-accent" />
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent" />
                 ) : (
-                  <AlertCircle className="w-4 h-4 text-primary" />
+                  <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                 )}
               </div>
-              <div>
-                <p className="font-medium text-sm text-foreground">{bundle.id}</p>
-                <p className="text-xs text-muted-foreground">{bundle.time}</p>
+              <div className="min-w-0">
+                <p className="font-medium text-xs sm:text-sm text-foreground truncate">{bundle.id}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{bundle.time}</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="font-semibold text-sm text-foreground">{bundle.amount}</p>
-              <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
+            <div className="text-right flex-shrink-0 ml-2">
+              <p className="font-semibold text-xs sm:text-sm text-foreground whitespace-nowrap">{bundle.amount}</p>
+              <Badge variant="secondary" className="text-[10px] sm:text-xs bg-primary/10 text-primary border-primary/20 mt-1">
                 {bundle.txCount} txs
               </Badge>
             </div>

@@ -36,17 +36,17 @@ const Index = () => {
         onClose={handleCloseFeedback}
         telegramUser={user}
       />
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Hero />
         {isInTelegram && user && (
-          <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
-            <p className="text-sm">
+          <div className="mb-4 p-2.5 sm:p-3 bg-primary/10 rounded-lg border border-primary/20">
+            <p className="text-xs sm:text-sm">
               Welcome, <span className="font-semibold">{user.first_name}</span>! 👋
             </p>
           </div>
         )}
         <StatsGrid />
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <BundlerInterface onCtaClick={handleCtaClick} />
           <RecentBundles />
         </div>

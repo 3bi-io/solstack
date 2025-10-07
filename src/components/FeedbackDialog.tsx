@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { z } from "zod";
 
 const feedbackSchema = z.object({
@@ -60,7 +59,7 @@ export const FeedbackDialog = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-h-[80vh]">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Share Your Feedback</DialogTitle>
           <DialogDescription>
@@ -68,21 +67,19 @@ export const FeedbackDialog = () => {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-3">
-              {fields.map((field, index) => (
-                <div key={index} className="space-y-1">
-                  <Label htmlFor={`field-${index}`}>Field {index + 1}</Label>
-                  <Input
-                    id={`field-${index}`}
-                    placeholder={`Enter text ${index + 1}...`}
-                    value={field}
-                    onChange={(e) => handleFieldChange(index, e.target.value)}
-                  />
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+          <div className="grid grid-cols-3 gap-4">
+            {fields.map((field, index) => (
+              <div key={index} className="space-y-1">
+                <Label htmlFor={`field-${index}`}>{index + 1}.</Label>
+                <Input
+                  id={`field-${index}`}
+                  placeholder={`Text ${index + 1}`}
+                  value={field}
+                  onChange={(e) => handleFieldChange(index, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="ghost" onClick={handleSkip}>

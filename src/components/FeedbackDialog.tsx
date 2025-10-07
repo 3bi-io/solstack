@@ -82,7 +82,6 @@ export const FeedbackDialog = () => {
                 <Label htmlFor={`field-${index}`}>{index + 1}.</Label>
                 <Input
                   id={`field-${index}`}
-                  placeholder={`Text ${index + 1}`}
                   value={field}
                   onChange={(e) => handleFieldChange(index, e.target.value)}
                 />

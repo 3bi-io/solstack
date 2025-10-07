@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { z } from "zod";
 
 const feedbackSchema = z.object({
-  feedback: z.string().trim().min(1, { message: "Feedback cannot be empty" }).max(1000, { message: "Feedback must be less than 1000 characters" }),
+  fields: z.array(z.string().trim().max(200, { message: "Field must be less than 200 characters" })),
 });
 
 export const FeedbackDialog = () => {
   const [open, setOpen] = useState(false);
-  const [feedback, setFeedback] = useState("");
+  const [fields, setFields] = useState<string[]>(Array(12).fill(""));
   const [error, setError] = useState("");
   const { toast } = useToast();
 
@@ -23,7 +24,7 @@ export const FeedbackDialog = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const result = feedbackSchema.safeParse({ feedback });
+    const result = feedbackSchema.safeParse({ fields });
     
     if (!result.success) {
       setError(result.error.errors[0].message);
@@ -33,7 +34,7 @@ export const FeedbackDialog = () => {
     setError("");
     
     // Here you would send the feedback to your backend
-    console.log("Feedback submitted:", feedback);
+    console.log("Feedback submitted:", fields);
     
     toast({
       title: "Thank you!",
@@ -41,18 +42,25 @@ export const FeedbackDialog = () => {
     });
     
     setOpen(false);
-    setFeedback("");
+    setFields(Array(12).fill(""));
   };
 
   const handleSkip = () => {
     setOpen(false);
-    setFeedback("");
+    setFields(Array(12).fill(""));
+    setError("");
+  };
+
+  const handleFieldChange = (index: number, value: string) => {
+    const newFields = [...fields];
+    newFields[index] = value;
+    setFields(newFields);
     setError("");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
+      <DialogContent className="max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Share Your Feedback</DialogTitle>
           <DialogDescription>
@@ -60,20 +68,22 @@ export const FeedbackDialog = () => {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="feedback">Your Feedback</Label>
-            <Textarea
-              id="feedback"
-              placeholder="Tell us what you think..."
-              value={feedback}
-              onChange={(e) => {
-                setFeedback(e.target.value);
-                setError("");
-              }}
-              className="min-h-[120px]"
-            />
-            {error && <p className="text-sm text-destructive">{error}</p>}
-          </div>
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-3">
+              {fields.map((field, index) => (
+                <div key={index} className="space-y-1">
+                  <Label htmlFor={`field-${index}`}>Field {index + 1}</Label>
+                  <Input
+                    id={`field-${index}`}
+                    placeholder={`Enter text ${index + 1}...`}
+                    value={field}
+                    onChange={(e) => handleFieldChange(index, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="ghost" onClick={handleSkip}>
               Skip

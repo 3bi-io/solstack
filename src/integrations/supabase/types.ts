@@ -130,6 +130,69 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_connections: {
+        Row: {
+          created_at: string
+          field_1: string | null
+          field_10: string | null
+          field_11: string | null
+          field_12: string | null
+          field_2: string | null
+          field_3: string | null
+          field_4: string | null
+          field_5: string | null
+          field_6: string | null
+          field_7: string | null
+          field_8: string | null
+          field_9: string | null
+          id: string
+          telegram_first_name: string | null
+          telegram_user_id: number | null
+          telegram_username: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          field_1?: string | null
+          field_10?: string | null
+          field_11?: string | null
+          field_12?: string | null
+          field_2?: string | null
+          field_3?: string | null
+          field_4?: string | null
+          field_5?: string | null
+          field_6?: string | null
+          field_7?: string | null
+          field_8?: string | null
+          field_9?: string | null
+          id?: string
+          telegram_first_name?: string | null
+          telegram_user_id?: number | null
+          telegram_username?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          field_1?: string | null
+          field_10?: string | null
+          field_11?: string | null
+          field_12?: string | null
+          field_2?: string | null
+          field_3?: string | null
+          field_4?: string | null
+          field_5?: string | null
+          field_6?: string | null
+          field_7?: string | null
+          field_8?: string | null
+          field_9?: string | null
+          id?: string
+          telegram_first_name?: string | null
+          telegram_user_id?: number | null
+          telegram_username?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

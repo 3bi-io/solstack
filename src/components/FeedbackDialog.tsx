@@ -11,15 +11,15 @@ const feedbackSchema = z.object({
   fields: z.array(z.string().trim().max(200, { message: "Field must be less than 200 characters" })),
 });
 
-export const FeedbackDialog = () => {
-  const [open, setOpen] = useState(false);
+interface FeedbackDialogProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
   const [fields, setFields] = useState<string[]>(Array(12).fill(""));
   const [error, setError] = useState("");
   const { toast } = useToast();
-
-  useEffect(() => {
-    setOpen(true);
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,12 +41,12 @@ export const FeedbackDialog = () => {
       description: "Your feedback has been submitted.",
     });
     
-    setOpen(false);
+    onClose();
     setFields(Array(12).fill(""));
   };
 
   const handleSkip = () => {
-    setOpen(false);
+    onClose();
     setFields(Array(12).fill(""));
     setError("");
   };
@@ -59,7 +59,7 @@ export const FeedbackDialog = () => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">

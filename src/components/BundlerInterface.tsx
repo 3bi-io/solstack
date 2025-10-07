@@ -5,11 +5,17 @@ import { Package, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const BundlerInterface = () => {
+interface BundlerInterfaceProps {
+  onCtaClick: () => void;
+}
+
+export const BundlerInterface = ({ onCtaClick }: BundlerInterfaceProps) => {
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
   const handleBundle = () => {
+    onCtaClick();
+    
     if (!amount || !recipient) {
       toast.error("Please fill in all fields");
       return;

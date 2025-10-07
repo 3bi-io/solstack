@@ -61,10 +61,9 @@ export const FeedbackDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>ProTools Bundler Bot Feedback</DialogTitle>
+          <DialogTitle>Share Your Feedback</DialogTitle>
           <DialogDescription>
-            The ProTools Bundler Bot helps you efficiently bundle and manage your cryptocurrency transactions. 
-            Share your experience and suggestions to help us improve the bot's functionality and performance.
+            Help us improve by sharing your thoughts and suggestions.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">

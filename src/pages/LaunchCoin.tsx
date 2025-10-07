@@ -1,25 +1,17 @@
-import { useState } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Rocket } from "lucide-react";
 import { useTelegram } from "@/hooks/useTelegram";
-import { useToast } from "@/hooks/use-toast";
+import { useFeedback } from "@/contexts/FeedbackContext";
 
 const LaunchCoin = () => {
-  const [tokenName, setTokenName] = useState("");
-  const [tokenSymbol, setTokenSymbol] = useState("");
   const { hapticFeedback } = useTelegram();
-  const { toast } = useToast();
+  const { openFeedback } = useFeedback();
 
   const handleLaunch = () => {
     hapticFeedback.impact("medium");
-    toast({
-      title: "Coming Soon",
-      description: "Token launch feature will be available soon!",
-    });
+    openFeedback();
   };
 
   return (
@@ -40,26 +32,9 @@ const LaunchCoin = () => {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="tokenName" className="text-xs sm:text-sm">Token Name</Label>
-              <Input
-                id="tokenName"
-                placeholder="e.g., My Token"
-                value={tokenName}
-                onChange={(e) => setTokenName(e.target.value)}
-                className="text-xs sm:text-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tokenSymbol" className="text-xs sm:text-sm">Token Symbol</Label>
-              <Input
-                id="tokenSymbol"
-                placeholder="e.g., MTK"
-                value={tokenSymbol}
-                onChange={(e) => setTokenSymbol(e.target.value)}
-                className="text-xs sm:text-sm"
-              />
-            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Create and deploy your token with intelligent auto-bundling features.
+            </p>
             <Button onClick={handleLaunch} className="w-full">
               <Rocket className="w-4 h-4 mr-2" />
               Launch Token

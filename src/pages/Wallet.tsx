@@ -1,22 +1,21 @@
-import { useState } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
-import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wallet as WalletIcon } from "lucide-react";
 import { useTelegram } from "@/hooks/useTelegram";
+import { useFeedback } from "@/contexts/FeedbackContext";
 
 const Wallet = () => {
-  const { user } = useTelegram();
-  const [showFeedback, setShowFeedback] = useState(false);
+  const { hapticFeedback } = useTelegram();
+  const { openFeedback } = useFeedback();
+
+  const handleConnect = () => {
+    hapticFeedback.impact("medium");
+    openFeedback();
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <FeedbackDialog 
-        open={showFeedback} 
-        onClose={() => setShowFeedback(false)}
-        telegramUser={user}
-      />
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-4">
@@ -33,7 +32,7 @@ const Wallet = () => {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button onClick={() => setShowFeedback(true)} className="w-full">
+            <Button onClick={handleConnect} className="w-full">
               <WalletIcon className="w-4 h-4 mr-2" />
               Connect Wallet
             </Button>

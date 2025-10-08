@@ -1,5 +1,6 @@
 import { Zap } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
+import robotHero from "@/assets/robot-hero.png";
 import { UserMenu } from "@/components/UserMenu";
 import { NetworkStatus } from "@/components/NetworkStatus";
 
@@ -30,10 +31,12 @@ export const Hero = () => {
       <div className="relative z-10 px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 text-center">
         <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
           <div className="relative">
-            <div className="text-6xl sm:text-7xl md:text-8xl animate-pulse drop-shadow-2xl">
-              🤖
-            </div>
-            {/* Glow effect behind emoji */}
+            <img 
+              src={robotHero} 
+              alt="SOLSTACK Robot" 
+              className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 animate-pulse drop-shadow-2xl object-contain"
+            />
+            {/* Glow effect behind robot */}
             <div className="absolute inset-0 blur-2xl bg-primary/20 rounded-full -z-10 animate-pulse" />
           </div>
         </div>

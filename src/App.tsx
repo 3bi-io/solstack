@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FeedbackProvider, useFeedback } from "@/contexts/FeedbackContext";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
-import { useTelegram } from "@/hooks/useTelegram";
 import Index from "./pages/Index";
 import LaunchCoin from "./pages/LaunchCoin";
 import Transactions from "./pages/Transactions";
@@ -19,7 +18,6 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { user } = useTelegram();
   const { isOpen, closeFeedback } = useFeedback();
 
   return (
@@ -27,7 +25,6 @@ const AppContent = () => {
       <FeedbackDialog 
         open={isOpen} 
         onClose={closeFeedback}
-        telegramUser={user}
       />
       <Routes>
         <Route path="/" element={<Index />} />

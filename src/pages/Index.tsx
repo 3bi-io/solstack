@@ -129,12 +129,10 @@ const Index = () => {
             </div>
           )}
 
-          {/* Quick Actions for Connected Users with Animation */}
-          {connected && (
-            <div className={`transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <QuickActions />
-            </div>
-          )}
+          {/* Quick Actions - Always Visible */}
+          <div className={`transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <QuickActions />
+          </div>
 
           {/* Welcome Message with Animation */}
           <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>

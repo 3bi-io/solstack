@@ -1,5 +1,6 @@
 import { Zap } from "lucide-react";
 import solstackLogo from "@/assets/solstack-logo.jpeg";
+import heroBackground from "@/assets/hero-background.jpeg";
 import { UserMenu } from "@/components/UserMenu";
 import { NetworkStatus } from "@/components/NetworkStatus";
 
@@ -9,7 +10,7 @@ export const Hero = () => {
       <div 
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `url(${solstackLogo})`,
+          backgroundImage: `url(${heroBackground})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

@@ -1,18 +1,28 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Wallet } from "lucide-react";
+import { ExternalLink, Wallet, Shield } from "lucide-react";
 
 export const SolanaSetupAlert = () => {
   return (
-    <Alert className="mb-6 border-primary/20 bg-primary/5">
-      <Wallet className="h-4 w-4 text-primary" />
-      <AlertTitle className="text-sm font-semibold">Solana Mainnet Active</AlertTitle>
+    <Alert className="mb-6 border-destructive/20 bg-destructive/5">
+      <Shield className="h-4 w-4 text-destructive" />
+      <AlertTitle className="text-sm font-semibold text-destructive">⚠️ Solana Mainnet Active - Real Transactions</AlertTitle>
       <AlertDescription className="text-xs space-y-2 mt-2">
-        <p>
-          This app uses <strong>Solana Mainnet</strong> for real transactions. • This means all transactions are real,
-          permanent, and involve actual SOL tokens with real-world value. • You need actual SOL in your wallet to
-          interact with this app.
+        <p className="font-semibold text-destructive">
+          This app uses <strong>Solana Mainnet</strong> for REAL transactions with actual value.
         </p>
+        <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+          <li>All transactions are permanent and irreversible</li>
+          <li>You need actual SOL tokens (with real-world value) to use this app</li>
+          <li>Transaction fees are paid in real SOL</li>
+          <li>Test thoroughly before large transactions</li>
+        </ul>
+        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-destructive/20">
+          <Wallet className="h-3 w-3 text-muted-foreground" />
+          <p className="text-[11px] text-muted-foreground">
+            Connect your wallet (Phantom, Solflare) using the wallet button below
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2 mt-2">
           <Button
             variant="outline"

@@ -1,6 +1,7 @@
 import { Zap } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 import { UserMenu } from "@/components/UserMenu";
+import { NetworkStatus } from "@/components/NetworkStatus";
 
 export const Hero = () => {
   return (
@@ -14,6 +15,11 @@ export const Hero = () => {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background"></div>
+      </div>
+      
+      {/* Network Status - Top left */}
+      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20">
+        <NetworkStatus />
       </div>
       
       {/* User Menu - Optimized for mobile */}

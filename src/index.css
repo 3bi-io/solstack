@@ -55,3 +55,26 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes liquid-flow {
+  0%, 100% {
+    transform: scale(1) skewY(0deg);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    transform: scale(1.02, 0.98) skewY(1deg);
+    filter: hue-rotate(5deg);
+  }
+  50% {
+    transform: scale(0.98, 1.02) skewY(-1deg);
+    filter: hue-rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.02, 0.98) skewY(1deg);
+    filter: hue-rotate(5deg);
+  }
+}
+
+.liquid-flow {
+  animation: liquid-flow 4s ease-in-out infinite;
+}

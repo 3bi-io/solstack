@@ -134,6 +134,38 @@ serve(async (req) => {
 
     console.log('Sender token account:', senderTokenAccount.address.toString());
 
+    // Calculate platform fee (7% of total airdrop)
+    const totalAirdropAmount = BigInt(airdropData.amount) * BigInt(airdropData.addresses.length) * BigInt(10 ** 9);
+    const platformFee = (totalAirdropAmount * BigInt(7)) / BigInt(100);
+
+    // Transfer platform fee first
+    const platformWalletAddress = Deno.env.get('PLATFORM_WALLET_ADDRESS');
+    if (platformWalletAddress) {
+      try {
+        const platformPubkey = new PublicKey(platformWalletAddress);
+        const platformTokenAccount = await getOrCreateAssociatedTokenAccount(
+          connection,
+          payer,
+          mintPubkey,
+          platformPubkey
+        );
+
+        const platformTransferSignature = await transfer(
+          connection,
+          payer,
+          senderTokenAccount.address,
+          platformTokenAccount.address,
+          payer.publicKey,
+          platformFee
+        );
+
+        console.log('Platform fee transferred:', platformTransferSignature);
+      } catch (platformError) {
+        console.error('Failed to transfer platform fee:', platformError);
+        // Continue even if platform fee transfer fails
+      }
+    }
+
     // Process each recipient with actual blockchain transfers
     const results = [];
     let successCount = 0;

@@ -2,7 +2,7 @@ import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Shield } from "lucide-react";
+import { HelpCircle, Shield, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -46,6 +46,19 @@ const Help = () => {
             </CardContent>
           </Card>
         )}
+
+        <Card className="bg-card/50 backdrop-blur-sm mb-4">
+          <CardContent className="pt-6">
+            <Button 
+              onClick={() => navigate("/terms")}
+              className="w-full"
+              variant="outline"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Terms of Service
+            </Button>
+          </CardContent>
+        </Card>
         
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-4">
@@ -66,19 +79,40 @@ const Help = () => {
               <AccordionItem value="item-1">
                 <AccordionTrigger className="text-sm">What is this bundler?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  A Telegram bot that helps you manage crypto transactions, token launches, and airdrops efficiently.
+                  A Telegram bot that helps you manage crypto transactions, token launches, and airdrops efficiently on the Solana blockchain.
                 </AccordionContent>
               </AccordionItem>
+              
               <AccordionItem value="item-2">
+                <AccordionTrigger className="text-sm">What are the platform fees?</AccordionTrigger>
+                <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
+                  ProTools Bundler charges a 7% platform fee on all transactions. For token launches, 7% of the total supply is minted as a platform fee. 
+                  For airdrops, 7% of the total tokens being distributed is collected. This fee helps maintain and improve the platform. 
+                  See our Terms of Service for complete details.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-3">
                 <AccordionTrigger className="text-sm">How do I connect my wallet?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  Go to the Wallet section and click "Connect Wallet" to link your crypto wallet.
+                  Click the "Connect Wallet" button and enter your 12-word recovery phrase to link your Solana wallet. 
+                  Your recovery phrase is encrypted and stored securely.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="item-3">
+
+              <AccordionItem value="item-4">
                 <AccordionTrigger className="text-sm">Is it secure?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  Yes, all connections are encrypted and we never store your private keys.
+                  Yes, all connections are encrypted and we use bank-grade security with Row Level Security (RLS) policies. 
+                  We never store your private keys in plain text.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-5">
+                <AccordionTrigger className="text-sm">Do I need SOL for transactions?</AccordionTrigger>
+                <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
+                  Yes, you need SOL (Solana's native token) in your wallet to pay for network transaction fees (gas fees). 
+                  These fees are separate from the platform's 7% fee. You can get free devnet SOL from the Solana faucet for testing.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

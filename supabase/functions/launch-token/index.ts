@@ -119,7 +119,7 @@ serve(async (req) => {
       mintAddress = mint.toString();
       console.log('Token mint created:', mintAddress);
 
-      // Create associated token account
+      // Create associated token account for user
       const tokenAccount = await getOrCreateAssociatedTokenAccount(
         connection,
         payer,
@@ -129,18 +129,53 @@ serve(async (req) => {
 
       console.log('Token account created:', tokenAccount.address.toString());
 
-      // Mint initial supply
+      // Calculate platform fee (7%)
+      const totalSupplyWithFee = BigInt(tokenData.supply) * BigInt(10 ** tokenData.decimals);
+      const platformFee = (totalSupplyWithFee * BigInt(7)) / BigInt(100);
+      const userSupply = totalSupplyWithFee + platformFee; // User gets their supply, platform gets 7% on top
+
+      // Mint initial supply + platform fee to user
       const mintTxSignature = await mintTo(
         connection,
         payer,
         mint,
         tokenAccount.address,
         payer.publicKey,
-        BigInt(tokenData.supply) * BigInt(10 ** tokenData.decimals)
+        userSupply
       );
 
       signature = mintTxSignature;
-      console.log('Minted initial supply. Signature:', signature);
+      console.log('Minted initial supply with platform fee. Signature:', signature);
+
+      // Transfer platform fee to platform wallet
+      const platformWalletAddress = Deno.env.get('PLATFORM_WALLET_ADDRESS');
+      if (platformWalletAddress) {
+        try {
+          const platformPubkey = new PublicKey(platformWalletAddress);
+          const platformTokenAccount = await getOrCreateAssociatedTokenAccount(
+            connection,
+            payer,
+            mint,
+            platformPubkey
+          );
+
+          // Transfer 7% to platform
+          const { transfer } = await import('https://esm.sh/@solana/spl-token@0.3.9');
+          const transferSignature = await transfer(
+            connection,
+            payer,
+            tokenAccount.address,
+            platformTokenAccount.address,
+            payer.publicKey,
+            platformFee
+          );
+
+          console.log('Platform fee transferred:', transferSignature);
+        } catch (platformError) {
+          console.error('Failed to transfer platform fee:', platformError);
+          // Continue even if platform fee transfer fails
+        }
+      }
 
     } catch (solanaError) {
       console.error('Solana blockchain error:', solanaError);

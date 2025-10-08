@@ -14,6 +14,7 @@ import Wallet from "./pages/Wallet";
 import Logs from "./pages/Logs";
 import Help from "./pages/Help";
 import Admin from "./pages/Admin";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const AppContent = () => {
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/logs" element={<Logs />} />
         <Route path="/help" element={<Help />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="/admin" element={<Admin />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />

@@ -10,9 +10,17 @@ import { getOKXTicker, searchSOLPairs, formatOKXPrice, calculatePriceChange } fr
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 
+interface CryptoPrice {
+  price: number | null;
+  change: number;
+  name: string;
+  symbol: string;
+}
+
 export const PriceWidget = () => {
-  const [solPrice, setSolPrice] = useState<number | null>(null);
-  const [solChange, setSolChange] = useState<number>(0);
+  const [btcPrice, setBtcPrice] = useState<CryptoPrice>({ price: null, change: 0, name: "Bitcoin", symbol: "BTC" });
+  const [ethPrice, setEthPrice] = useState<CryptoPrice>({ price: null, change: 0, name: "Ethereum", symbol: "ETH" });
+  const [solPrice, setSolPrice] = useState<CryptoPrice>({ price: null, change: 0, name: "Solana", symbol: "SOL" });
   const [trending, setTrending] = useState<TokenInfo[]>([]);
   const [okxPairs, setOkxPairs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,28 +29,35 @@ export const PriceWidget = () => {
   const loadPriceData = async () => {
     setRefreshing(true);
     try {
-      // Fetch SOL price from CoinGecko with retry logic
-      let solData = null;
-      let retries = 3;
-      
-      while (retries > 0 && !solData) {
-        solData = await getTokenPrice("So11111111111111111111111111111111111111112");
-        if (!solData) {
-          retries--;
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s between retries
+      // Fetch major crypto prices using CoinGecko IDs
+      const cryptoIds = {
+        bitcoin: { setter: setBtcPrice, name: "Bitcoin", symbol: "BTC" },
+        ethereum: { setter: setEthPrice, name: "Ethereum", symbol: "ETH" },
+        solana: { setter: setSolPrice, name: "Solana", symbol: "SOL" }
+      };
+
+      // Fetch prices for BTC, ETH, SOL
+      const pricePromises = Object.entries(cryptoIds).map(async ([coinId, config]) => {
+        try {
+          const response = await fetch(
+            `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`
+          );
+          const data = await response.json();
+          
+          if (data[coinId]) {
+            config.setter({
+              price: data[coinId].usd,
+              change: data[coinId].usd_24h_change || 0,
+              name: config.name,
+              symbol: config.symbol
+            });
+          }
+        } catch (error) {
+          console.error(`Error fetching ${config.name} price:`, error);
         }
-      }
-      
-      if (solData) {
-        setSolPrice(solData.usd);
-        setSolChange(solData.usd_24h_change);
-      } else {
-        toast({
-          title: "Price Update Failed",
-          description: "Unable to fetch SOL price. Please try again.",
-          variant: "destructive",
-        });
-      }
+      });
+
+      await Promise.all(pricePromises);
 
       // Fetch top 50 tokens with complete data
       const trendingData = await getTrendingTokens();
@@ -130,31 +145,38 @@ export const PriceWidget = () => {
         </div>
       </CardHeader>
       <CardContent>
-        {/* SOL Price */}
-        <div className="mb-4 p-4 bg-primary/10 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Solana</p>
-              <p className="text-2xl font-bold">
-                ${solPrice?.toFixed(2) || "---"}
-              </p>
+        {/* Major Crypto Prices */}
+        <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[btcPrice, ethPrice, solPrice].map((crypto) => (
+            <div key={crypto.symbol} className="p-3 bg-primary/10 rounded-lg">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">{crypto.name}</p>
+                  <Badge
+                    variant={crypto.change >= 0 ? "default" : "destructive"}
+                    className="gap-1 h-5 text-[10px]"
+                  >
+                    {crypto.change >= 0 ? (
+                      <TrendingUp className="w-2.5 h-2.5" />
+                    ) : (
+                      <TrendingDown className="w-2.5 h-2.5" />
+                    )}
+                    {crypto.change >= 0 ? "+" : ""}{crypto.change.toFixed(2)}%
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-xl font-bold">
+                    ${crypto.price?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) || "---"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{crypto.symbol}</p>
+                </div>
+              </div>
             </div>
-            <Badge
-              variant={solChange >= 0 ? "default" : "destructive"}
-              className="gap-1"
-            >
-              {solChange >= 0 ? (
-                <TrendingUp className="w-3 h-3" />
-              ) : (
-                <TrendingDown className="w-3 h-3" />
-              )}
-              {Math.abs(solChange).toFixed(2)}%
-            </Badge>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Powered by CoinGecko
-          </p>
+          ))}
         </div>
+        <p className="text-xs text-muted-foreground text-center mb-4">
+          Powered by CoinGecko
+        </p>
 
         <Tabs defaultValue="coingecko" className="w-full">
           <TabsList className="grid w-full grid-cols-2">

@@ -8,8 +8,9 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-// Using Helius public RPC endpoint for better reliability
-const RPC_ENDPOINT = 'https://mainnet.helius-rpc.com/?api-key=f0f7f7c5-8e5e-4b5e-8e5e-4b5e8e5e4b5e';
+// Using public Solana RPC endpoints
+// For production, users should use their own Helius/QuickNode API key
+const RPC_ENDPOINT = 'https://api.mainnet-beta.solana.com';
 
 // Supporting multiple popular Solana wallets
 // OKX Wallet support: Install OKX Wallet browser extension to use

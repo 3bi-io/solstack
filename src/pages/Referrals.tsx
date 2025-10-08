@@ -47,7 +47,6 @@ export default function Referrals() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        navigate("/auth");
         return;
       }
 

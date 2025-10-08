@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FeedbackProvider, useFeedback } from "@/contexts/FeedbackContext";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
-import { SecurityNoticeDialog } from "@/components/SecurityNoticeDialog";
 import Index from "./pages/Index";
 import LaunchCoin from "./pages/LaunchCoin";
 import Transactions from "./pages/Transactions";
@@ -25,7 +24,6 @@ const AppContent = () => {
 
   return (
     <>
-      <SecurityNoticeDialog />
       <FeedbackDialog 
         open={isOpen} 
         onClose={closeFeedback}

@@ -39,7 +39,7 @@ export const SecurityNoticeDialog = () => {
               Your information (passwords, transaction details, and private keys) are encrypted when sent to this site.
             </p>
             <div className="space-y-1 text-sm">
-              <p>✔️ Verified certificate issued by Entrust.</p>
+              <p>✔️ Verification certificate issued.</p>
               <p>✔️ Encrypted using TLS 1.3</p>
             </div>
           </AlertDialogDescription>

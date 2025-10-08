@@ -8,65 +8,71 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Wallet, LogOut, BarChart3 } from "lucide-react";
+import { User, LogOut, Settings, Activity, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useAuth } from "@/contexts/AuthContext";
+import { WalletConnectButton } from "./WalletConnectButton";
 
 export const UserMenu = () => {
-  const { connected, disconnect, publicKey } = useWallet();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleDisconnect = async () => {
-    await disconnect();
-    toast({
-      title: "Wallet Disconnected",
-      description: "Your wallet has been disconnected successfully.",
-    });
-    navigate("/");
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    }
   };
 
-  if (!connected) {
-    return <WalletMultiButton />;
-  }
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary/10 text-primary">
-              <Wallet className="w-4 h-4" />
-            </AvatarFallback>
-          </Avatar>
+    <div className="flex items-center gap-2">
+      <WalletConnectButton />
+      {user ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="rounded-full">
+              <User className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate("/analytics")}>
+              <Activity className="mr-2 h-4 w-4" />
+              <span>Analytics</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/settings")}>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sign Out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => navigate("/auth")}
+        >
+          <LogIn className="mr-2 h-4 w-4" />
+          Sign In
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Wallet Connected</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              Ready for transactions
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate("/transactions")}>
-          <BarChart3 className="mr-2 h-4 w-4" />
-          <span>Transactions</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/logs")}>
-          <BarChart3 className="mr-2 h-4 w-4" />
-          <span>Activity Logs</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleDisconnect}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Disconnect</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      )}
+    </div>
   );
 };

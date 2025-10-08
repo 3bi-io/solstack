@@ -1,12 +1,14 @@
 import { Card } from "@/components/ui/card";
-import { Rocket, Gift, BarChart3, Wallet, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Rocket, Gift, BarChart3, Wallet, ArrowRight, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const QuickActions = () => {
   const navigate = useNavigate();
   const { connected } = useWallet();
+  const { user } = useAuth();
 
   const actions = [
     {
@@ -36,22 +38,40 @@ export const QuickActions = () => {
   ];
 
   const handleAction = (action: typeof actions[0]) => {
-    if (action.requiresWallet && !connected) {
-      // Wallet connection handled by WalletMultiButton in navigation
-      return;
-    }
     navigate(action.path);
   };
+
+  if (!user) {
+    return (
+      <div className="space-y-3 sm:space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-lg sm:text-xl font-bold">Quick Actions</h2>
+        </div>
+        <Card className="p-6 sm:p-8 text-center border-primary/20">
+          <Lock className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold mb-2">Sign in to get started</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Create an account or sign in to access all platform features
+          </p>
+          <Button onClick={() => navigate("/auth")}>
+            Sign In / Sign Up
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between px-1">
         <h2 className="text-lg sm:text-xl font-bold">Quick Actions</h2>
-        {connected && (
-          <span className="text-xs px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 text-primary rounded-full whitespace-nowrap">
-            Wallet Connected
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {connected && (
+            <span className="text-xs px-2 sm:px-3 py-1 sm:py-1.5 bg-accent/10 text-accent rounded-full whitespace-nowrap">
+              Wallet Connected
+            </span>
+          )}
+        </div>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

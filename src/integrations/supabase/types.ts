@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          category: string
+          created_at: string
+          details: string | null
+          id: string
+          level: string
+          message: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          level: string
+          message: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          level?: string
+          message?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_agents: {
         Row: {
           capabilities: Json | null
@@ -45,6 +78,92 @@ export type Database = {
           name?: string
           performance_metrics?: Json | null
           status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      airdrop_recipients: {
+        Row: {
+          airdrop_id: string
+          amount: number
+          created_at: string
+          error_message: string | null
+          id: string
+          recipient_address: string
+          status: string
+          transaction_signature: string | null
+          updated_at: string
+        }
+        Insert: {
+          airdrop_id: string
+          amount: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient_address: string
+          status?: string
+          transaction_signature?: string | null
+          updated_at?: string
+        }
+        Update: {
+          airdrop_id?: string
+          amount?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient_address?: string
+          status?: string
+          transaction_signature?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "airdrop_recipients_airdrop_id_fkey"
+            columns: ["airdrop_id"]
+            isOneToOne: false
+            referencedRelation: "airdrops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      airdrops: {
+        Row: {
+          amount_per_address: number
+          completed_count: number
+          created_at: string
+          failed_count: number
+          id: string
+          status: string
+          token_address: string
+          total_amount: number
+          total_recipients: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_per_address: number
+          completed_count?: number
+          created_at?: string
+          failed_count?: number
+          id?: string
+          status?: string
+          token_address: string
+          total_amount: number
+          total_recipients: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_per_address?: number
+          completed_count?: number
+          created_at?: string
+          failed_count?: number
+          id?: string
+          status?: string
+          token_address?: string
+          total_amount?: number
+          total_recipients?: number
           updated_at?: string
           user_id?: string
         }
@@ -127,6 +246,96 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      tokens: {
+        Row: {
+          created_at: string
+          decimals: number
+          description: string | null
+          id: string
+          logo_url: string | null
+          mint_address: string | null
+          name: string
+          status: string
+          supply: number
+          symbol: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decimals?: number
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          mint_address?: string | null
+          name: string
+          status?: string
+          supply: number
+          symbol: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decimals?: number
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          mint_address?: string | null
+          name?: string
+          status?: string
+          supply?: number
+          symbol?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          recipient: string | null
+          signature: string | null
+          status: string
+          token: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          recipient?: string | null
+          signature?: string | null
+          status?: string
+          token: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          recipient?: string | null
+          signature?: string | null
+          status?: string
+          token?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

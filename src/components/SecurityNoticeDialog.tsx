@@ -31,7 +31,7 @@ export const SecurityNoticeDialog = () => {
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2 text-lg">
             <Shield className="w-5 h-5 text-green-600" />
-            Solana API Website (Encryption Enabled)
+            Secure Website (Encryption Enabled)
           </AlertDialogTitle>
           <AlertDialogDescription className="text-left space-y-3 pt-2">
             <p className="font-medium text-foreground">Connection is secure.</p>

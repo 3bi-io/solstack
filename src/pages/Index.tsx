@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Hero } from "@/components/Hero";
 import { AppHeader } from "@/components/AppHeader";
 import { WelcomeMessage } from "@/components/WelcomeMessage";
-import { StatsGrid } from "@/components/StatsGrid";
 import { FeatureCard } from "@/components/FeatureCard";
 import { QuickActions } from "@/components/QuickActions";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
@@ -171,19 +170,14 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Stats with Animation */}
-          <div className={`transition-all duration-700 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <StatsGrid />
-          </div>
-
           {/* Price Widget */}
-          <div className={`transition-all duration-700 delay-550 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <div className={`transition-all duration-700 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <PriceWidget />
           </div>
 
           {/* Enhanced Bottom CTA for Connected Users */}
           {connected && (
-            <div className={`transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className={`transition-all duration-700 delay-550 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <Card className="relative overflow-hidden p-6 sm:p-8 bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20 text-center group hover:border-primary/40 transition-all">
                 {/* Animated glow effect */}
                 <div className="absolute -top-40 -right-40 w-60 sm:w-80 h-60 sm:h-80 bg-primary/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />

@@ -69,9 +69,9 @@ const Help = () => {
           <CardContent>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
-                <AccordionTrigger className="text-sm">What is SOL Stack?</AccordionTrigger>
+                <AccordionTrigger className="text-sm">What is ProTools Bundler Bot?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  SOL Stack is a comprehensive platform for managing Solana blockchain operations. Launch your
+                  ProTools Bundler Bot is a comprehensive platform for managing Solana blockchain operations. Launch your
                   own tokens, distribute airdrops to multiple wallets, track all your transactions, and manage your
                   crypto wallet - all in one place. Accessible via web and Telegram bot for maximum convenience.
                 </AccordionContent>
@@ -96,9 +96,9 @@ const Help = () => {
               </AccordionItem>
 
               <AccordionItem value="item-4">
-                <AccordionTrigger className="text-sm">Is SOL Stack free?</AccordionTrigger>
+                <AccordionTrigger className="text-sm">Is ProTools Bundler Bot free?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  SOL Stack is free to all users. Network gas fees (paid in SOL) are additional and go to the
+                  ProTools Bundler Bot is free to all users. Network gas fees (paid in SOL) are additional and go to the
                   Solana network validators. See our Terms of Service for full details.
                 </AccordionContent>
               </AccordionItem>

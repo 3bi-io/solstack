@@ -153,7 +153,7 @@ const Index = () => {
                 Platform Features
               </Badge>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent px-2">
-                Why Choose SOL Stack?
+                Why Choose ProTools Bundler Bot?
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
                 Built for speed, security, and scale on the Solana blockchain

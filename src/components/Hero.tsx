@@ -1,5 +1,6 @@
 import { Zap } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
+import robotHero from "@/assets/robot-hero.png";
 import { UserMenu } from "@/components/UserMenu";
 import { NetworkStatus } from "@/components/NetworkStatus";
 
@@ -27,18 +28,30 @@ export const Hero = () => {
         <UserMenu />
       </div>
       
-      <div className="relative z-10 px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20 text-center">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-3 sm:mb-4 md:mb-5 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in px-2 tracking-tight">
+      <div className="relative z-10 px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 text-center">
+        <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
+          <div className="relative">
+            <img 
+              src={robotHero} 
+              alt="SOLSTACK Robot" 
+              className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 animate-pulse drop-shadow-2xl object-contain"
+            />
+            {/* Glow effect behind robot */}
+            <div className="absolute inset-0 blur-2xl bg-primary/20 rounded-full -z-10 animate-pulse" />
+          </div>
+        </div>
+        
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-3 md:mb-4 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in px-2">
           SOLSTACK
         </h1>
         
-        <div className="mb-4 sm:mb-5 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-          <span className="inline-block px-4 sm:px-5 py-1.5 sm:py-2 bg-primary/20 border border-primary/30 rounded-full text-sm sm:text-base font-semibold text-primary-foreground shadow-lg shadow-primary/20">
+        <div className="mb-2 sm:mb-3 animate-fade-in" style={{ animationDelay: '0.05s' }}>
+          <span className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-primary/20 border border-primary/30 rounded-full text-xs sm:text-sm font-semibold text-primary-foreground">
             The Official solstack.me
           </span>
         </div>
         
-        <p className="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8 max-w-3xl mx-auto px-4 leading-relaxed animate-fade-in text-muted-foreground font-medium" style={{ animationDelay: '0.1s' }}>
+        <p className="text-base sm:text-lg md:text-xl mb-4 sm:mb-6 max-w-2xl mx-auto px-4 leading-relaxed animate-fade-in text-muted-foreground" style={{ animationDelay: '0.1s' }}>
           The official Solana toolkit for token launches, airdrops, and transaction management
         </p>
         

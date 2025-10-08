@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Brain, Users, Sparkles, Gift, Activity } from "lucide-react";
 
 const features = [
-  { icon: Sparkles, text: "Real Solana Blockchain Integration" },
+  { icon: Sparkles, text: "Solana Developers API" },
   { icon: Brain, text: "Intelligent Transaction Bundling" },
   { icon: Users, text: "Multi-Recipient Airdrops" },
   { icon: Gift, text: "SPL Token Creation & Management" },

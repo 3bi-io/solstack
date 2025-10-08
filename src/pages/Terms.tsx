@@ -41,8 +41,7 @@ const Terms = () => {
                     <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                       <p className="font-semibold text-primary mb-2">Transaction Fee</p>
                       <p className="text-muted-foreground leading-relaxed">
-                        ProTools Bundler is a <strong className="text-foreground">free</strong> Platform - Trusted by
-                        10,000+ professionals worldwide.
+                        ProTools Bundler is a <strong className="text-foreground">free</strong> Platform.
                       </p>
                     </div>
                   </div>
@@ -133,7 +132,7 @@ const Terms = () => {
                 <section className="pt-4 border-t">
                   <p className="text-muted-foreground leading-relaxed">
                     By using ProTools Bundler, you acknowledge that you have read, understood, and agree to be bound by
-                    these Terms of Service.
+                    these Terms of Service, including the 0.00015 SOL platform fee on all transactions.
                   </p>
                 </section>
               </div>
@@ -145,5 +144,3 @@ const Terms = () => {
     </div>
   );
 };
-
-export default Terms;

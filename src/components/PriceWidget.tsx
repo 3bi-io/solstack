@@ -263,6 +263,14 @@ export const PriceWidget = () => {
                 </div>
                 <span>Powered by CoinGecko</span>
               </div>
+              <Button
+                variant="outline"
+                className="w-full mt-3 gap-2"
+                onClick={() => window.location.href = "/markets"}
+              >
+                <TrendingUp className="w-4 h-4" />
+                View Full Markets
+              </Button>
             </div>
           </TabsContent>
 
@@ -316,9 +324,17 @@ export const PriceWidget = () => {
               </div>
             </ScrollArea>
             <div className="mt-2 pt-2 border-t border-border/50">
-              <p className="text-xs text-muted-foreground text-right">
-                Powered by OKX Exchange
-              </p>
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+                <span>Powered by OKX Exchange</span>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => window.location.href = "/markets"}
+              >
+                <TrendingUp className="w-4 h-4" />
+                View Full Markets
+              </Button>
             </div>
           </TabsContent>
         </Tabs>

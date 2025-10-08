@@ -24,6 +24,7 @@ import Billing from "./pages/Billing";
 import Settings from "./pages/Settings";
 import Referrals from "./pages/Referrals";
 import ApiKeys from "./pages/ApiKeys";
+import Markets from "./pages/Markets";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -43,6 +44,7 @@ const AppContent = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="/help" element={<Help />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/markets" element={<Markets />} />
         
         {/* Protected Routes */}
         <Route path="/launch" element={<ProtectedRoute><LaunchCoin /></ProtectedRoute>} />

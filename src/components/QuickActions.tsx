@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Rocket, Gift, BarChart3, Wallet, ArrowRight, Lock } from "lucide-react";
+import { Rocket, Gift, BarChart3, Wallet, ArrowRight, Lock, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,6 +11,14 @@ export const QuickActions = () => {
   const { user } = useAuth();
 
   const actions = [
+    {
+      icon: TrendingUp,
+      title: "Live Markets",
+      description: "Real-time crypto market data",
+      path: "/markets",
+      gradient: "from-accent/10 to-primary/10",
+      requiresWallet: false,
+    },
     {
       icon: Rocket,
       title: "Launch Token",
@@ -74,7 +82,7 @@ export const QuickActions = () => {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {actions.map((action) => (
           <Card
             key={action.title}

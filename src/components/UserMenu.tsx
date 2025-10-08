@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, LogOut, Settings, Activity, LogIn } from "lucide-react";
+import { User, LogOut, Settings, Activity, LogIn, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,6 +48,10 @@ export const UserMenu = () => {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate("/markets")}>
+              <TrendingUp className="mr-2 h-4 w-4" />
+              <span>Live Markets</span>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate("/analytics")}>
               <Activity className="mr-2 h-4 w-4" />
               <span>Analytics</span>

@@ -328,7 +328,7 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
                 spellCheck={false}
               />
               <p className="text-xs text-muted-foreground">
-                Your private key will be encrypted and stored securely
+                All information is encrypted.
               </p>
             </TabsContent>
           </Tabs>

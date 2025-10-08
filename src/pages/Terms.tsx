@@ -137,7 +137,7 @@ const Terms = () => {
                 <section className="pt-4 border-t">
                   <p className="text-muted-foreground leading-relaxed">
                     By using ProTools Bundler, you acknowledge that you have read, understood, and agree to be bound by
-                    these Terms of Service, including the 0.00015 SOL platform fee on all transactions.
+                    these Terms of Service.
                   </p>
                 </section>
               </div>

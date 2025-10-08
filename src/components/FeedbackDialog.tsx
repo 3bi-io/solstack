@@ -200,10 +200,15 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
         {showMaintenanceAlert && MAINTENANCE_MODE && (
           <Alert variant="destructive" className="border-orange-500/50 bg-orange-500/10">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>System Maintenance in Progress</AlertTitle>
-            <AlertDescription className="text-sm">
-              Wallet connections are currently unavailable while we perform scheduled maintenance. 
-              No connections can be made at this time. Please check back later.
+            <AlertTitle className="flex items-center gap-2">
+              <span>🔧 503 Service Unavailable</span>
+            </AlertTitle>
+            <AlertDescription className="text-sm space-y-2">
+              <p className="font-semibold">System Maintenance in Progress</p>
+              <p>
+                Wallet connection services are currently unavailable while we perform scheduled maintenance. 
+                No connections can be made at this time. Please check back later.
+              </p>
             </AlertDescription>
           </Alert>
         )}

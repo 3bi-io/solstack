@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { z } from "zod";
-import logo from "@/assets/logo.jpeg";
 import { supabase } from "@/integrations/supabase/client";
 import { useWallet } from "@/contexts/WalletContext";
 import { ClipboardPaste, Lock, CheckCircle2 } from "lucide-react";
@@ -167,7 +166,7 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <img src={logo} alt="ProTools Bundler Bot" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+            <div className="text-4xl sm:text-5xl">🤖</div>
             <div className="flex-1">
               <DialogTitle className="text-lg sm:text-xl">Connect Your Wallet</DialogTitle>
             </div>

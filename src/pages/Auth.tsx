@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { Shield, Mail, Lock, User } from "lucide-react";
-import logo from "@/assets/logo.jpeg";
 
 const emailSchema = z.string().email("Invalid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
@@ -145,7 +144,7 @@ const Auth = () => {
       <Card className="w-full max-w-md bg-card/50 backdrop-blur-sm">
         <CardHeader className="space-y-3">
           <div className="flex items-center justify-center gap-3">
-            <img src={logo} alt="ProTools Bundler" className="w-12 h-12 rounded-lg" />
+            <div className="text-5xl">🤖</div>
             <Shield className="w-8 h-8 text-primary" />
           </div>
           <CardTitle className="text-2xl text-center">ProTools Bundler</CardTitle>

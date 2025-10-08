@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTelegram } from "@/hooks/useTelegram";
-import { Rocket, BarChart3, Gift, TrendingUp, Repeat, Settings } from "lucide-react";
+import { Rocket, BarChart3, Gift, TrendingUp, Repeat, Settings, TreePine, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 import {
@@ -21,6 +21,8 @@ const mainNavItems = [
 ];
 
 const moreNavItems = [
+  { icon: TreePine, label: "Merkle", path: "/merkle-airdrop" },
+  { icon: Shield, label: "MultiSig", path: "/multisig" },
   { icon: FileText, label: "Logs", path: "/logs" },
   { icon: HelpCircle, label: "Help", path: "/help" },
 ];

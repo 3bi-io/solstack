@@ -17,6 +17,8 @@ import Admin from "./pages/Admin";
 import Terms from "./pages/Terms";
 import Analytics from "./pages/Analytics";
 import Swap from "./pages/Swap";
+import MerkleAirdrop from "./pages/MerkleAirdrop";
+import MultiSig from "./pages/MultiSig";
 import Billing from "./pages/Billing";
 import Settings from "./pages/Settings";
 import Referrals from "./pages/Referrals";
@@ -43,7 +45,9 @@ const AppContent = () => {
         <Route path="/logs" element={<Logs />} />
         <Route path="/help" element={<Help />} />
         <Route path="/analytics" element={<Analytics />} />
-        <Route path="/swap" element={<Swap />} />
+          <Route path="/swap" element={<Swap />} />
+          <Route path="/merkle-airdrop" element={<MerkleAirdrop />} />
+          <Route path="/multisig" element={<MultiSig />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/referrals" element={<Referrals />} />

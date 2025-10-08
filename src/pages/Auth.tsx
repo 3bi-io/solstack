@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { Shield, Mail, Lock, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const emailSchema = z.string().email("Invalid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
@@ -58,6 +59,10 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
+      // Check for referral code in URL
+      const params = new URLSearchParams(window.location.search);
+      const referralCode = params.get('ref');
+      
       const { error } = await signUp(email, password, username);
       
       if (error) {
@@ -75,6 +80,17 @@ const Auth = () => {
           });
         }
       } else {
+        // Track referral if code exists
+        if (referralCode) {
+          try {
+            await supabase.functions.invoke("track-referral", {
+              body: { referralCode },
+            });
+          } catch (refError) {
+            console.error("Referral tracking error:", refError);
+          }
+        }
+        
         toast({
           title: "Success!",
           description: "Account created successfully. Please check your email to confirm your account.",

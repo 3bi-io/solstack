@@ -47,7 +47,7 @@ export const Hero = () => {
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full backdrop-blur-sm">
             <Zap className="w-4 h-4 text-accent" />
-            <span className="font-medium">Secure</span>
+            <span className="font-medium">Solana API</span>
           </div>
         </div>
       </div>

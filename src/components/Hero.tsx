@@ -1,8 +1,6 @@
 import { Zap } from "lucide-react";
 import solstackLogo from "@/assets/solstack-logo.png";
 import heroBackground from "@/assets/hero-background.jpeg";
-import { UserMenu } from "@/components/UserMenu";
-import { NetworkStatus } from "@/components/NetworkStatus";
 
 export const Hero = () => {
   return (
@@ -16,16 +14,6 @@ export const Hero = () => {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background"></div>
-      </div>
-      
-      {/* Network Status - Top left */}
-      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20">
-        <NetworkStatus />
-      </div>
-      
-      {/* User Menu - Optimized for mobile */}
-      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
-        <UserMenu />
       </div>
       
       <div className="relative z-10 px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 text-center">

@@ -1,4 +1,5 @@
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { AppHeader } from "@/components/AppHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Shield, FileText } from "lucide-react";
@@ -6,6 +7,7 @@ import { Shield, FileText } from "lucide-react";
 const Terms = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
+      <AppHeader />
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader>

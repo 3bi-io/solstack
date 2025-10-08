@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { AppHeader } from "@/components/AppHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { TrendingUp, TrendingDown, DollarSign, Zap, Coins, Activity } from "lucide-react";
@@ -148,8 +150,10 @@ export default function Analytics() {
   ];
 
   return (
-    <div className="container mx-auto p-4 pb-24 space-y-6">
-      <div className="space-y-2">
+    <div className="min-h-screen bg-background pb-24">
+      <AppHeader />
+      <div className="container mx-auto p-4 space-y-6">
+        <div className="space-y-2">
         <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
         <p className="text-muted-foreground">
           Track your transactions, costs, and savings
@@ -339,6 +343,8 @@ export default function Analytics() {
           </div>
         </CardContent>
       </Card>
+      </div>
+      <TelegramNavigation />
     </div>
   );
 }

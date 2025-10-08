@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { AppHeader } from "@/components/AppHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -113,8 +115,10 @@ export default function Settings() {
   }
 
   return (
-    <div className="container mx-auto p-4 pb-24">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background pb-24">
+      <AppHeader />
+      <div className="container mx-auto p-4">
+        <div className="max-w-2xl mx-auto space-y-6">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Settings</h1>
           <p className="text-muted-foreground">
@@ -236,7 +240,9 @@ export default function Settings() {
             </Button>
           </CardContent>
         </Card>
+        </div>
       </div>
+      <TelegramNavigation />
     </div>
   );
 }

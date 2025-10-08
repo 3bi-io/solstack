@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/Hero";
+import { AppHeader } from "@/components/AppHeader";
 import { WelcomeMessage } from "@/components/WelcomeMessage";
 import { StatsGrid } from "@/components/StatsGrid";
 import { FeatureCard } from "@/components/FeatureCard";
@@ -71,6 +72,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 sm:pb-24 overflow-hidden">
+      <AppHeader />
       <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
         {/* Hero Section with Animation */}
         <div className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>

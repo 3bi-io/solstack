@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { AppHeader } from "@/components/AppHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Shield, Download, Users, Eye, Trash2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AdminStats } from "@/components/admin/AdminStats";
 import { SubmissionDetailDialog } from "@/components/admin/SubmissionDetailDialog";
 import { DeleteConfirmDialog } from "@/components/admin/DeleteConfirmDialog";
@@ -185,6 +186,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <AppHeader />
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Header */}
         <Card className="bg-card/50 backdrop-blur-sm mb-6">

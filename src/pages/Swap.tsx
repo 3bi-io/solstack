@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { AppHeader } from "@/components/AppHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -163,6 +165,7 @@ export default function Swap() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <AppHeader />
       <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <div className="space-y-2 px-2">
           <h1 className="text-2xl sm:text-3xl font-bold">Swap Tokens</h1>
@@ -334,6 +337,7 @@ export default function Swap() {
           </CardContent>
         </Card>
       </div>
+      <TelegramNavigation />
     </div>
   );
 }

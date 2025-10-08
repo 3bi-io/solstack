@@ -45,14 +45,20 @@ export const Hero = () => {
           SOLSTACK
         </h1>
         
+        <div className="mb-2 sm:mb-3 animate-fade-in" style={{ animationDelay: '0.05s' }}>
+          <span className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-primary/20 border border-primary/30 rounded-full text-xs sm:text-sm font-semibold text-primary-foreground">
+            The Official solstack.me
+          </span>
+        </div>
+        
         <p className="text-base sm:text-lg md:text-xl mb-4 sm:mb-6 max-w-2xl mx-auto px-4 leading-relaxed animate-fade-in text-muted-foreground" style={{ animationDelay: '0.1s' }}>
-          The ultimate Solana toolkit for token launches, airdrops, and transaction management
+          The official Solana toolkit for token launches, airdrops, and transaction management
         </p>
         
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base px-2">
           <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/20" style={{ animationDelay: '0.2s' }}>
             <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
-            <span className="font-medium whitespace-nowrap">Lightning Fast</span>
+            <span className="font-medium whitespace-nowrap">Official Platform</span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/20" style={{ animationDelay: '0.3s' }}>
             <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
@@ -60,7 +66,7 @@ export const Hero = () => {
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/20" style={{ animationDelay: '0.4s' }}>
             <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
-            <span className="font-medium whitespace-nowrap">Solana API</span>
+            <span className="font-medium whitespace-nowrap">Trusted by Thousands</span>
           </div>
         </div>
       </div>

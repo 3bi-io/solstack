@@ -6,6 +6,7 @@ import { StatsGrid } from "@/components/StatsGrid";
 import { FeatureCard } from "@/components/FeatureCard";
 import { QuickActions } from "@/components/QuickActions";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { PriceWidget } from "@/components/PriceWidget";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -173,6 +174,11 @@ const Index = () => {
           {/* Stats with Animation */}
           <div className={`transition-all duration-700 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <StatsGrid />
+          </div>
+
+          {/* Price Widget */}
+          <div className={`transition-all duration-700 delay-550 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <PriceWidget />
           </div>
 
           {/* Enhanced Bottom CTA for Connected Users */}

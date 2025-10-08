@@ -6,7 +6,7 @@ import { TrendingUp, TrendingDown, Activity, RefreshCw, Flame, Clock } from "luc
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getTokenPrice, getTrendingTokens, TokenInfo } from "@/lib/coingecko";
-import { getOKXTicker, searchSOLPairs, formatOKXPrice, calculatePriceChange } from "@/lib/okx";
+import { getOKXTicker, getTopTradingPairs, formatOKXPrice, calculatePriceChange } from "@/lib/okx";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 
@@ -65,25 +65,14 @@ export const PriceWidget = () => {
         setTrending(trendingData);
       }
 
-      // Fetch SOL pairs from OKX with volume filtering
-      const pairs = await searchSOLPairs();
-      const topPairs = pairs
-        .filter(p => p.state === "live") // Only active pairs
-        .slice(0, 10); // Top 10 by liquidity
+      // Fetch top 50 trading pairs from OKX by volume
+      const topPairs = await getTopTradingPairs(50);
+      setOkxPairs(topPairs);
       
-      const pairsWithPrices = await Promise.all(
-        topPairs.map(async (pair) => {
-          const ticker = await getOKXTicker(pair.instId);
-          return { ...pair, ticker };
-        })
-      );
-      
-      setOkxPairs(pairsWithPrices.filter(p => p.ticker));
-      
-      if (!refreshing) {
+      if (!loading) {
         toast({
           title: "Prices Updated",
-          description: `Loaded ${trendingData.length} tokens and ${pairsWithPrices.length} trading pairs`,
+          description: `Loaded ${trendingData.length} tokens and ${topPairs.length} trading pairs`,
         });
       }
     } catch (error) {
@@ -280,7 +269,7 @@ export const PriceWidget = () => {
           <TabsContent value="okx" className="mt-3">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-semibold text-muted-foreground">
-                SOL Trading Pairs
+                Top 50 by Volume (USDT Pairs)
               </p>
               <Badge variant="outline" className="text-xs">
                 {okxPairs.length} pairs
@@ -288,7 +277,7 @@ export const PriceWidget = () => {
             </div>
             <ScrollArea className="h-[400px] pr-4">
               <div className="space-y-2">
-                {okxPairs.map((pair) => {
+                {okxPairs.map((pair, index) => {
                   const priceChange = pair.ticker
                     ? calculatePriceChange(pair.ticker.last, pair.ticker.open24h)
                     : 0;
@@ -298,10 +287,15 @@ export const PriceWidget = () => {
                       key={pair.instId}
                       className="flex items-center justify-between p-2 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
                     >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{pair.instId}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>Vol: {pair.ticker ? parseFloat(pair.ticker.vol24h).toLocaleString(undefined, {maximumFractionDigits: 0}) : "---"}</span>
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-xs text-muted-foreground font-mono w-6 flex-shrink-0">
+                          #{index + 1}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{pair.instId}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>Vol: {pair.ticker ? parseFloat(pair.ticker.vol24h).toLocaleString(undefined, {maximumFractionDigits: 0}) : "---"}</span>
+                          </div>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">

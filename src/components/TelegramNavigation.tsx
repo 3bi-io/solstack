@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTelegram } from "@/hooks/useTelegram";
-import { Rocket, BarChart3, Gift, TrendingUp, Repeat } from "lucide-react";
+import { Rocket, BarChart3, Gift, TrendingUp, Repeat, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 import {
@@ -17,6 +17,7 @@ const mainNavItems = [
   { icon: Gift, label: "Airdrop", path: "/airdrop" },
   { icon: TrendingUp, label: "Analytics", path: "/analytics" },
   { icon: Repeat, label: "Swap", path: "/swap" },
+  { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
 const moreNavItems = [

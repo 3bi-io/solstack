@@ -39,8 +39,9 @@ export default function Settings() {
         return;
       }
 
+      // Use any type to bypass type checking until Supabase types are regenerated
       const { data, error } = await supabase
-        .from("telegram_notifications")
+        .from("telegram_notifications" as any)
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
@@ -50,11 +51,12 @@ export default function Settings() {
       }
 
       if (data) {
+        const notifData = data as any; // Type assertion for new table
         setNotifications({
-          airdrop_complete: data.airdrop_complete ?? true,
-          token_launch_complete: data.token_launch_complete ?? true,
-          transaction_failed: data.transaction_failed ?? true,
-          scheduled_airdrop_reminder: data.scheduled_airdrop_reminder ?? true
+          airdrop_complete: notifData.airdrop_complete ?? true,
+          token_launch_complete: notifData.token_launch_complete ?? true,
+          transaction_failed: notifData.transaction_failed ?? true,
+          scheduled_airdrop_reminder: notifData.scheduled_airdrop_reminder ?? true
         });
       }
     } catch (error) {
@@ -73,8 +75,9 @@ export default function Settings() {
       // Note: This would need telegram_user_id from Telegram WebApp
       const telegramUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
       
+      // Use any type to bypass type checking until Supabase types are regenerated
       const { error } = await supabase
-        .from("telegram_notifications")
+        .from("telegram_notifications" as any)
         .upsert({
           user_id: user.id,
           telegram_user_id: telegramUser?.id || 0,

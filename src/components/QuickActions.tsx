@@ -2,13 +2,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Rocket, Gift, BarChart3, Wallet, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { useWallet } from "@/contexts/WalletContext";
+import { useFeedback } from "@/contexts/FeedbackContext";
 
 export const QuickActions = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { isConnected } = useWallet();
+  const { openFeedback } = useFeedback();
 
   const actions = [
     {
@@ -17,7 +17,7 @@ export const QuickActions = () => {
       description: "Create SPL tokens on Solana",
       path: "/launch",
       gradient: "from-blue-500/10 to-purple-500/10",
-      requiresAuth: true,
+      requiresWallet: true,
     },
     {
       icon: Gift,
@@ -25,7 +25,7 @@ export const QuickActions = () => {
       description: "Distribute tokens to holders",
       path: "/airdrop",
       gradient: "from-pink-500/10 to-red-500/10",
-      requiresAuth: true,
+      requiresWallet: true,
     },
     {
       icon: BarChart3,
@@ -33,7 +33,7 @@ export const QuickActions = () => {
       description: "View your activity",
       path: "/transactions",
       gradient: "from-green-500/10 to-teal-500/10",
-      requiresAuth: true,
+      requiresWallet: true,
     },
     {
       icon: Wallet,
@@ -41,13 +41,13 @@ export const QuickActions = () => {
       description: "Link your Solana wallet",
       path: "/wallet",
       gradient: "from-yellow-500/10 to-orange-500/10",
-      requiresAuth: false,
+      requiresWallet: false,
     },
   ];
 
   const handleAction = (action: typeof actions[0]) => {
-    if (action.requiresAuth && !user) {
-      navigate("/auth");
+    if (action.requiresWallet && !isConnected) {
+      openFeedback();
       return;
     }
     navigate(action.path);
@@ -57,7 +57,7 @@ export const QuickActions = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Quick Actions</h2>
-        {user && isConnected && (
+        {isConnected && (
           <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
             Wallet Connected
           </span>

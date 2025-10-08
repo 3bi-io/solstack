@@ -1,6 +1,5 @@
 import { Zap } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
-import heroLogo from "@/assets/robot-hero.png";
 import { UserMenu } from "@/components/UserMenu";
 
 export const Hero = () => {
@@ -24,11 +23,9 @@ export const Hero = () => {
       
       <div className="relative z-10 px-6 sm:px-8 py-12 sm:py-16 text-center">
         <div className="flex justify-center mb-4 sm:mb-6">
-          <img 
-            src={heroLogo} 
-            alt="ProTools Bundler" 
-            className="w-20 h-20 sm:w-24 sm:h-24 animate-pulse drop-shadow-2xl" 
-          />
+          <div className="text-7xl sm:text-8xl animate-pulse drop-shadow-2xl">
+            🤖
+          </div>
         </div>
         
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in">

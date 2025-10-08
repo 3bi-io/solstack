@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Info, AlertCircle, CheckCircle2, AlertTriangle, Activity } from "lucide-react";
+import { Search, Info, AlertCircle, CheckCircle2, AlertTriangle, Activity, Wallet } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
+import { useFeedback } from "@/contexts/FeedbackContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
 
@@ -24,6 +26,7 @@ const Logs = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
   const { isConnected } = useWallet();
+  const { openFeedback } = useFeedback();
 
   // Fetch real log data
   useEffect(() => {
@@ -123,11 +126,20 @@ const Logs = () => {
           </CardHeader>
           <CardContent>
             {!isConnected ? (
-              <Alert>
-                <AlertDescription>
-                  Please connect your wallet to view activity logs.
-                </AlertDescription>
-              </Alert>
+              <div className="space-y-4">
+                <Alert>
+                  <AlertDescription>
+                    Please connect your wallet to view activity logs.
+                  </AlertDescription>
+                </Alert>
+                <Button 
+                  onClick={openFeedback}
+                  className="w-full sm:w-auto"
+                >
+                  <Wallet className="w-4 h-4 mr-2" />
+                  Connect Wallet
+                </Button>
+              </div>
             ) : (
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid w-full grid-cols-5">

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Rocket, Coins, Image as ImageIcon, AlertCircle } from "lucide-react";
+import { Rocket, Coins, Image as ImageIcon, AlertCircle, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@/contexts/WalletContext";
 import { useFeedback } from "@/contexts/FeedbackContext";
@@ -134,12 +134,21 @@ const LaunchCoin = () => {
             <SolanaSetupAlert />
             
             {!isConnected && (
-              <Alert className="mb-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Please connect your wallet first to launch tokens.
-                </AlertDescription>
-              </Alert>
+              <div className="space-y-3 mb-6">
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Please connect your wallet first to launch tokens.
+                  </AlertDescription>
+                </Alert>
+                <Button 
+                  onClick={openFeedback}
+                  className="w-full sm:w-auto"
+                >
+                  <Wallet className="w-4 h-4 mr-2" />
+                  Connect Wallet
+                </Button>
+              </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">

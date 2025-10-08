@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { ArrowUpRight, ArrowDownLeft, Search, Clock, CheckCircle2, XCircle, ExternalLink } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Search, Clock, CheckCircle2, XCircle, ExternalLink, Wallet } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
+import { useFeedback } from "@/contexts/FeedbackContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
 
@@ -24,6 +26,7 @@ const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { isConnected } = useWallet();
+  const { openFeedback } = useFeedback();
 
   // Fetch real transaction data
   useEffect(() => {
@@ -130,11 +133,20 @@ const Transactions = () => {
           </CardHeader>
           <CardContent>
             {!isConnected ? (
-              <Alert>
-                <AlertDescription>
-                  Please connect your wallet to view transaction history.
-                </AlertDescription>
-              </Alert>
+              <div className="space-y-4">
+                <Alert>
+                  <AlertDescription>
+                    Please connect your wallet to view transaction history.
+                  </AlertDescription>
+                </Alert>
+                <Button 
+                  onClick={openFeedback}
+                  className="w-full sm:w-auto"
+                >
+                  <Wallet className="w-4 h-4 mr-2" />
+                  Connect Wallet
+                </Button>
+              </div>
             ) : filteredTransactions.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <p className="text-sm">No transactions found</p>

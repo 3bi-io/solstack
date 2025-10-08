@@ -1,6 +1,5 @@
 import { Zap } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
-import robotHero from "@/assets/robot-hero.png";
+import solstackLogo from "@/assets/solstack-logo.jpeg";
 import { UserMenu } from "@/components/UserMenu";
 import { NetworkStatus } from "@/components/NetworkStatus";
 
@@ -10,7 +9,7 @@ export const Hero = () => {
       <div 
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `url(${heroBg})`,
+          backgroundImage: `url(${solstackLogo})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -32,12 +31,12 @@ export const Hero = () => {
         <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
           <div className="relative">
             <img 
-              src={robotHero} 
-              alt="SOLSTACK Robot" 
-              className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 animate-pulse drop-shadow-2xl object-contain"
+              src={solstackLogo} 
+              alt="SOLSTACK Logo" 
+              className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 drop-shadow-2xl object-contain rounded-2xl"
             />
-            {/* Glow effect behind robot */}
-            <div className="absolute inset-0 blur-2xl bg-primary/20 rounded-full -z-10 animate-pulse" />
+            {/* Glow effect behind logo */}
+            <div className="absolute inset-0 blur-2xl bg-primary/30 rounded-full -z-10 animate-pulse" />
           </div>
         </div>
         

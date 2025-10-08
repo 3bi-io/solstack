@@ -71,62 +71,62 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-hidden">
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+    <div className="min-h-screen bg-background pb-20 sm:pb-24 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
         {/* Hero Section with Animation */}
         <div className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <Hero />
         </div>
         
-        <div className="space-y-8 mt-8">
+        <div className="space-y-6 sm:space-y-8 mt-6 sm:mt-8">
           {/* Enhanced CTA Section for Non-Connected Users */}
           {!isConnected && (
             <div className={`transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <Card className="relative overflow-hidden p-6 sm:p-8 bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 text-center group hover:border-primary/40 transition-all">
+              <Card className="relative overflow-hidden p-5 sm:p-6 md:p-8 bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 text-center group hover:border-primary/40 transition-all">
                 {/* Animated Background Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
-                <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-                  <Badge className="mb-2 bg-primary/20 hover:bg-primary/30 text-primary-foreground border-0">
+                <div className="relative z-10 max-w-2xl mx-auto space-y-3 sm:space-y-4">
+                  <Badge className="mb-1 sm:mb-2 bg-primary/20 hover:bg-primary/30 text-primary-foreground border-0 text-xs sm:text-sm">
                     <Sparkles className="w-3 h-3 mr-1 animate-pulse" />
                     Lightning Fast Solana API
                   </Badge>
                   
-                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent px-2">
                     Start Building on Solana Today
                   </h2>
                   
-                  <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto leading-relaxed">
+                  <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-lg mx-auto leading-relaxed px-2">
                     Create tokens, manage airdrops, and track transactions all in one powerful platform
                   </p>
                   
                   {/* Trust Signals */}
-                  <div className="flex flex-wrap items-center justify-center gap-4 pt-2 pb-4">
+                  <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2 pb-3 sm:pb-4 px-2">
                     {trustSignals.map((signal, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <signal.icon className="w-4 h-4 text-accent" />
-                        <span>{signal.text}</span>
+                      <div key={idx} className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                        <signal.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
+                        <span className="whitespace-nowrap">{signal.text}</span>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 px-2">
                     <Button 
                       size="lg" 
                       onClick={openFeedback}
-                      className="gap-2 group/btn relative overflow-hidden shadow-lg hover:shadow-primary/20"
+                      className="gap-2 group/btn relative overflow-hidden shadow-lg hover:shadow-primary/20 w-full sm:w-auto min-h-[44px] touch-manipulation"
                     >
-                      <span className="relative z-10">Connect Wallet to Get Started</span>
-                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                      <span className="relative z-10 text-sm sm:text-base">Connect Wallet to Get Started</span>
+                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform flex-shrink-0" />
                       <div className="absolute inset-0 bg-gradient-to-r from-primary-glow to-primary opacity-0 group-hover/btn:opacity-20 transition-opacity" />
                     </Button>
                     <Button 
                       size="lg" 
                       variant="outline"
                       onClick={() => navigate("/help")}
-                      className="border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                      className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 w-full sm:w-auto min-h-[44px] touch-manipulation"
                     >
-                      Learn More
+                      <span className="text-sm sm:text-base">Learn More</span>
                     </Button>
                   </div>
                 </div>
@@ -147,15 +147,15 @@ const Index = () => {
           </div>
 
           {/* Enhanced Features Grid */}
-          <div className={`space-y-6 transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <div className="text-center space-y-2">
-              <Badge variant="outline" className="mb-2 border-primary/30 text-primary">
+          <div className={`space-y-4 sm:space-y-6 transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className="text-center space-y-2 px-2">
+              <Badge variant="outline" className="mb-1 sm:mb-2 border-primary/30 text-primary text-xs sm:text-sm">
                 Platform Features
               </Badge>
-              <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent px-2">
                 Why Choose ProTools Bundler?
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
                 Built for speed, security, and scale on the Solana blockchain
               </p>
             </div>
@@ -185,22 +185,22 @@ const Index = () => {
           {/* Enhanced Bottom CTA for Connected Users */}
           {isConnected && (
             <div className={`transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <Card className="relative overflow-hidden p-8 bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20 text-center group hover:border-primary/40 transition-all">
+              <Card className="relative overflow-hidden p-6 sm:p-8 bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20 text-center group hover:border-primary/40 transition-all">
                 {/* Animated glow effect */}
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="absolute -top-40 -right-40 w-60 sm:w-80 h-60 sm:h-80 bg-primary/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="absolute -bottom-40 -left-40 w-60 sm:w-80 h-60 sm:h-80 bg-accent/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
-                <div className="relative z-10 space-y-4">
-                  <Rocket className="w-12 h-12 mx-auto text-primary animate-pulse" />
-                  <h3 className="text-xl sm:text-2xl font-bold">Ready to launch your next project?</h3>
-                  <p className="text-muted-foreground max-w-md mx-auto">
+                <div className="relative z-10 space-y-3 sm:space-y-4">
+                  <Rocket className="w-10 h-10 sm:w-12 sm:h-12 mx-auto text-primary animate-pulse" />
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold px-2">Ready to launch your next project?</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto px-2">
                     Start with token creation or distribute rewards through airdrops
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 px-2">
                     <Button 
                       size="lg"
                       onClick={() => navigate("/launch")}
-                      className="gap-2 shadow-lg hover:shadow-primary/20"
+                      className="gap-2 shadow-lg hover:shadow-primary/20 w-full sm:w-auto min-h-[44px] touch-manipulation"
                     >
                       <Rocket className="w-4 h-4" />
                       Launch Token
@@ -209,7 +209,7 @@ const Index = () => {
                       size="lg"
                       variant="outline" 
                       onClick={() => navigate("/airdrop")}
-                      className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                      className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 w-full sm:w-auto min-h-[44px] touch-manipulation"
                     >
                       <Gift className="w-4 h-4" />
                       Create Airdrop

@@ -7,9 +7,10 @@ import { QuickActions } from "@/components/QuickActions";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { useWallet } from "@/contexts/WalletContext";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "@/hooks/useTelegram";
+import { useFeedback } from "@/contexts/FeedbackContext";
 import { 
   Zap, 
   Shield, 
@@ -23,7 +24,8 @@ import {
 
 const Index = () => {
   const { isInTelegram, hapticFeedback } = useTelegram();
-  const { user } = useAuth();
+  const { isConnected } = useWallet();
+  const { openFeedback } = useFeedback();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,7 +65,7 @@ const Index = () => {
         
         <div className="space-y-8 mt-8">
           {/* CTA Section */}
-          {!user && (
+          {!isConnected && (
             <Card className="p-6 sm:p-8 bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 text-center">
               <div className="max-w-2xl mx-auto space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/20 rounded-full text-xs font-medium mb-2">
@@ -79,10 +81,10 @@ const Index = () => {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                   <Button 
                     size="lg" 
-                    onClick={() => navigate("/auth")}
+                    onClick={openFeedback}
                     className="gap-2"
                   >
-                    Get Started Free
+                    Connect Wallet to Get Started
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                   <Button 
@@ -97,8 +99,8 @@ const Index = () => {
             </Card>
           )}
 
-          {/* Quick Actions for Authenticated Users */}
-          {user && <QuickActions />}
+          {/* Quick Actions for Connected Users */}
+          {isConnected && <QuickActions />}
 
           {/* Welcome Message */}
           <WelcomeMessage />
@@ -123,8 +125,8 @@ const Index = () => {
           {/* Stats */}
           <StatsGrid />
 
-          {/* Bottom CTA for Authenticated Users */}
-          {user && (
+          {/* Bottom CTA for Connected Users */}
+          {isConnected && (
             <Card className="p-6 bg-gradient-to-br from-primary/5 to-background border-primary/10 text-center">
               <h3 className="text-lg font-semibold mb-2">Ready to launch your next project?</h3>
               <p className="text-sm text-muted-foreground mb-4">

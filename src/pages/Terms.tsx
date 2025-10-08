@@ -44,12 +44,7 @@ const Terms = () => {
                         ProTools Bundler is a <strong className="text-foreground">free</strong> Platform.
                       </p>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed">The 0.00015 SOL fee applies to:</p>
-                    <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                      <li>Token launches: Free</li>
-                      <li>Airdrops: Free</li>
-                      <li>All transactions: Free</li>
-                    </ul>
+                    <p className="text-muted-foreground leading-relaxed">ProTools Bundler is a free Platfomr</p>
                     <p className="text-muted-foreground leading-relaxed">
                       This fee helps maintain and improve the platform, ensuring reliable service, security updates, and
                       new feature development.

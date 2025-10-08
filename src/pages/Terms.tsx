@@ -15,9 +15,7 @@ const Terms = () => {
               </div>
               <div>
                 <CardTitle className="text-xl sm:text-2xl">Terms of Service</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Last updated: {new Date().toLocaleDateString()}
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">Last updated: {new Date().toLocaleDateString()}</p>
               </div>
             </div>
           </CardHeader>
@@ -28,8 +26,8 @@ const Terms = () => {
                 <section>
                   <h2 className="text-lg font-semibold mb-3">1. Introduction</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    Welcome to ProTools Bundler. By accessing or using our platform, you agree to be bound by these Terms of Service. 
-                    Please read them carefully before using our services.
+                    Welcome to ProTools Bundler. By accessing or using our platform, you agree to be bound by these
+                    Terms of Service. Please read them carefully before using our services.
                   </p>
                 </section>
 
@@ -43,20 +41,22 @@ const Terms = () => {
                     <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                       <p className="font-semibold text-primary mb-2">Transaction Fee</p>
                       <p className="text-muted-foreground leading-relaxed">
-                        ProTools Bundler charges a <strong className="text-foreground">7% platform fee</strong> on all transactions processed through our platform. 
-                        This fee is automatically calculated and collected during transaction execution.
+                        ProTools Bundler charges a <strong className="text-foreground">0.00015 SOL platform fee</strong>{" "}
+                        on all transactions processed through our platform. This fee is automatically calculated and
+                        collected during transaction execution.
                       </p>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed">
-                      The 7% fee applies to:
-                    </p>
+                    <p className="text-muted-foreground leading-relaxed">The 0.00015 SOL fee applies to:</p>
                     <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                      <li>Token launches: 7% of the total token supply is minted as a platform fee</li>
-                      <li>Airdrops: 7% of the total tokens being distributed is collected as a platform fee</li>
-                      <li>Other transactions: 7% of the transaction value is deducted automatically</li>
+                      <li>Token launches: 0.00015 SOL of the total token supply is minted as a platform fee</li>
+                      <li>
+                        Airdrops: 0.00015 SOL of the total tokens being distributed is collected as a platform fee
+                      </li>
+                      <li>Other transactions: 0.00015 SOL of the transaction value is deducted automatically</li>
                     </ul>
                     <p className="text-muted-foreground leading-relaxed">
-                      This fee helps maintain and improve the platform, ensuring reliable service, security updates, and new feature development.
+                      This fee helps maintain and improve the platform, ensuring reliable service, security updates, and
+                      new feature development.
                     </p>
                   </div>
                 </section>
@@ -64,9 +64,7 @@ const Terms = () => {
                 {/* Use of Service */}
                 <section>
                   <h2 className="text-lg font-semibold mb-3">3. Use of Service</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-3">
-                    By using ProTools Bundler, you agree to:
-                  </p>
+                  <p className="text-muted-foreground leading-relaxed mb-3">By using ProTools Bundler, you agree to:</p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li>Provide accurate and complete information when connecting your wallet</li>
                     <li>Maintain the security of your wallet credentials and recovery phrases</li>
@@ -108,9 +106,10 @@ const Terms = () => {
                 <section>
                   <h2 className="text-lg font-semibold mb-3">6. Disclaimer</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    ProTools Bundler is provided "as is" without warranties of any kind. We do not guarantee uninterrupted access, 
-                    error-free operation, or that the service will meet your specific requirements. Cryptocurrency transactions carry 
-                    inherent risks, and you should only use funds you can afford to lose.
+                    ProTools Bundler is provided "as is" without warranties of any kind. We do not guarantee
+                    uninterrupted access, error-free operation, or that the service will meet your specific
+                    requirements. Cryptocurrency transactions carry inherent risks, and you should only use funds you
+                    can afford to lose.
                   </p>
                 </section>
 
@@ -118,9 +117,9 @@ const Terms = () => {
                 <section>
                   <h2 className="text-lg font-semibold mb-3">7. Limitation of Liability</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    ProTools Bundler shall not be liable for any indirect, incidental, special, consequential, or punitive damages 
-                    resulting from your use or inability to use the service, including but not limited to loss of funds, loss of data, 
-                    or loss of profits.
+                    ProTools Bundler shall not be liable for any indirect, incidental, special, consequential, or
+                    punitive damages resulting from your use or inability to use the service, including but not limited
+                    to loss of funds, loss of data, or loss of profits.
                   </p>
                 </section>
 
@@ -128,8 +127,9 @@ const Terms = () => {
                 <section>
                   <h2 className="text-lg font-semibold mb-3">8. Changes to Terms</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    We reserve the right to modify these Terms of Service at any time. Changes will be effective immediately upon posting 
-                    to the platform. Your continued use of ProTools Bundler after changes are posted constitutes acceptance of the modified terms.
+                    We reserve the right to modify these Terms of Service at any time. Changes will be effective
+                    immediately upon posting to the platform. Your continued use of ProTools Bundler after changes are
+                    posted constitutes acceptance of the modified terms.
                   </p>
                 </section>
 
@@ -137,15 +137,16 @@ const Terms = () => {
                 <section>
                   <h2 className="text-lg font-semibold mb-3">9. Contact Information</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    If you have questions about these Terms of Service, please contact us through the Help section of the platform.
+                    If you have questions about these Terms of Service, please contact us through the Help section of
+                    the platform.
                   </p>
                 </section>
 
                 {/* Acceptance */}
                 <section className="pt-4 border-t">
                   <p className="text-muted-foreground leading-relaxed">
-                    By using ProTools Bundler, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service, 
-                    including the 7% platform fee on all transactions.
+                    By using ProTools Bundler, you acknowledge that you have read, understood, and agree to be bound by
+                    these Terms of Service, including the 0.00015 SOL platform fee on all transactions.
                   </p>
                 </section>
               </div>

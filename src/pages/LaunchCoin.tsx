@@ -9,6 +9,7 @@ import { Rocket, Coins, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@/contexts/WalletContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SolanaSetupAlert } from "@/components/SolanaSetupAlert";
 import { z } from "zod";
 
 const tokenSchema = z.object({
@@ -74,6 +75,11 @@ const LaunchCoin = () => {
         description: `${formData.name} (${formData.symbol}) has been successfully created on Solana.`,
       });
 
+      // Log explorer link
+      if (data.explorerUrl) {
+        console.log('View token on Solana Explorer:', data.explorerUrl);
+      }
+
       // Reset form
       setFormData({
         name: "",
@@ -112,6 +118,8 @@ const LaunchCoin = () => {
             </div>
           </CardHeader>
           <CardContent>
+            <SolanaSetupAlert />
+            
             {!isConnected && (
               <Alert className="mb-6">
                 <AlertCircle className="h-4 w-4" />

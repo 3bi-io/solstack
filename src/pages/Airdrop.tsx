@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@/contexts/WalletContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { SolanaSetupAlert } from "@/components/SolanaSetupAlert";
 import { z } from "zod";
 
 const airdropSchema = z.object({
@@ -121,6 +122,8 @@ const Airdrop = () => {
             </div>
           </CardHeader>
           <CardContent>
+            <SolanaSetupAlert />
+            
             {!isConnected && (
               <Alert className="mb-6">
                 <AlertCircle className="h-4 w-4" />

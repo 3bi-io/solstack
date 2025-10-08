@@ -44,11 +44,6 @@ const Terms = () => {
                         ProTools Bundler is a <strong className="text-foreground">free</strong> Platform.
                       </p>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed">ProTools Bundler is a free Platfomr</p>
-                    <p className="text-muted-foreground leading-relaxed">
-                      This fee helps maintain and improve the platform, ensuring reliable service, security updates, and
-                      new feature development.
-                    </p>
                   </div>
                 </section>
 

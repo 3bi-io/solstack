@@ -1,13 +1,25 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTelegram } from "@/hooks/useTelegram";
-import { Rocket, BarChart3, Gift, FileText, HelpCircle } from "lucide-react";
+import { Rocket, BarChart3, Gift, TrendingUp, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, FileText, HelpCircle } from "lucide-react";
 
-const navItems = [
+const mainNavItems = [
   { icon: Rocket, label: "Launch", path: "/launch" },
   { icon: BarChart3, label: "Transactions", path: "/transactions" },
   { icon: Gift, label: "Airdrop", path: "/airdrop" },
+  { icon: TrendingUp, label: "Analytics", path: "/analytics" },
+  { icon: Repeat, label: "Swap", path: "/swap" },
+];
+
+const moreNavItems = [
   { icon: FileText, label: "Logs", path: "/logs" },
   { icon: HelpCircle, label: "Help", path: "/help" },
 ];
@@ -30,8 +42,8 @@ export const TelegramNavigation = () => {
           <WalletConnectButton />
         </div>
         
-        <div className="grid grid-cols-5 gap-1">
-          {navItems.map((item) => {
+        <div className="grid grid-cols-6 gap-1">
+          {mainNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             return (
@@ -47,6 +59,35 @@ export const TelegramNavigation = () => {
               </Button>
             );
           })}
+          
+          {/* More Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex flex-col gap-1 h-auto py-2"
+              >
+                <MoreHorizontal className="w-4 h-4" />
+                <span className="text-[10px]">More</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              {moreNavItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <DropdownMenuItem
+                    key={item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    className="cursor-pointer"
+                  >
+                    <Icon className="w-4 h-4 mr-2" />
+                    {item.label}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </nav>

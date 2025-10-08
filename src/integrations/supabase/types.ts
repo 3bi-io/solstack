@@ -169,6 +169,51 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_snapshots: {
+        Row: {
+          cost_savings: number | null
+          created_at: string
+          failed_transactions: number | null
+          id: string
+          snapshot_date: string
+          successful_transactions: number | null
+          total_airdrops: number | null
+          total_fees_paid: number | null
+          total_tokens_launched: number | null
+          total_transactions: number | null
+          total_volume: number | null
+          user_id: string
+        }
+        Insert: {
+          cost_savings?: number | null
+          created_at?: string
+          failed_transactions?: number | null
+          id?: string
+          snapshot_date: string
+          successful_transactions?: number | null
+          total_airdrops?: number | null
+          total_fees_paid?: number | null
+          total_tokens_launched?: number | null
+          total_transactions?: number | null
+          total_volume?: number | null
+          user_id: string
+        }
+        Update: {
+          cost_savings?: number | null
+          created_at?: string
+          failed_transactions?: number | null
+          id?: string
+          snapshot_date?: string
+          successful_transactions?: number | null
+          total_airdrops?: number | null
+          total_fees_paid?: number | null
+          total_tokens_launched?: number | null
+          total_transactions?: number | null
+          total_volume?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       neural_commands: {
         Row: {
           agent_id: string | null
@@ -249,48 +294,125 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_airdrops: {
+        Row: {
+          airdrop_id: string | null
+          amount_per_address: number
+          created_at: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          processed_at: string | null
+          recipient_addresses: string[]
+          scheduled_for: string
+          status: string
+          token_address: string
+          user_id: string
+        }
+        Insert: {
+          airdrop_id?: string | null
+          amount_per_address: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          recipient_addresses: string[]
+          scheduled_for: string
+          status?: string
+          token_address: string
+          user_id: string
+        }
+        Update: {
+          airdrop_id?: string | null
+          amount_per_address?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          recipient_addresses?: string[]
+          scheduled_for?: string
+          status?: string
+          token_address?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_airdrops_airdrop_id_fkey"
+            columns: ["airdrop_id"]
+            isOneToOne: false
+            referencedRelation: "airdrops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tokens: {
         Row: {
           created_at: string
           decimals: number
           description: string | null
+          discord: string | null
+          extensions: Json | null
           id: string
           logo_url: string | null
+          metadata_uri: string | null
           mint_address: string | null
           name: string
+          revoke_freeze_authority: boolean | null
+          revoke_mint_authority: boolean | null
           status: string
           supply: number
           symbol: string
+          telegram: string | null
+          twitter: string | null
           updated_at: string
           user_id: string
+          website: string | null
         }
         Insert: {
           created_at?: string
           decimals?: number
           description?: string | null
+          discord?: string | null
+          extensions?: Json | null
           id?: string
           logo_url?: string | null
+          metadata_uri?: string | null
           mint_address?: string | null
           name: string
+          revoke_freeze_authority?: boolean | null
+          revoke_mint_authority?: boolean | null
           status?: string
           supply: number
           symbol: string
+          telegram?: string | null
+          twitter?: string | null
           updated_at?: string
           user_id: string
+          website?: string | null
         }
         Update: {
           created_at?: string
           decimals?: number
           description?: string | null
+          discord?: string | null
+          extensions?: Json | null
           id?: string
           logo_url?: string | null
+          metadata_uri?: string | null
           mint_address?: string | null
           name?: string
+          revoke_freeze_authority?: boolean | null
+          revoke_mint_authority?: boolean | null
           status?: string
           supply?: number
           symbol?: string
+          telegram?: string | null
+          twitter?: string | null
           updated_at?: string
           user_id?: string
+          website?: string | null
         }
         Relationships: []
       }

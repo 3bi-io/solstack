@@ -180,13 +180,20 @@ const Airdrop = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={!connected || isProcessing}>
+              <Button 
+                type="submit" 
+                className="w-full min-h-[44px] sm:min-h-[48px] touch-manipulation" 
+                size="lg"
+                disabled={!connected || isProcessing}
+              >
                 {isProcessing ? (
-                  "Processing..."
+                  <span className="text-sm sm:text-base">Processing...</span>
                 ) : (
                   <>
-                    <Send className="w-4 h-4 mr-2" />
-                    Send Airdrop to {addressCount} Address{addressCount !== 1 ? "es" : ""}
+                    <Send className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    <span className="text-sm sm:text-base">
+                      Send Airdrop to {addressCount} Address{addressCount !== 1 ? "es" : ""}
+                    </span>
                   </>
                 )}
               </Button>

@@ -44,32 +44,32 @@ export const QuickActions = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Quick Actions</h2>
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-lg sm:text-xl font-bold">Quick Actions</h2>
         {connected && (
-          <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
+          <span className="text-xs px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 text-primary rounded-full whitespace-nowrap">
             Wallet Connected
           </span>
         )}
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {actions.map((action) => (
           <Card
             key={action.title}
-            className={`p-4 cursor-pointer hover:scale-105 transition-all bg-gradient-to-br ${action.gradient} border-primary/10`}
+            className={`p-4 sm:p-5 cursor-pointer active:scale-95 md:hover:scale-105 transition-all bg-gradient-to-br ${action.gradient} border-primary/10 touch-manipulation min-h-[80px]`}
             onClick={() => handleAction(action)}
           >
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-background/80 rounded-lg">
-                <action.icon className="w-5 h-5 text-primary" />
+              <div className="p-2 sm:p-2.5 bg-background/80 rounded-lg flex-shrink-0">
+                <action.icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm mb-1">{action.title}</h3>
-                <p className="text-xs text-muted-foreground">{action.description}</p>
+                <h3 className="font-semibold text-sm sm:text-base mb-1">{action.title}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{action.description}</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
             </div>
           </Card>
         ))}

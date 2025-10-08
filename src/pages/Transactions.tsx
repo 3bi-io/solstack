@@ -149,67 +149,123 @@ const Transactions = () => {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Time</TableHead>
-                      <TableHead className="text-right">Signature</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredTransactions.map((tx) => (
-                      <TableRow key={tx.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getTypeIcon(tx.type)}
-                            <div className="flex flex-col">
-                              <span className="font-medium text-sm">
-                                {getTypeLabel(tx.type)}
-                              </span>
-                              {tx.recipient && (
-                                <span className="text-xs text-muted-foreground">
-                                  To: {tx.recipient}
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Time</TableHead>
+                        <TableHead className="text-right">Signature</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredTransactions.map((tx) => (
+                        <TableRow key={tx.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {getTypeIcon(tx.type)}
+                              <div className="flex flex-col">
+                                <span className="font-medium text-sm">
+                                  {getTypeLabel(tx.type)}
                                 </span>
-                              )}
+                                {tx.recipient && (
+                                  <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+                                    To: {tx.recipient.slice(0, 8)}...{tx.recipient.slice(-6)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="font-semibold">
+                                {tx.amount.toLocaleString()}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {tx.token}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(tx.status)}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                            {format(tx.timestamp, "MMM d, HH:mm")}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <a
+                              href={`https://solscan.io/tx/${tx.signature}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-sm text-primary hover:underline font-mono"
+                            >
+                              {tx.signature.slice(0, 8)}...{tx.signature.slice(-6)}
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-3">
+                  {filteredTransactions.map((tx) => (
+                    <Card key={tx.id} className="p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {getTypeIcon(tx.type)}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm">
+                              {getTypeLabel(tx.type)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {format(tx.timestamp, "MMM d, HH:mm")}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-semibold">
-                              {tx.amount.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {tx.token}
-                            </span>
+                        </div>
+                        {getStatusBadge(tx.status)}
+                      </div>
+                      
+                      <div className="flex items-center justify-between py-2 border-t border-border/50">
+                        <span className="text-xs text-muted-foreground">Amount</span>
+                        <div className="text-right">
+                          <div className="font-semibold text-sm">
+                            {tx.amount.toLocaleString()}
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(tx.status)}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {format(tx.timestamp, "MMM d, HH:mm")}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <a
-                            href={`https://solscan.io/tx/${tx.signature}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-sm text-primary hover:underline font-mono"
-                          >
-                            {tx.signature}
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                          <div className="text-xs text-muted-foreground">
+                            {tx.token}
+                          </div>
+                        </div>
+                      </div>
+
+                      {tx.recipient && (
+                        <div className="flex items-center justify-between py-2 border-t border-border/50">
+                          <span className="text-xs text-muted-foreground">Recipient</span>
+                          <span className="text-xs font-mono">
+                            {tx.recipient.slice(0, 8)}...{tx.recipient.slice(-6)}
+                          </span>
+                        </div>
+                      )}
+
+                      <a
+                        href={`https://solscan.io/tx/${tx.signature}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between py-2 border-t border-border/50 text-primary hover:underline touch-manipulation min-h-[44px]"
+                      >
+                        <span className="text-xs">View on Solscan</span>
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </Card>
+                  ))}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

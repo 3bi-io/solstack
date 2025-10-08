@@ -212,15 +212,16 @@ const LaunchCoin = () => {
               {/* Launch Button */}
               <Button 
                 type="submit" 
-                className="w-full" 
+                className="w-full min-h-[44px] sm:min-h-[48px] touch-manipulation" 
+                size="lg"
                 disabled={!connected || isLaunching}
               >
                 {isLaunching ? (
-                  "Launching..."
+                  <span className="text-sm sm:text-base">Launching...</span>
                 ) : (
                   <>
-                    <Rocket className="w-4 h-4 mr-2" />
-                    Launch Token on Solana
+                    <Rocket className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    <span className="text-sm sm:text-base">Launch Token on Solana</span>
                   </>
                 )}
               </Button>

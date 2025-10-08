@@ -53,16 +53,16 @@ export default function Swap() {
   };
 
   return (
-    <div className="container mx-auto p-4 pb-24">
-      <div className="max-w-md mx-auto space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold">Swap Tokens</h1>
-          <p className="text-muted-foreground">
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        <div className="space-y-2 px-2">
+          <h1 className="text-2xl sm:text-3xl font-bold">Swap Tokens</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Trade tokens with the best rates via Jupiter
           </p>
         </div>
 
-        <Badge variant="default" className="w-full justify-center py-2">
+        <Badge variant="default" className="w-full justify-center py-2.5 text-sm">
           ⚡ Powered by Jupiter Aggregator
         </Badge>
 
@@ -135,7 +135,7 @@ export default function Swap() {
 
             {/* Swap Button */}
             <Button
-              className="w-full"
+              className="w-full min-h-[44px] touch-manipulation"
               size="lg"
               onClick={handleSwap}
               disabled={isLoading}
@@ -143,10 +143,10 @@ export default function Swap() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Swapping...
+                  <span className="text-sm sm:text-base">Swapping...</span>
                 </>
               ) : (
-                "Swap Tokens"
+                <span className="text-sm sm:text-base">Swap Tokens</span>
               )}
             </Button>
 
@@ -158,12 +158,12 @@ export default function Swap() {
 
         {/* Jupiter Info */}
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-start gap-3">
-              <div className="text-4xl">⚡</div>
-              <div className="space-y-1">
-                <h3 className="font-semibold">Why Jupiter?</h3>
-                <ul className="text-sm text-muted-foreground space-y-1">
+              <div className="text-3xl sm:text-4xl flex-shrink-0">⚡</div>
+              <div className="space-y-1 flex-1 min-w-0">
+                <h3 className="font-semibold text-sm sm:text-base">Why Jupiter?</h3>
+                <ul className="text-xs sm:text-sm text-muted-foreground space-y-1">
                   <li>• Best price aggregation across all DEXs</li>
                   <li>• Optimal routing for lowest fees</li>
                   <li>• Support for all Solana tokens</li>
@@ -172,7 +172,7 @@ export default function Swap() {
                 <Button
                   variant="link"
                   size="sm"
-                  className="px-0 h-auto"
+                  className="px-0 h-auto text-xs sm:text-sm touch-manipulation min-h-[44px]"
                   onClick={() => window.open("https://jup.ag", "_blank")}
                 >
                   Learn more about Jupiter

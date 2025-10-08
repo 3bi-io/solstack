@@ -1,6 +1,7 @@
 import { Zap } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 import bundlerLogo from "@/assets/bundler-logo.png";
+import { UserMenu } from "@/components/UserMenu";
 
 export const Hero = () => {
   return (
@@ -14,6 +15,11 @@ export const Hero = () => {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background"></div>
+      </div>
+      
+      {/* User Menu */}
+      <div className="absolute top-4 right-4 z-20">
+        <UserMenu />
       </div>
       
       <div className="relative z-10 px-4 sm:px-6 py-8 sm:py-12 text-center">

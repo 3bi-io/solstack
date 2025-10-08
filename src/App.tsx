@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FeedbackProvider, useFeedback } from "@/contexts/FeedbackContext";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
+import { SecurityBadge } from "@/components/SecurityBadge";
 import Index from "./pages/Index";
 import LaunchCoin from "./pages/LaunchCoin";
 import Transactions from "./pages/Transactions";
@@ -28,6 +29,7 @@ const AppContent = () => {
         open={isOpen} 
         onClose={closeFeedback}
       />
+      <SecurityBadge />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/launch" element={<LaunchCoin />} />

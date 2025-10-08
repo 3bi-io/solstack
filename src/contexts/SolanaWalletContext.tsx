@@ -18,7 +18,7 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 // 
 // Example with Helius: 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'
 // Example with QuickNode: 'https://YOUR_ENDPOINT.solana-mainnet.quiknode.pro/YOUR_TOKEN/'
-const RPC_ENDPOINT = 'https://api.mainnet-beta.solana.com';
+const RPC_ENDPOINT = 'https://magical-convincing-sun.solana-mainnet.quiknode.pro/ffea6c68c8d168b0c2e2bcacbfe1c7cf676da07e/';
 
 // Supporting multiple popular Solana wallets
 // OKX Wallet support: Install OKX Wallet browser extension to use

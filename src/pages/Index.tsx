@@ -5,7 +5,7 @@ import { WelcomeMessage } from "@/components/WelcomeMessage";
 import { FeatureCard } from "@/components/FeatureCard";
 import { QuickActions } from "@/components/QuickActions";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
-import { PriceWidget } from "@/components/PriceWidget";
+import { MarketPreview } from "@/components/MarketPreview";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -24,7 +24,9 @@ import {
   Gift,
   CheckCircle,
   Users,
-  Globe
+  Globe,
+  ChartCandlestick,
+  BarChart3
 } from "lucide-react";
 
 const Index = () => {
@@ -170,9 +172,46 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Price Widget */}
+          {/* Markets Feature Highlight Section */}
+          <div className={`space-y-4 transition-all duration-700 delay-450 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+              <div className="relative z-10 p-6 sm:p-8 text-center space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <ChartCandlestick className="w-8 h-8 text-primary" />
+                  <BarChart3 className="w-6 h-6 text-accent" />
+                </div>
+                <Badge className="mb-2 bg-primary/20 hover:bg-primary/30 text-primary-foreground border-0">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  Real-Time Market Intelligence
+                </Badge>
+                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+                  Track Every Market Move
+                </h2>
+                <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
+                  Access live data from CoinGecko, OKX, and MoonShot. Search, filter, and favorite tokens. Export data and set price alerts.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-xs sm:text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4 text-accent" />
+                    <span>3 Data Sources</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4 text-accent" />
+                    <span>Live Updates</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4 text-accent" />
+                    <span>Advanced Filtering</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Enhanced Market Preview Widget */}
           <div className={`transition-all duration-700 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <PriceWidget />
+            <MarketPreview />
           </div>
 
           {/* Enhanced Bottom CTA for Connected Users */}

@@ -1,5 +1,5 @@
 import { Zap } from "lucide-react";
-import solstackLogo from "@/assets/solstack-logo.jpeg";
+import solstackLogo from "@/assets/solstack-logo.png";
 import heroBackground from "@/assets/hero-background.jpeg";
 import { UserMenu } from "@/components/UserMenu";
 import { NetworkStatus } from "@/components/NetworkStatus";

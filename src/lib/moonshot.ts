@@ -57,13 +57,13 @@ export interface MoonShotToken {
 }
 
 /**
- * Get trending MoonShot tokens
+ * Get trending Solana tokens with high activity
  */
 export async function getMoonShotTrending(): Promise<MoonShotToken[]> {
   try {
-    // DEXScreener provides MoonShot tokens via Solana pairs
+    // Get trending Solana tokens sorted by volume and transactions
     const response = await fetch(
-      `${DEXSCREENER_API}/search?q=moonshot`
+      `${DEXSCREENER_API}/tokens/solana`
     );
 
     if (!response.ok) {
@@ -72,14 +72,22 @@ export async function getMoonShotTrending(): Promise<MoonShotToken[]> {
 
     const data = await response.json();
     
-    // Filter for Solana tokens only
-    const solanaPairs = (data.pairs || []).filter(
-      (pair: any) => pair.chainId === 'solana'
-    );
+    // Filter and sort by 24h volume and transactions
+    const activePairs = (data.pairs || [])
+      .filter((pair: any) => {
+        const volume24h = pair.volume?.h24 || 0;
+        const txns24h = (pair.txns?.h24?.buys || 0) + (pair.txns?.h24?.sells || 0);
+        return volume24h > 1000 && txns24h > 10; // Active tokens only
+      })
+      .sort((a: any, b: any) => {
+        const aScore = (a.volume?.h24 || 0) * (a.txns?.h24?.buys || 1);
+        const bScore = (b.volume?.h24 || 0) * (b.txns?.h24?.buys || 1);
+        return bScore - aScore;
+      });
     
-    return solanaPairs.slice(0, 50); // Return top 50
+    return activePairs.slice(0, 50); // Return top 50
   } catch (error) {
-    console.error('Error fetching MoonShot trending:', error);
+    console.error('Error fetching trending Solana tokens:', error);
     return [];
   }
 }

@@ -11,7 +11,6 @@ import { useWallet } from "@/contexts/WalletContext";
 import { useFeedback } from "@/contexts/FeedbackContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { SolanaSetupAlert } from "@/components/SolanaSetupAlert";
 import { z } from "zod";
 
 const airdropSchema = z.object({
@@ -27,7 +26,7 @@ const Airdrop = () => {
     addresses: "",
   });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [results, setResults] = useState<{ address: string; status: 'success' | 'failed' }[]>([]);
+  const [results, setResults] = useState<{ address: string; status: "success" | "failed" }[]>([]);
   const { toast } = useToast();
   const { isConnected, seedPhrase } = useWallet();
   const { openFeedback } = useFeedback();
@@ -35,8 +34,8 @@ const Airdrop = () => {
   const parseAddresses = (text: string): string[] => {
     return text
       .split(/[\n,;]/)
-      .map(addr => addr.trim())
-      .filter(addr => addr.length > 0);
+      .map((addr) => addr.trim())
+      .filter((addr) => addr.length > 0);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,13 +75,13 @@ const Airdrop = () => {
 
       // Call edge function to process airdrop
       const { supabase } = await import("@/integrations/supabase/client");
-      const { data, error } = await supabase.functions.invoke('process-airdrop', {
+      const { data, error } = await supabase.functions.invoke("process-airdrop", {
         body: {
           tokenAddress: formData.tokenAddress,
           amount: amountNum,
           addresses: addressList,
           seedPhrase: seedPhrase,
-        }
+        },
       });
 
       if (error) {
@@ -90,14 +89,16 @@ const Airdrop = () => {
       }
 
       if (!data.success) {
-        throw new Error(data.error || 'Failed to process airdrop');
+        throw new Error(data.error || "Failed to process airdrop");
       }
 
       // Update results from response
-      setResults(data.results.map((r: any) => ({
-        address: r.address,
-        status: r.status,
-      })));
+      setResults(
+        data.results.map((r: any) => ({
+          address: r.address,
+          status: r.status,
+        })),
+      );
 
       toast({
         title: "Airdrop Complete! 🎁",
@@ -136,19 +137,14 @@ const Airdrop = () => {
           </CardHeader>
           <CardContent>
             <SolanaSetupAlert />
-            
+
             {!isConnected && (
               <div className="space-y-3 mb-6">
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Please connect your wallet first to perform airdrops.
-                  </AlertDescription>
+                  <AlertDescription>Please connect your wallet first to perform airdrops.</AlertDescription>
                 </Alert>
-                <Button 
-                  onClick={openFeedback}
-                  className="w-full sm:w-auto"
-                >
+                <Button onClick={openFeedback} className="w-full sm:w-auto">
                   <Wallet className="w-4 h-4 mr-2" />
                   Connect Wallet
                 </Button>
@@ -195,26 +191,20 @@ const Airdrop = () => {
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Users className="w-3 h-3" />
-                      {addressCount} recipient{addressCount !== 1 ? 's' : ''}
+                      {addressCount} recipient{addressCount !== 1 ? "s" : ""}
                     </span>
-                    {totalAmount > 0 && (
-                      <span>Total: {totalAmount.toLocaleString()} tokens</span>
-                    )}
+                    {totalAmount > 0 && <span>Total: {totalAmount.toLocaleString()} tokens</span>}
                   </div>
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={!isConnected || isProcessing}
-              >
+              <Button type="submit" className="w-full" disabled={!isConnected || isProcessing}>
                 {isProcessing ? (
                   "Processing..."
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
-                    Send Airdrop to {addressCount} Address{addressCount !== 1 ? 'es' : ''}
+                    Send Airdrop to {addressCount} Address{addressCount !== 1 ? "es" : ""}
                   </>
                 )}
               </Button>
@@ -226,18 +216,12 @@ const Airdrop = () => {
                 <h3 className="text-sm font-semibold">Results</h3>
                 <div className="max-h-48 overflow-y-auto space-y-1">
                   {results.map((result, index) => (
-                    <div 
-                      key={index}
-                      className="flex items-center justify-between p-2 bg-background/50 rounded text-xs"
-                    >
+                    <div key={index} className="flex items-center justify-between p-2 bg-background/50 rounded text-xs">
                       <span className="font-mono truncate flex-1 mr-2">
                         {result.address.slice(0, 8)}...{result.address.slice(-6)}
                       </span>
-                      <Badge 
-                        variant={result.status === 'success' ? 'default' : 'destructive'}
-                        className="gap-1"
-                      >
-                        {result.status === 'success' ? (
+                      <Badge variant={result.status === "success" ? "default" : "destructive"} className="gap-1">
+                        {result.status === "success" ? (
                           <>
                             <CheckCircle2 className="w-3 h-3" />
                             Sent
@@ -258,8 +242,8 @@ const Airdrop = () => {
             {/* Info */}
             <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
               <p className="text-xs text-muted-foreground">
-                <strong>Note:</strong> Airdrops are processed sequentially with bundling optimization. 
-                Network fees will be calculated and deducted from your wallet.
+                <strong>Note:</strong> Airdrops are processed sequentially with bundling optimization. Network fees will
+                be calculated and deducted from your wallet.
               </p>
             </div>
           </CardContent>

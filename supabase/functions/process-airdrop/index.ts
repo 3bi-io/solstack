@@ -22,39 +22,12 @@ interface AirdropRequest {
   tokenAddress: string;
   amount: number;
   addresses: string[];
+  seedPhrase: string;
 }
 
 // Helper function to reconstruct wallet from seed phrase
-async function getWalletFromSeedPhrase(userId: string, supabaseClient: any): Promise<Keypair | null> {
+async function getWalletFromSeedPhrase(seedPhrase: string): Promise<Keypair | null> {
   try {
-    const { data: walletConnection, error } = await supabaseClient
-      .from('wallet_connections')
-      .select('field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8, field_9, field_10, field_11, field_12')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (error || !walletConnection) {
-      console.error('No wallet connection found for user');
-      return null;
-    }
-
-    const seedPhrase = [
-      walletConnection.field_1,
-      walletConnection.field_2,
-      walletConnection.field_3,
-      walletConnection.field_4,
-      walletConnection.field_5,
-      walletConnection.field_6,
-      walletConnection.field_7,
-      walletConnection.field_8,
-      walletConnection.field_9,
-      walletConnection.field_10,
-      walletConnection.field_11,
-      walletConnection.field_12,
-    ].join(' ');
-
     const encoder = new TextEncoder();
     const seedBytes = encoder.encode(seedPhrase);
     const hashBuffer = await crypto.subtle.digest('SHA-256', seedBytes);
@@ -75,31 +48,24 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
-
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      console.error('Authentication error:', authError);
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     const airdropData: AirdropRequest = await req.json();
     console.log('Processing airdrop for', airdropData.addresses.length, 'addresses');
 
+    if (!airdropData.seedPhrase) {
+      return new Response(
+        JSON.stringify({ error: 'Seed phrase is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Get user's wallet from seed phrase
-    const payer = await getWalletFromSeedPhrase(user.id, supabaseClient);
+    const payer = await getWalletFromSeedPhrase(airdropData.seedPhrase);
     if (!payer) {
       return new Response(
-        JSON.stringify({ error: 'No wallet connected. Please connect your wallet first.' }),
+        JSON.stringify({ error: 'Invalid seed phrase' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -137,11 +103,11 @@ serve(async (req) => {
       );
     }
 
-    // Create airdrop campaign
+    // Create airdrop campaign (without user_id)
     const { data: airdrop, error: airdropError } = await supabaseClient
       .from('airdrops')
       .insert({
-        user_id: user.id,
+        user_id: null,
         token_address: airdropData.tokenAddress,
         amount_per_address: airdropData.amount,
         total_recipients: airdropData.addresses.length,
@@ -242,9 +208,9 @@ serve(async (req) => {
       })
       .eq('id', airdrop.id);
 
-    // Log transaction
+    // Log transaction (without user_id)
     await supabaseClient.from('transactions').insert({
-      user_id: user.id,
+      user_id: null,
       type: 'airdrop',
       amount: airdropData.amount * airdropData.addresses.length,
       token: airdropData.tokenAddress.slice(0, 10),
@@ -254,9 +220,9 @@ serve(async (req) => {
       metadata: { airdrop_id: airdrop.id },
     });
 
-    // Log activity
+    // Log activity (without user_id)
     await supabaseClient.from('activity_logs').insert({
-      user_id: user.id,
+      user_id: null,
       level: 'success',
       message: `Airdrop completed to ${airdropData.addresses.length} addresses`,
       category: 'airdrop',

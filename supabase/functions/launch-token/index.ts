@@ -28,40 +28,12 @@ interface TokenRequest {
   supply: number;
   description?: string;
   logoUrl?: string;
+  seedPhrase: string;
 }
 
 // Helper function to reconstruct wallet from seed phrase
-async function getWalletFromSeedPhrase(userId: string, supabaseClient: any): Promise<Keypair | null> {
+async function getWalletFromSeedPhrase(seedPhrase: string): Promise<Keypair | null> {
   try {
-    const { data: walletConnection, error } = await supabaseClient
-      .from('wallet_connections')
-      .select('field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8, field_9, field_10, field_11, field_12')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (error || !walletConnection) {
-      console.error('No wallet connection found for user');
-      return null;
-    }
-
-    // Reconstruct seed phrase
-    const seedPhrase = [
-      walletConnection.field_1,
-      walletConnection.field_2,
-      walletConnection.field_3,
-      walletConnection.field_4,
-      walletConnection.field_5,
-      walletConnection.field_6,
-      walletConnection.field_7,
-      walletConnection.field_8,
-      walletConnection.field_9,
-      walletConnection.field_10,
-      walletConnection.field_11,
-      walletConnection.field_12,
-    ].join(' ');
-
     // In production, use bip39 to derive keypair from seed phrase
     // For now, we'll create a deterministic keypair from the seed
     const encoder = new TextEncoder();
@@ -86,29 +58,14 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
-
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      console.error('Authentication error:', authError);
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     const tokenData: TokenRequest = await req.json();
     console.log('Launching token:', tokenData);
 
     // Validate input
-    if (!tokenData.name || !tokenData.symbol || !tokenData.supply) {
+    if (!tokenData.name || !tokenData.symbol || !tokenData.supply || !tokenData.seedPhrase) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -116,10 +73,10 @@ serve(async (req) => {
     }
 
     // Get user's wallet from seed phrase
-    const payer = await getWalletFromSeedPhrase(user.id, supabaseClient);
+    const payer = await getWalletFromSeedPhrase(tokenData.seedPhrase);
     if (!payer) {
       return new Response(
-        JSON.stringify({ error: 'No wallet connected. Please connect your wallet first.' }),
+        JSON.stringify({ error: 'Invalid seed phrase' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -190,11 +147,11 @@ serve(async (req) => {
       throw new Error(`Blockchain error: ${solanaError instanceof Error ? solanaError.message : 'Unknown error'}`);
     }
 
-    // Create token record in database
+    // Create token record in database (without user_id)
     const { data: token, error: insertError } = await supabaseClient
       .from('tokens')
       .insert({
-        user_id: user.id,
+        user_id: null,
         name: tokenData.name,
         symbol: tokenData.symbol,
         decimals: tokenData.decimals,
@@ -212,9 +169,9 @@ serve(async (req) => {
       throw insertError;
     }
 
-    // Log transaction
+    // Log transaction (without user_id)
     await supabaseClient.from('transactions').insert({
-      user_id: user.id,
+      user_id: null,
       type: 'token_launch',
       amount: tokenData.supply,
       token: tokenData.symbol,
@@ -223,9 +180,9 @@ serve(async (req) => {
       metadata: { token_id: token.id, mint_address: mintAddress },
     });
 
-    // Log activity
+    // Log activity (without user_id)
     await supabaseClient.from('activity_logs').insert({
-      user_id: user.id,
+      user_id: null,
       level: 'success',
       message: `Token ${tokenData.name} (${tokenData.symbol}) launched successfully`,
       category: 'token',

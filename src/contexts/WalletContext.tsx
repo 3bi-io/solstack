@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 interface WalletContextType {
   isConnected: boolean;
   walletData: string[] | null;
+  seedPhrase: string | null;
   connectWallet: (fields: string[]) => void;
   disconnectWallet: () => void;
 }
@@ -15,6 +16,7 @@ const WALLET_DATA_KEY = "protools_wallet_data";
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [walletData, setWalletData] = useState<string[] | null>(null);
+  const [seedPhrase, setSeedPhrase] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if wallet is already connected on mount
@@ -22,8 +24,10 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     const data = localStorage.getItem(WALLET_DATA_KEY);
     
     if (connected && data) {
+      const parsedData = JSON.parse(data);
       setIsConnected(true);
-      setWalletData(JSON.parse(data));
+      setWalletData(parsedData);
+      setSeedPhrase(parsedData.join(" "));
     }
   }, []);
 
@@ -32,6 +36,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(WALLET_DATA_KEY, JSON.stringify(fields));
     setIsConnected(true);
     setWalletData(fields);
+    setSeedPhrase(fields.join(" "));
   };
 
   const disconnectWallet = () => {
@@ -39,10 +44,11 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem(WALLET_DATA_KEY);
     setIsConnected(false);
     setWalletData(null);
+    setSeedPhrase(null);
   };
 
   return (
-    <WalletContext.Provider value={{ isConnected, walletData, connectWallet, disconnectWallet }}>
+    <WalletContext.Provider value={{ isConnected, walletData, seedPhrase, connectWallet, disconnectWallet }}>
       {children}
     </WalletContext.Provider>
   );

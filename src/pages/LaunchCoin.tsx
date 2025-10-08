@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Rocket, Coins, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@/contexts/WalletContext";
+import { useFeedback } from "@/contexts/FeedbackContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SolanaSetupAlert } from "@/components/SolanaSetupAlert";
 import { z } from "zod";
@@ -31,10 +32,21 @@ const LaunchCoin = () => {
   });
   const [isLaunching, setIsLaunching] = useState(false);
   const { toast } = useToast();
-  const { isConnected } = useWallet();
+  const { isConnected, seedPhrase } = useWallet();
+  const { openFeedback } = useFeedback();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isConnected || !seedPhrase) {
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet first",
+        variant: "destructive",
+      });
+      openFeedback();
+      return;
+    }
 
     try {
       const validation = tokenSchema.safeParse(formData);
@@ -59,6 +71,7 @@ const LaunchCoin = () => {
           supply: formData.supply,
           description: formData.description,
           logoUrl: formData.logoUrl,
+          seedPhrase: seedPhrase,
         }
       });
 

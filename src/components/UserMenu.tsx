@@ -8,16 +8,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, LogOut, Settings, Activity, LogIn, TrendingUp } from "lucide-react";
+import { 
+  User, LogOut, Settings, Activity, LogIn, TrendingUp, 
+  Rocket, Send, Wallet, ArrowLeftRight, Key, 
+  DollarSign, Users, FileText, HelpCircle, Shield,
+  GitMerge, Gift
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { WalletConnectButton } from "./WalletConnectButton";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const UserMenu = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      
+      setIsAdmin(!!data);
+    };
+    
+    checkAdminStatus();
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
@@ -48,19 +73,90 @@ export const UserMenu = () => {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            
+            <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Markets & Trading</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => navigate("/markets")}>
               <TrendingUp className="mr-2 h-4 w-4" />
               <span>Live Markets</span>
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/swap")}>
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
+              <span>Swap</span>
+            </DropdownMenuItem>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Token & Airdrop</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => navigate("/launch-coin")}>
+              <Rocket className="mr-2 h-4 w-4" />
+              <span>Launch Token</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/airdrop")}>
+              <Send className="mr-2 h-4 w-4" />
+              <span>Airdrop</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/merkle-airdrop")}>
+              <Gift className="mr-2 h-4 w-4" />
+              <span>Merkle Airdrop</span>
+            </DropdownMenuItem>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Wallet & Assets</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => navigate("/wallet")}>
+              <Wallet className="mr-2 h-4 w-4" />
+              <span>Wallet</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/multisig")}>
+              <GitMerge className="mr-2 h-4 w-4" />
+              <span>MultiSig</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/transactions")}>
+              <FileText className="mr-2 h-4 w-4" />
+              <span>Transactions</span>
+            </DropdownMenuItem>
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Account & Settings</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => navigate("/analytics")}>
               <Activity className="mr-2 h-4 w-4" />
               <span>Analytics</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/api-keys")}>
+              <Key className="mr-2 h-4 w-4" />
+              <span>API Keys</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/referrals")}>
+              <Users className="mr-2 h-4 w-4" />
+              <span>Referrals</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/billing")}>
+              <DollarSign className="mr-2 h-4 w-4" />
+              <span>Billing</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate("/settings")}>
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
             </DropdownMenuItem>
+            
+            {isAdmin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Admin</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => navigate("/admin")}>
+                  <Shield className="mr-2 h-4 w-4" />
+                  <span>Admin Dashboard</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/logs")}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  <span>System Logs</span>
+                </DropdownMenuItem>
+              </>
+            )}
+            
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate("/help")}>
+              <HelpCircle className="mr-2 h-4 w-4" />
+              <span>Help & Support</span>
+            </DropdownMenuItem>
             <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Sign Out</span>

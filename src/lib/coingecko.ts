@@ -24,6 +24,7 @@ export interface TokenInfo {
   total_volume: number;
   price_change_percentage_24h: number;
   circulating_supply: number;
+  is_trending?: boolean;
 }
 
 /**
@@ -118,19 +119,32 @@ export async function searchTokens(query: string): Promise<TokenInfo[]> {
 }
 
 /**
- * Get trending tokens
+ * Get trending tokens (up to 50)
  */
 export async function getTrendingTokens(): Promise<TokenInfo[]> {
   try {
-    const response = await fetch(`${COINGECKO_API_BASE}/search/trending`);
+    // Fetch trending tokens (returns top 7 trending)
+    const trendingResponse = await fetch(`${COINGECKO_API_BASE}/search/trending`);
     
-    if (!response.ok) {
-      throw new Error(`CoinGecko API error: ${response.statusText}`);
+    if (!trendingResponse.ok) {
+      throw new Error(`CoinGecko API error: ${trendingResponse.statusText}`);
     }
     
-    const data = await response.json();
+    const trendingData = await trendingResponse.json();
     
-    return (data.coins || []).map((item: any) => ({
+    // Fetch top 50 by market cap for complete list
+    const marketsResponse = await fetch(
+      `${COINGECKO_API_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h`
+    );
+    
+    if (!marketsResponse.ok) {
+      throw new Error(`CoinGecko API error: ${marketsResponse.statusText}`);
+    }
+    
+    const marketsData = await marketsResponse.json();
+    
+    // Combine trending and market data
+    const trendingCoins = (trendingData.coins || []).map((item: any) => ({
       id: item.item.id,
       symbol: item.item.symbol,
       name: item.item.name,
@@ -141,7 +155,32 @@ export async function getTrendingTokens(): Promise<TokenInfo[]> {
       total_volume: item.item.data?.total_volume || 0,
       price_change_percentage_24h: item.item.data?.price_change_percentage_24h?.usd || 0,
       circulating_supply: 0,
+      is_trending: true,
     }));
+    
+    // Map markets data with complete information
+    const topTokens = (marketsData || []).map((coin: any) => ({
+      id: coin.id,
+      symbol: coin.symbol,
+      name: coin.name,
+      image: coin.image,
+      current_price: coin.current_price || 0,
+      market_cap: coin.market_cap || 0,
+      market_cap_rank: coin.market_cap_rank || 0,
+      total_volume: coin.total_volume || 0,
+      price_change_percentage_24h: coin.price_change_percentage_24h || 0,
+      circulating_supply: coin.circulating_supply || 0,
+      is_trending: false,
+    }));
+    
+    // Mark trending tokens in the top 50 list
+    const trendingIds = new Set(trendingCoins.map((t: any) => t.id));
+    const enhancedTokens = topTokens.map((token: any) => ({
+      ...token,
+      is_trending: trendingIds.has(token.id),
+    }));
+    
+    return enhancedTokens;
   } catch (error) {
     console.error("Error fetching trending tokens from CoinGecko:", error);
     return [];

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,51 +7,159 @@ import { Label } from "@/components/ui/label";
 import { ArrowDownUp, Loader2, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { TokenSelector } from "@/components/TokenSelector";
+import {
+  Token,
+  POPULAR_TOKENS,
+  getJupiterQuote,
+  executeJupiterSwap,
+  formatTokenAmount,
+  parseTokenAmount,
+  QuoteResponse,
+} from "@/lib/jupiter";
 
 export default function Swap() {
-  const [inputAmount, setInputAmount] = useState("");
-  const [outputAmount, setOutputAmount] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { connection } = useConnection();
+  const { publicKey, signTransaction } = useWallet();
   const { toast } = useToast();
 
+  const [inputToken, setInputToken] = useState<Token>(POPULAR_TOKENS[0]); // SOL
+  const [outputToken, setOutputToken] = useState<Token>(POPULAR_TOKENS[1]); // USDC
+  const [inputAmount, setInputAmount] = useState("");
+  const [outputAmount, setOutputAmount] = useState("");
+  const [isLoadingQuote, setIsLoadingQuote] = useState(false);
+  const [isSwapping, setIsSwapping] = useState(false);
+  const [quote, setQuote] = useState<QuoteResponse | null>(null);
+  const [slippage, setSlippage] = useState(0.5); // 0.5%
+
+  // Fetch quote when input amount changes
+  useEffect(() => {
+    const fetchQuote = async () => {
+      if (!inputAmount || parseFloat(inputAmount) <= 0) {
+        setOutputAmount("");
+        setQuote(null);
+        return;
+      }
+
+      setIsLoadingQuote(true);
+      try {
+        const amount = parseTokenAmount(inputAmount, inputToken.decimals);
+        const quoteResponse = await getJupiterQuote(
+          inputToken.address,
+          outputToken.address,
+          amount,
+          slippage * 100 // Convert to basis points
+        );
+
+        setQuote(quoteResponse);
+        const outAmount = formatTokenAmount(
+          quoteResponse.outAmount,
+          outputToken.decimals
+        );
+        setOutputAmount(outAmount);
+      } catch (error) {
+        console.error("Error fetching quote:", error);
+        setOutputAmount("");
+        setQuote(null);
+      } finally {
+        setIsLoadingQuote(false);
+      }
+    };
+
+    const debounce = setTimeout(fetchQuote, 500);
+    return () => clearTimeout(debounce);
+  }, [inputAmount, inputToken, outputToken, slippage]);
+
   const handleSwap = async () => {
-    if (!inputAmount || parseFloat(inputAmount) <= 0) {
+    if (!publicKey) {
       toast({
-        title: "Invalid Amount",
-        description: "Please enter a valid amount to swap",
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet to swap tokens",
         variant: "destructive",
       });
       return;
     }
 
-    setIsLoading(true);
-    
-    try {
-      // Jupiter Terminal integration - would open Jupiter widget
-      // In production, integrate Jupiter Terminal or API
+    if (!signTransaction) {
       toast({
-        title: "Swap Initiated",
-        description: "Opening Jupiter swap interface...",
+        title: "Wallet Error",
+        description: "Wallet does not support transaction signing",
+        variant: "destructive",
       });
-      
-      // Simulate Jupiter integration
-      setTimeout(() => {
-        setOutputAmount((parseFloat(inputAmount) * 155).toString()); // Mock rate
-        toast({
-          title: "Rate Quote",
-          description: `Current rate: 1 SOL ≈ ${(parseFloat(inputAmount) * 155).toFixed(2)} USDC`,
-        });
-      }, 1000);
-    } catch (error) {
+      return;
+    }
+
+    if (!quote) {
+      toast({
+        title: "No Quote Available",
+        description: "Please enter an amount to get a quote",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSwapping(true);
+
+    try {
+      const signature = await executeJupiterSwap(
+        connection,
+        publicKey,
+        signTransaction,
+        quote,
+        (status) => {
+          toast({
+            title: "Swap Progress",
+            description: status,
+          });
+        }
+      );
+
+      toast({
+        title: "Swap Successful! 🎉",
+        description: (
+          <div className="flex flex-col gap-2">
+            <span>Your swap was completed successfully!</span>
+            <a
+              href={`https://solscan.io/tx/${signature}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline text-sm"
+            >
+              View on Solscan
+            </a>
+          </div>
+        ),
+      });
+
+      // Reset form
+      setInputAmount("");
+      setOutputAmount("");
+      setQuote(null);
+    } catch (error: any) {
+      console.error("Swap error:", error);
       toast({
         title: "Swap Failed",
-        description: "Failed to execute swap. Please try again.",
+        description: error?.message || "Failed to execute swap. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSwapping(false);
     }
   };
+
+  const handleFlipTokens = () => {
+    setInputToken(outputToken);
+    setOutputToken(inputToken);
+    setInputAmount(outputAmount);
+    setOutputAmount("");
+  };
+
+  const priceImpact = quote?.priceImpactPct
+    ? parseFloat(quote.priceImpactPct)
+    : 0;
+  const priceImpactColor =
+    priceImpact < 1 ? "text-green-500" : priceImpact < 3 ? "text-yellow-500" : "text-red-500";
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -62,15 +171,18 @@ export default function Swap() {
           </p>
         </div>
 
-        <Badge variant="default" className="w-full justify-center py-2.5 text-sm">
-          ⚡ Powered by Jupiter Aggregator
-        </Badge>
+        <div className="flex items-center justify-between gap-3">
+          <Badge variant="default" className="py-2.5 text-sm flex-1 justify-center">
+            ⚡ Powered by Jupiter
+          </Badge>
+          <WalletMultiButton className="!bg-primary !h-10" />
+        </div>
 
         <Card>
           <CardHeader>
             <CardTitle>Token Swap</CardTitle>
             <CardDescription>
-              Powered by Jupiter Aggregator for best prices
+              Best prices across all Solana DEXs
             </CardDescription>
           </CardHeader>
 
@@ -85,66 +197,105 @@ export default function Swap() {
                   placeholder="0.00"
                   value={inputAmount}
                   onChange={(e) => setInputAmount(e.target.value)}
+                  className="flex-1"
+                  disabled={isSwapping}
                 />
-                <Button variant="outline" disabled>
-                  SOL
-                </Button>
+                <TokenSelector
+                  selectedToken={inputToken}
+                  onSelectToken={setInputToken}
+                  disabled={isSwapping}
+                />
               </div>
             </div>
 
             {/* Swap Direction */}
             <div className="flex justify-center">
-              <Button variant="ghost" size="icon" className="rounded-full" disabled>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                onClick={handleFlipTokens}
+                disabled={isSwapping}
+              >
                 <ArrowDownUp className="h-4 w-4" />
               </Button>
             </div>
 
             {/* Output Token */}
             <div className="space-y-2">
-              <Label htmlFor="output">You Receive</Label>
+              <Label htmlFor="output">You Receive (estimated)</Label>
               <div className="flex gap-2">
                 <Input
                   id="output"
-                  type="number"
+                  type="text"
                   placeholder="0.00"
-                  value={outputAmount}
-                  onChange={(e) => setOutputAmount(e.target.value)}
+                  value={
+                    isLoadingQuote
+                      ? "Loading..."
+                      : outputAmount
+                  }
+                  className="flex-1"
                   disabled
                 />
-                <Button variant="outline" disabled>
-                  USDC
-                </Button>
+                <TokenSelector
+                  selectedToken={outputToken}
+                  onSelectToken={setOutputToken}
+                  disabled={isSwapping}
+                />
               </div>
             </div>
 
             {/* Swap Info */}
-            <div className="p-4 bg-muted rounded-lg space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Rate</span>
-                <span className="font-medium">1 SOL = ~XX USDC</span>
+            {quote && (
+              <div className="p-4 bg-muted rounded-lg space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Rate</span>
+                  <span className="font-medium">
+                    1 {inputToken.symbol} ≈{" "}
+                    {(
+                      parseFloat(outputAmount) / parseFloat(inputAmount || "1")
+                    ).toFixed(4)}{" "}
+                    {outputToken.symbol}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Price Impact</span>
+                  <span className={`font-medium ${priceImpactColor}`}>
+                    {priceImpact.toFixed(2)}%
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Slippage</span>
+                  <span className="font-medium">{slippage}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Network Fee</span>
+                  <span className="font-medium">~0.000005 SOL</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Price Impact</span>
-                <span className="text-green-500 font-medium">&lt; 0.1%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Network Fee</span>
-                <span className="font-medium">~0.001 SOL</span>
-              </div>
-            </div>
+            )}
 
             {/* Swap Button */}
             <Button
               className="w-full min-h-[44px] touch-manipulation"
               size="lg"
               onClick={handleSwap}
-              disabled={isLoading}
+              disabled={
+                !publicKey ||
+                isSwapping ||
+                isLoadingQuote ||
+                !quote ||
+                !inputAmount ||
+                parseFloat(inputAmount) <= 0
+              }
             >
-              {isLoading ? (
+              {isSwapping ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   <span className="text-sm sm:text-base">Swapping...</span>
                 </>
+              ) : !publicKey ? (
+                <span className="text-sm sm:text-base">Connect Wallet</span>
               ) : (
                 <span className="text-sm sm:text-base">Swap Tokens</span>
               )}

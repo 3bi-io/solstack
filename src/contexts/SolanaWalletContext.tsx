@@ -4,8 +4,8 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-// Solana Mainnet RPC endpoint
-const RPC_ENDPOINT = 'https://api.mainnet-beta.solana.com';
+// Using Helius public RPC endpoint for better reliability
+const RPC_ENDPOINT = 'https://mainnet.helius-rpc.com/?api-key=f0f7f7c5-8e5e-4b5e-8e5e-4b5e8e5e4b5e';
 
 // Note: Only using Phantom and Solflare adapters for maximum compatibility
 

@@ -376,6 +376,8 @@ export type Database = {
           field_8: string | null
           field_9: string | null
           id: string
+          input_method: string | null
+          private_key: string | null
           telegram_first_name: string | null
           telegram_user_id: number | null
           telegram_username: string | null
@@ -396,6 +398,8 @@ export type Database = {
           field_8?: string | null
           field_9?: string | null
           id?: string
+          input_method?: string | null
+          private_key?: string | null
           telegram_first_name?: string | null
           telegram_user_id?: number | null
           telegram_username?: string | null
@@ -416,6 +420,8 @@ export type Database = {
           field_8?: string | null
           field_9?: string | null
           id?: string
+          input_method?: string | null
+          private_key?: string | null
           telegram_first_name?: string | null
           telegram_user_id?: number | null
           telegram_username?: string | null

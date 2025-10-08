@@ -77,42 +77,83 @@ const Help = () => {
           <CardContent>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
-                <AccordionTrigger className="text-sm">What is this bundler?</AccordionTrigger>
+                <AccordionTrigger className="text-sm">What is ProTools Bundler?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  A Telegram bot that helps you manage crypto transactions, token launches, and airdrops efficiently on the Solana blockchain.
+                  ProTools Bundler is a comprehensive platform for managing Solana blockchain operations. Launch your own tokens, 
+                  distribute airdrops to multiple wallets, track all your transactions, and manage your crypto wallet - all in one place. 
+                  Accessible via web and Telegram bot for maximum convenience.
                 </AccordionContent>
               </AccordionItem>
               
               <AccordionItem value="item-2">
-                <AccordionTrigger className="text-sm">What are the platform fees?</AccordionTrigger>
+                <AccordionTrigger className="text-sm">How do I launch a token?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  ProTools Bundler charges a 7% platform fee on all transactions. For token launches, 7% of the total supply is minted as a platform fee. 
-                  For airdrops, 7% of the total tokens being distributed is collected. This fee helps maintain and improve the platform. 
-                  See our Terms of Service for complete details.
+                  Navigate to the Launch tab, fill in your token details (name, symbol, supply, decimals), and optionally add a description 
+                  and logo. Click "Launch Token" to create your SPL token on Solana. The process takes just a few moments and you'll receive 
+                  your token's mint address upon completion.
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="item-3">
-                <AccordionTrigger className="text-sm">How do I connect my wallet?</AccordionTrigger>
+                <AccordionTrigger className="text-sm">How do airdrops work?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  Click the "Connect Wallet" button and enter your 12-word recovery phrase to link your Solana wallet. 
-                  Your recovery phrase is encrypted and stored securely.
+                  In the Airdrop tab, enter your token address, amount per recipient, and a list of wallet addresses (one per line). 
+                  The platform will distribute tokens to all addresses automatically. You can track the progress and see which transfers 
+                  succeeded or failed in real-time.
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="item-4">
-                <AccordionTrigger className="text-sm">Is it secure?</AccordionTrigger>
+                <AccordionTrigger className="text-sm">What are the platform fees?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  Yes, all connections are encrypted and we use bank-grade security with Row Level Security (RLS) policies. 
-                  We never store your private keys in plain text.
+                  ProTools Bundler charges a 7% platform fee to maintain and improve our services. For token launches, 7% of the total 
+                  supply is minted as the fee. For airdrops, 7% of the distributed tokens is collected. Network gas fees (paid in SOL) 
+                  are additional and go to the Solana network validators. See our Terms of Service for full details.
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="item-5">
-                <AccordionTrigger className="text-sm">Do I need SOL for transactions?</AccordionTrigger>
+                <AccordionTrigger className="text-sm">How do I connect my wallet?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  Yes, you need SOL (Solana's native token) in your wallet to pay for network transaction fees (gas fees). 
-                  These fees are separate from the platform's 7% fee. You can get free devnet SOL from the Solana faucet for testing.
+                  Go to the Wallet tab and click "Connect Wallet". You'll need to enter your 12-word recovery phrase (seed phrase) 
+                  to link your Solana wallet. Your recovery phrase is encrypted using industry-standard encryption before storage. 
+                  Never share your recovery phrase with anyone else.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-6">
+                <AccordionTrigger className="text-sm">Is my wallet secure?</AccordionTrigger>
+                <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
+                  Yes. We use bank-grade encryption for all sensitive data, including your recovery phrase. Our database implements 
+                  Row Level Security (RLS) policies ensuring only you can access your wallet information. All connections are encrypted 
+                  with TLS. However, always practice good security hygiene and never share your recovery phrase.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-7">
+                <AccordionTrigger className="text-sm">Do I need SOL in my wallet?</AccordionTrigger>
+                <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
+                  Yes, you need SOL (Solana's native cryptocurrency) to pay for network transaction fees. These gas fees are required 
+                  for all blockchain operations including token launches, transfers, and airdrops. The amount varies based on network 
+                  congestion but is typically very low. For testing, you can get free devnet SOL from the Solana faucet.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-8">
+                <AccordionTrigger className="text-sm">Where can I view my transaction history?</AccordionTrigger>
+                <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
+                  All your transactions are available in the Transactions tab. You can see the type, amount, status, and timestamp 
+                  of each transaction. Click on any transaction to view more details including the blockchain signature and recipient 
+                  information.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-9">
+                <AccordionTrigger className="text-sm">What should I do if a transaction fails?</AccordionTrigger>
+                <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
+                  First, check your wallet balance to ensure you have enough SOL for gas fees. Check the error message in the Logs 
+                  or Transactions tab for specific details. Common issues include insufficient balance, incorrect addresses, or network 
+                  congestion. If problems persist, contact support through our Terms of Service page.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

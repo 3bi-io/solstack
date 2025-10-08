@@ -147,7 +147,7 @@ const Auth = () => {
             <div className="text-5xl">🤖</div>
             <Shield className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl text-center">ProTools Bundler</CardTitle>
+          <CardTitle className="text-2xl text-center">SOL Stack</CardTitle>
           <CardDescription className="text-center">
             Sign in to access your account and manage your tokens
           </CardDescription>

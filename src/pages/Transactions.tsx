@@ -25,42 +25,39 @@ const Transactions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { isConnected } = useWallet();
 
-  // Mock transaction data
+  // Fetch real transaction data
   useEffect(() => {
-    if (isConnected) {
-      const mockTransactions: Transaction[] = [
-        {
-          id: '1',
-          type: 'token_launch',
-          amount: 1000000,
-          token: 'MTK',
-          status: 'success',
-          timestamp: new Date(Date.now() - 3600000),
-          signature: '3jK8...9Qm2',
-        },
-        {
-          id: '2',
-          type: 'airdrop',
-          amount: 5000,
-          token: 'MTK',
-          status: 'success',
-          timestamp: new Date(Date.now() - 7200000),
-          signature: '7Lp4...2Xr8',
-          recipient: '25 addresses',
-        },
-        {
-          id: '3',
-          type: 'send',
-          amount: 100,
-          token: 'SOL',
-          status: 'pending',
-          timestamp: new Date(Date.now() - 300000),
-          signature: '9Bx7...4Yq1',
-          recipient: 'AbC...xyz',
-        },
-      ];
-      setTransactions(mockTransactions);
-    }
+    const fetchTransactions = async () => {
+      if (isConnected) {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (error) {
+          console.error('Error fetching transactions:', error);
+          return;
+        }
+
+        if (data) {
+          const formatted: Transaction[] = data.map(tx => ({
+            id: tx.id,
+            type: tx.type as any,
+            amount: parseFloat(tx.amount.toString()),
+            token: tx.token,
+            status: tx.status as any,
+            timestamp: new Date(tx.created_at),
+            signature: tx.signature || 'pending',
+            recipient: tx.recipient || undefined,
+          }));
+          setTransactions(formatted);
+        }
+      }
+    };
+
+    fetchTransactions();
   }, [isConnected]);
 
   const filteredTransactions = transactions.filter(tx =>

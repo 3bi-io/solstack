@@ -61,21 +61,33 @@ const Airdrop = () => {
       setIsProcessing(true);
       setResults([]);
 
-      // Simulate airdrop processing
-      for (let i = 0; i < addressList.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const success = Math.random() > 0.1; // 90% success rate simulation
-        setResults(prev => [...prev, {
-          address: addressList[i],
-          status: success ? 'success' : 'failed'
-        }]);
+      // Call edge function to process airdrop
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data, error } = await supabase.functions.invoke('process-airdrop', {
+        body: {
+          tokenAddress: formData.tokenAddress,
+          amount: amountNum,
+          addresses: addressList,
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
       }
 
-      const successCount = results.filter(r => r.status === 'success').length;
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to process airdrop');
+      }
+
+      // Update results from response
+      setResults(data.results.map((r: any) => ({
+        address: r.address,
+        status: r.status,
+      })));
+
       toast({
         title: "Airdrop Complete! 🎁",
-        description: `Successfully sent ${formData.amount} tokens to ${successCount}/${addressList.length} addresses.`,
+        description: `Successfully sent ${formData.amount} tokens to ${data.summary.successful}/${addressList.length} addresses.`,
       });
     } catch (error) {
       toast({

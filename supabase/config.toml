@@ -1,1 +1,7 @@
 project_id = "pjpickbfzrlhdnggzgcd"
+
+[functions.launch-token]
+verify_jwt = true
+
+[functions.process-airdrop]
+verify_jwt = true

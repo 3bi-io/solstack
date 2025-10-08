@@ -25,60 +25,37 @@ const Logs = () => {
   const [activeTab, setActiveTab] = useState<string>("all");
   const { isConnected } = useWallet();
 
-  // Mock log data
+  // Fetch real log data
   useEffect(() => {
-    if (isConnected) {
-      const mockLogs: LogEntry[] = [
-        {
-          id: '1',
-          level: 'success',
-          message: 'Token MTK launched successfully',
-          timestamp: new Date(Date.now() - 3600000),
-          category: 'token',
-          details: 'Initial supply: 1,000,000 MTK',
-        },
-        {
-          id: '2',
-          level: 'info',
-          message: 'Wallet connected',
-          timestamp: new Date(Date.now() - 7200000),
-          category: 'wallet',
-        },
-        {
-          id: '3',
-          level: 'success',
-          message: 'Airdrop completed to 25 addresses',
-          timestamp: new Date(Date.now() - 9000000),
-          category: 'airdrop',
-          details: 'Total distributed: 125,000 MTK',
-        },
-        {
-          id: '4',
-          level: 'warning',
-          message: 'Network congestion detected',
-          timestamp: new Date(Date.now() - 10800000),
-          category: 'network',
-          details: 'Transaction may take longer than usual',
-        },
-        {
-          id: '5',
-          level: 'error',
-          message: 'Transaction failed: Insufficient balance',
-          timestamp: new Date(Date.now() - 14400000),
-          category: 'transaction',
-          details: 'Required: 0.05 SOL, Available: 0.02 SOL',
-        },
-        {
-          id: '6',
-          level: 'info',
-          message: 'Bundle optimization applied',
-          timestamp: new Date(Date.now() - 18000000),
-          category: 'bundler',
-          details: 'Saved 15% on transaction fees',
-        },
-      ];
-      setLogs(mockLogs);
-    }
+    const fetchLogs = async () => {
+      if (isConnected) {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data, error } = await supabase
+          .from('activity_logs')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100);
+
+        if (error) {
+          console.error('Error fetching logs:', error);
+          return;
+        }
+
+        if (data) {
+          const formatted: LogEntry[] = data.map(log => ({
+            id: log.id,
+            level: log.level as any,
+            message: log.message,
+            timestamp: new Date(log.created_at),
+            category: log.category,
+            details: log.details || undefined,
+          }));
+          setLogs(formatted);
+        }
+      }
+    };
+
+    fetchLogs();
   }, [isConnected]);
 
   const filteredLogs = logs.filter(log => {

@@ -48,8 +48,26 @@ const LaunchCoin = () => {
 
       setIsLaunching(true);
 
-      // Simulate token launch (in production, this would call a Solana edge function)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call edge function to launch token
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data, error } = await supabase.functions.invoke('launch-token', {
+        body: {
+          name: formData.name,
+          symbol: formData.symbol,
+          decimals: formData.decimals,
+          supply: formData.supply,
+          description: formData.description,
+          logoUrl: formData.logoUrl,
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to launch token');
+      }
 
       toast({
         title: "Token Launched! 🚀",
@@ -68,7 +86,7 @@ const LaunchCoin = () => {
     } catch (error) {
       toast({
         title: "Launch Failed",
-        description: "Failed to launch token. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to launch token. Please try again.",
         variant: "destructive",
       });
     } finally {

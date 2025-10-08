@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FeedbackProvider, useFeedback } from "@/contexts/FeedbackContext";
+import { WalletProvider } from "@/contexts/WalletContext";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import Index from "./pages/Index";
 import LaunchCoin from "./pages/LaunchCoin";
@@ -48,9 +49,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <FeedbackProvider>
-          <AppContent />
-        </FeedbackProvider>
+        <WalletProvider>
+          <FeedbackProvider>
+            <AppContent />
+          </FeedbackProvider>
+        </WalletProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

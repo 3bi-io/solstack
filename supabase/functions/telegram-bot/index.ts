@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
         case '/start':
           await sendTelegramMessage(
             chatId,
-            `🤖 Welcome to ProTools Bundler Bot!\n\n` +
+            `🤖 Welcome to SOL Stack!\n\n` +
             `Available commands:\n` +
             `/status - Check your account status\n` +
             `/airdrops - View your recent airdrops\n` +

@@ -291,7 +291,7 @@ export default function ApiKeys() {
         <Card>
           <CardHeader>
             <CardTitle>API Documentation</CardTitle>
-            <CardDescription>Learn how to use the ProTools API</CardDescription>
+            <CardDescription>Learn how to use the SOL Stack API</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">

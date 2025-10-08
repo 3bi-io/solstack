@@ -158,7 +158,7 @@ export default function Referrals() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Referral Program</h1>
           <p className="text-muted-foreground">
-            Earn rewards by inviting others to join ProTools Bundler
+            Earn rewards by inviting others to join SOL Stack
           </p>
         </div>
 

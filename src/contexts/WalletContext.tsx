@@ -10,8 +10,8 @@ interface WalletContextType {
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
-const WALLET_STORAGE_KEY = "protools_wallet_connected";
-const WALLET_DATA_KEY = "protools_wallet_data";
+const WALLET_STORAGE_KEY = "solstack_wallet_connected";
+const WALLET_DATA_KEY = "solstack_wallet_data";
 
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);

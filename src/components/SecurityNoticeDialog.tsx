@@ -46,7 +46,7 @@ export const SecurityNoticeDialog = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogAction onClick={handleDismiss}>
-            Got it
+            Continue
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

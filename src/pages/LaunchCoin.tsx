@@ -59,22 +59,55 @@ const LaunchCoin = () => {
 
       setIsLaunching(true);
 
-      // Note: Wallet adapter integration pending - will return unsigned transaction
-      toast({
-        title: "Feature Integration In Progress",
-        description: "Wallet adapter integration is being finalized. Edge functions will be updated to support unsigned transactions.",
-        variant: "destructive",
-      });
-      setIsLaunching(false);
-      return;
+      // Import supabase client
+      const { supabase } = await import("@/integrations/supabase/client");
 
-      // TODO: Update edge function to support wallet adapter
-      // Flow will be:
-      // 1. Call edge function with walletPublicKey
-      // 2. Edge function returns unsigned transaction
-      // 3. Sign transaction with wallet adapter
-      // 4. Submit signed transaction
+      // Get user session
+      const { data: { session } } = await supabase.auth.getSession();
+
+      // Call edge function to launch token
+      const { data, error } = await supabase.functions.invoke('launch-token', {
+        body: {
+          name: formData.name,
+          symbol: formData.symbol,
+          decimals: formData.decimals,
+          supply: formData.supply,
+          description: formData.description,
+          logoUrl: formData.logoUrl,
+          userWalletAddress: publicKey.toString(),
+          userId: session?.user?.id,
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to launch token');
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Token launch failed');
+      }
+
+      toast({
+        title: "Token Launched Successfully! 🚀",
+        description: `${formData.name} (${formData.symbol}) has been created on Solana`,
+      });
+
+      // Reset form
+      setFormData({
+        name: "",
+        symbol: "",
+        decimals: 9,
+        supply: 1000000,
+        description: "",
+        logoUrl: "",
+      });
+
+      // Show explorer link in console
+      console.log('Token created:', data.mintAddress);
+      console.log('Explorer:', data.explorerUrl);
+
     } catch (error) {
+      console.error('Token launch error:', error);
       toast({
         title: "Launch Failed",
         description: error instanceof Error ? error.message : "Failed to launch token. Please try again.",
@@ -230,8 +263,8 @@ const LaunchCoin = () => {
             {/* Info */}
             <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
               <p className="text-xs text-muted-foreground">
-                <strong>Note:</strong> Your token will be created with auto-bundling features enabled. 
-                Network fees will be deducted from your connected wallet.
+                <strong>Note:</strong> Your token will be created on Solana with you as the mint authority. 
+                The platform covers all transaction fees. A 7% platform fee will be minted to support the service.
               </p>
             </div>
           </CardContent>

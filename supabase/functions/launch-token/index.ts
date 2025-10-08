@@ -28,24 +28,26 @@ interface TokenRequest {
   supply: number;
   description?: string;
   logoUrl?: string;
-  seedPhrase: string;
+  userWalletAddress: string;
+  userId?: string;
 }
 
-// Helper function to reconstruct wallet from seed phrase
-async function getWalletFromSeedPhrase(seedPhrase: string): Promise<Keypair | null> {
+// Helper function to get platform wallet from secret
+function getPlatformWallet(): Keypair | null {
   try {
-    // In production, use bip39 to derive keypair from seed phrase
-    // For now, we'll create a deterministic keypair from the seed
-    const encoder = new TextEncoder();
-    const seedBytes = encoder.encode(seedPhrase);
+    const platformKeypairJson = Deno.env.get('PLATFORM_WALLET_KEYPAIR');
+    if (!platformKeypairJson) {
+      console.error('PLATFORM_WALLET_KEYPAIR not configured');
+      return null;
+    }
     
-    // Hash the seed to get 32 bytes for keypair
-    const hashBuffer = await crypto.subtle.digest('SHA-256', seedBytes);
-    const secretKey = new Uint8Array(hashBuffer);
+    // Parse the secret key array from JSON
+    const secretKeyArray = JSON.parse(platformKeypairJson);
+    const secretKey = Uint8Array.from(secretKeyArray);
     
-    return Keypair.fromSeed(secretKey);
+    return Keypair.fromSecretKey(secretKey);
   } catch (error) {
-    console.error('Error reconstructing wallet:', error);
+    console.error('Error loading platform wallet:', error);
     return null;
   }
 }
@@ -62,26 +64,37 @@ serve(async (req) => {
     );
 
     const tokenData: TokenRequest = await req.json();
-    console.log('Launching token:', tokenData);
+    console.log('Launching token for user:', tokenData.userWalletAddress);
 
     // Validate input
-    if (!tokenData.name || !tokenData.symbol || !tokenData.supply || !tokenData.seedPhrase) {
+    if (!tokenData.name || !tokenData.symbol || !tokenData.supply || !tokenData.userWalletAddress) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get user's wallet from seed phrase
-    const payer = await getWalletFromSeedPhrase(tokenData.seedPhrase);
-    if (!payer) {
+    // Validate user wallet address
+    let userPubkey: PublicKey;
+    try {
+      userPubkey = new PublicKey(tokenData.userWalletAddress);
+    } catch (error) {
       return new Response(
-        JSON.stringify({ error: 'Invalid seed phrase' }),
+        JSON.stringify({ error: 'Invalid wallet address' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Creating token on Solana with wallet:', payer.publicKey.toString());
+    // Get platform wallet (pays for transactions)
+    const payer = getPlatformWallet();
+    if (!payer) {
+      return new Response(
+        JSON.stringify({ error: 'Platform wallet not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Creating token with platform wallet, minting to:', userPubkey.toString());
 
     // Connect to Solana (using devnet for testing)
     const connection = new Connection(
@@ -107,12 +120,12 @@ serve(async (req) => {
         );
       }
 
-      // Create mint (SPL token)
+      // Create mint (SPL token) - Platform is initial mint authority
       const mint = await createMint(
         connection,
-        payer,
-        payer.publicKey, // mint authority
-        payer.publicKey, // freeze authority
+        payer, // Platform pays for creation
+        payer.publicKey, // Platform is mint authority (can transfer later)
+        payer.publicKey, // Platform is freeze authority (can transfer later)
         tokenData.decimals
       );
 
@@ -122,34 +135,33 @@ serve(async (req) => {
       // Create associated token account for user
       const tokenAccount = await getOrCreateAssociatedTokenAccount(
         connection,
-        payer,
+        payer, // Platform pays for account creation
         mint,
-        payer.publicKey
+        userPubkey // User owns the token account
       );
 
       console.log('Token account created:', tokenAccount.address.toString());
 
       // Calculate platform fee (7%)
-      const totalSupplyWithFee = BigInt(tokenData.supply) * BigInt(10 ** tokenData.decimals);
-      const platformFee = (totalSupplyWithFee * BigInt(7)) / BigInt(100);
-      const userSupply = totalSupplyWithFee + platformFee; // User gets their supply, platform gets 7% on top
+      const userSupply = BigInt(tokenData.supply) * BigInt(10 ** tokenData.decimals);
+      const platformFee = (userSupply * BigInt(7)) / BigInt(100);
 
-      // Mint initial supply + platform fee to user
+      // Mint user's supply to user
       const mintTxSignature = await mintTo(
         connection,
-        payer,
+        payer, // Platform pays and signs
         mint,
         tokenAccount.address,
-        payer.publicKey,
+        payer.publicKey, // Platform is mint authority
         userSupply
       );
 
       signature = mintTxSignature;
-      console.log('Minted initial supply with platform fee. Signature:', signature);
+      console.log('Minted user supply. Signature:', signature);
 
-      // Transfer platform fee to platform wallet
+      // Mint platform fee to platform wallet (before transferring authority)
       const platformWalletAddress = Deno.env.get('PLATFORM_WALLET_ADDRESS');
-      if (platformWalletAddress) {
+      if (platformWalletAddress && platformFee > 0n) {
         try {
           const platformPubkey = new PublicKey(platformWalletAddress);
           const platformTokenAccount = await getOrCreateAssociatedTokenAccount(
@@ -159,22 +171,39 @@ serve(async (req) => {
             platformPubkey
           );
 
-          // Transfer 7% to platform
-          const { transfer } = await import('https://esm.sh/@solana/spl-token@0.3.9');
-          const transferSignature = await transfer(
+          await mintTo(
             connection,
             payer,
-            tokenAccount.address,
+            mint,
             platformTokenAccount.address,
-            payer.publicKey,
+            payer.publicKey, // Platform is still mint authority
             platformFee
           );
 
-          console.log('Platform fee transferred:', transferSignature);
+          console.log('Platform fee minted:', platformFee.toString());
         } catch (platformError) {
-          console.error('Failed to transfer platform fee:', platformError);
-          // Continue even if platform fee transfer fails
+          console.error('Failed to mint platform fee:', platformError);
+          // Continue even if platform fee minting fails
         }
+      }
+
+      // Transfer mint authority to user (gives user full control)
+      try {
+        const { setAuthority, AuthorityType } = await import('https://esm.sh/@solana/spl-token@0.3.9');
+        
+        await setAuthority(
+          connection,
+          payer,
+          mint,
+          payer.publicKey, // Current authority (platform)
+          AuthorityType.MintTokens,
+          userPubkey // New authority (user)
+        );
+        
+        console.log('Mint authority transferred to user');
+      } catch (authorityError) {
+        console.error('Failed to transfer mint authority:', authorityError);
+        // Continue even if authority transfer fails
       }
 
     } catch (solanaError) {
@@ -182,11 +211,11 @@ serve(async (req) => {
       throw new Error(`Blockchain error: ${solanaError instanceof Error ? solanaError.message : 'Unknown error'}`);
     }
 
-    // Create token record in database (without user_id)
+    // Create token record in database
     const { data: token, error: insertError } = await supabaseClient
       .from('tokens')
       .insert({
-        user_id: null,
+        user_id: tokenData.userId || null,
         name: tokenData.name,
         symbol: tokenData.symbol,
         decimals: tokenData.decimals,
@@ -204,25 +233,25 @@ serve(async (req) => {
       throw insertError;
     }
 
-    // Log transaction (without user_id)
+    // Log transaction
     await supabaseClient.from('transactions').insert({
-      user_id: null,
+      user_id: tokenData.userId || null,
       type: 'token_launch',
       amount: tokenData.supply,
       token: tokenData.symbol,
       status: 'success',
       signature: signature,
-      metadata: { token_id: token.id, mint_address: mintAddress },
+      metadata: { token_id: token.id, mint_address: mintAddress, user_wallet: tokenData.userWalletAddress },
     });
 
-    // Log activity (without user_id)
+    // Log activity
     await supabaseClient.from('activity_logs').insert({
-      user_id: null,
+      user_id: tokenData.userId || null,
       level: 'success',
       message: `Token ${tokenData.name} (${tokenData.symbol}) launched successfully`,
       category: 'token',
-      details: `Initial supply: ${tokenData.supply.toLocaleString()} ${tokenData.symbol}. Mint: ${mintAddress}`,
-      metadata: { token_id: token.id, mint_address: mintAddress, signature },
+      details: `Initial supply: ${tokenData.supply.toLocaleString()} ${tokenData.symbol}. Mint: ${mintAddress}. Owner: ${tokenData.userWalletAddress}`,
+      metadata: { token_id: token.id, mint_address: mintAddress, signature, user_wallet: tokenData.userWalletAddress },
     });
 
     console.log('Token created successfully:', token);

@@ -24,7 +24,7 @@ interface MarketCardProps {
   change24h: number;
   volume24h: number;
   marketCap?: number;
-  source: "coingecko" | "okx" | "coinbase";
+  source: "coingecko" | "okx" | "moonshot";
   rank?: number;
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
@@ -123,10 +123,12 @@ export const MarketCard = ({
               </div>
             )}
             <Badge
-              variant="secondary"
-              className="absolute -bottom-1 -right-1 h-4 px-1 text-[8px]"
+              variant={source === "moonshot" ? "default" : "secondary"}
+              className={`absolute -bottom-1 -right-1 h-4 px-1 text-[8px] ${
+                source === "moonshot" ? "bg-gradient-to-r from-primary to-accent" : ""
+              }`}
             >
-              {source}
+              {source === "moonshot" ? "🚀" : source}
             </Badge>
           </div>
 

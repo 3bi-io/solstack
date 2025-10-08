@@ -115,48 +115,67 @@ export async function getOKXInstruments(
 }
 
 /**
- * Get top trading pairs by volume
+ * Helper to delay requests (avoid rate limits)
  */
-export async function getTopTradingPairs(limit: number = 50): Promise<any[]> {
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Get top trading symbols (most liquid USDT pairs)
+ */
+function getTopTradingSymbols(): string[] {
+  return [
+    "BTC-USDT", "ETH-USDT", "SOL-USDT", "BNB-USDT", "XRP-USDT",
+    "ADA-USDT", "DOGE-USDT", "MATIC-USDT", "DOT-USDT", "AVAX-USDT",
+    "LINK-USDT", "UNI-USDT", "LTC-USDT", "ATOM-USDT", "TRX-USDT",
+    "XLM-USDT", "FIL-USDT", "NEAR-USDT", "ALGO-USDT", "VET-USDT",
+    "ICP-USDT", "APT-USDT", "ARB-USDT", "OP-USDT", "HBAR-USDT",
+    "SUI-USDT", "IMX-USDT", "INJ-USDT", "RNDR-USDT", "GRT-USDT"
+  ];
+}
+
+export interface OKXTickerData {
+  instId: string;
+  baseCcy?: string;
+  ticker: OKXTicker | null;
+  volume: number;
+}
+
+/**
+ * Get top trading pairs by volume (up to 50 pairs) with rate limiting
+ */
+export async function getTopTradingPairs(limit: number = 50): Promise<OKXTickerData[]> {
   try {
-    const instruments = await getOKXInstruments("SPOT");
-    
-    // Filter for USDT pairs (most liquid)
-    const usdtPairs = instruments.filter(inst => 
-      inst.quoteCcy === "USDT" && inst.state === "live"
-    );
-    
-    // Fetch tickers for all USDT pairs (in batches to avoid rate limits)
-    const pairsWithVolume = [];
-    
-    // Process in batches of 20
-    for (let i = 0; i < Math.min(usdtPairs.length, limit * 2); i += 20) {
-      const batch = usdtPairs.slice(i, i + 20);
-      const tickerPromises = batch.map(async (pair) => {
-        const ticker = await getOKXTicker(pair.instId);
-        if (ticker && ticker.vol24h) {
-          return {
-            ...pair,
-            ticker,
-            volume: parseFloat(ticker.vol24h) || 0
-          };
-        }
-        return null;
+    const topSymbols = getTopTradingSymbols().slice(0, limit);
+    const results: OKXTickerData[] = [];
+
+    // Batch requests to avoid rate limits (5 requests per batch with 1 second delay)
+    const batchSize = 5;
+    for (let i = 0; i < topSymbols.length; i += batchSize) {
+      const batch = topSymbols.slice(i, i + batchSize);
+      
+      // Fetch batch in parallel
+      const batchPromises = batch.map(async (symbol) => {
+        const ticker = await getOKXTicker(symbol);
+        return {
+          instId: symbol,
+          baseCcy: symbol.split('-')[0],
+          ticker,
+          volume: ticker ? parseFloat(ticker.vol24h) || 0 : 0
+        };
       });
       
-      const results = await Promise.all(tickerPromises);
-      pairsWithVolume.push(...results.filter(r => r !== null));
-      
-      // Small delay to avoid rate limits
-      await new Promise(resolve => setTimeout(resolve, 100));
+      const batchResults = await Promise.all(batchPromises);
+      results.push(...batchResults);
+
+      // Delay between batches to avoid rate limits
+      if (i + batchSize < topSymbols.length) {
+        await delay(1000); // 1 second delay between batches
+      }
     }
-    
-    // Sort by 24h volume and return top pairs
-    return pairsWithVolume
-      .sort((a, b) => b.volume - a.volume)
-      .slice(0, limit);
+
+    return results.filter(r => r.ticker !== null);
   } catch (error) {
-    console.error("Error fetching top trading pairs:", error);
+    console.error('Error fetching top trading pairs:', error);
     return [];
   }
 }

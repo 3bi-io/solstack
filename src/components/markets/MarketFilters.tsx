@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 export type FilterCategory = "all" | "favorites" | "gainers" | "losers" | "trending";
-export type FilterExchange = "all" | "coingecko" | "okx" | "coinbase";
+export type FilterExchange = "all" | "coingecko" | "okx" | "moonshot";
 
 interface MarketFiltersProps {
   searchQuery: string;
@@ -105,9 +105,9 @@ export const MarketFilters = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Sources</SelectItem>
-              <SelectItem value="coingecko">CoinGecko</SelectItem>
-              <SelectItem value="okx">OKX</SelectItem>
-              <SelectItem value="coinbase">Coinbase</SelectItem>
+          <SelectItem value="coingecko">CoinGecko</SelectItem>
+          <SelectItem value="okx">OKX</SelectItem>
+          <SelectItem value="moonshot">🚀 MoonShot</SelectItem>
             </SelectContent>
           </Select>
         </div>

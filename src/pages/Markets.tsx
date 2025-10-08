@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { getTrendingTokens, TokenInfo, getGlobalMarketData, GlobalMarketData } from "@/lib/coingecko";
 import { getTopTradingPairs, formatOKXPrice, calculatePriceChange } from "@/lib/okx";
+import { getMoonShotTrending, formatMoonShotToken, MoonShotToken } from "@/lib/moonshot";
 import { toast } from "@/hooks/use-toast";
 import { MarketCard } from "@/components/markets/MarketCard";
 import { MarketFilters, FilterCategory, FilterExchange } from "@/components/markets/MarketFilters";
@@ -39,7 +40,7 @@ interface MarketData {
   change24h: number;
   volume24h: number;
   marketCap?: number;
-  source: "coingecko" | "okx";
+  source: "coingecko" | "okx" | "moonshot";
   rank?: number;
 }
 
@@ -50,6 +51,7 @@ const Markets = () => {
   const { user } = useAuth();
   const [cgTokens, setCgTokens] = useState<TokenInfo[]>([]);
   const [okxPairs, setOkxPairs] = useState<any[]>([]);
+  const [moonShotTokens, setMoonShotTokens] = useState<MoonShotToken[]>([]);
   const [globalData, setGlobalData] = useState<GlobalMarketData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -64,21 +66,23 @@ const Markets = () => {
   const loadMarketData = async () => {
     setRefreshing(true);
     try {
-      const [cgData, okxData, global] = await Promise.all([
+      const [cgData, okxData, moonData, global] = await Promise.all([
         getTrendingTokens(),
-        getTopTradingPairs(50),
+        getTopTradingPairs(30), // Reduced to 30 to avoid rate limits
+        getMoonShotTrending(),
         getGlobalMarketData()
       ]);
 
       setCgTokens(cgData);
       setOkxPairs(okxData);
+      setMoonShotTokens(moonData);
       setGlobalData(global);
       setUpdateCount(prev => prev + 1);
 
       if (!loading) {
         toast({
           title: "Markets Updated",
-          description: `Loaded ${cgData.length + okxData.length} tokens`,
+          description: `Loaded ${cgData.length + okxData.length + moonData.length} tokens`,
         });
       }
     } catch (error) {
@@ -148,8 +152,24 @@ const Markets = () => {
       rank: index + 1,
     }));
 
-    return [...cgData, ...okxData];
-  }, [cgTokens, okxPairs]);
+    const moonData: MarketData[] = moonShotTokens.map((token, index) => {
+      const formatted = formatMoonShotToken(token);
+      return {
+        id: formatted.id,
+        name: formatted.name,
+        symbol: formatted.symbol,
+        image: formatted.imageUrl,
+        price: formatted.price,
+        change24h: formatted.priceChange24h,
+        volume24h: formatted.volume24h,
+        marketCap: formatted.marketCap,
+        source: "moonshot" as const,
+        rank: index + 1,
+      };
+    });
+
+    return [...cgData, ...okxData, ...moonData];
+  }, [cgTokens, okxPairs, moonShotTokens]);
 
   // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
@@ -549,7 +569,7 @@ const Markets = () => {
                   <span>Powered by:</span>
                   <Badge variant="outline" className="text-[10px]">CoinGecko</Badge>
                   <Badge variant="outline" className="text-[10px]">OKX</Badge>
-                  <Badge variant="outline" className="text-[10px]">Coinbase</Badge>
+                  <Badge variant="default" className="text-[10px]">🚀 MoonShot</Badge>
                 </div>
               </div>
             </div>

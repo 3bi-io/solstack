@@ -214,6 +214,258 @@ export type Database = {
         }
         Relationships: []
       }
+      api_keys: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          name: string
+          permissions: Json | null
+          rate_limit: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          name: string
+          permissions?: Json | null
+          rate_limit?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          name?: string
+          permissions?: Json | null
+          rate_limit?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      api_usage_logs: {
+        Row: {
+          api_key_id: string
+          created_at: string
+          endpoint: string
+          id: string
+          method: string
+          response_time_ms: number | null
+          status_code: number
+          user_id: string
+        }
+        Insert: {
+          api_key_id: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          method: string
+          response_time_ms?: number | null
+          status_code: number
+          user_id: string
+        }
+        Update: {
+          api_key_id?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          method?: string
+          response_time_ms?: number | null
+          status_code?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_usage_logs_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merkle_airdrops: {
+        Row: {
+          claimed_count: number | null
+          created_at: string
+          id: string
+          merkle_root: string
+          merkle_tree: Json
+          status: string
+          token_address: string
+          total_amount: number
+          total_recipients: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_count?: number | null
+          created_at?: string
+          id?: string
+          merkle_root: string
+          merkle_tree: Json
+          status?: string
+          token_address: string
+          total_amount: number
+          total_recipients: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_count?: number | null
+          created_at?: string
+          id?: string
+          merkle_root?: string
+          merkle_tree?: Json
+          status?: string
+          token_address?: string
+          total_amount?: number
+          total_recipients?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      merkle_claims: {
+        Row: {
+          amount: number
+          claimed: boolean | null
+          claimed_at: string | null
+          created_at: string
+          id: string
+          merkle_airdrop_id: string
+          proof: Json
+          recipient_address: string
+          transaction_signature: string | null
+        }
+        Insert: {
+          amount: number
+          claimed?: boolean | null
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          merkle_airdrop_id: string
+          proof: Json
+          recipient_address: string
+          transaction_signature?: string | null
+        }
+        Update: {
+          amount?: number
+          claimed?: boolean | null
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          merkle_airdrop_id?: string
+          proof?: Json
+          recipient_address?: string
+          transaction_signature?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merkle_claims_merkle_airdrop_id_fkey"
+            columns: ["merkle_airdrop_id"]
+            isOneToOne: false
+            referencedRelation: "merkle_airdrops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      multisig_transactions: {
+        Row: {
+          created_at: string
+          creator_id: string
+          executed_at: string | null
+          id: string
+          multisig_wallet_id: string
+          signatures: Json | null
+          status: string
+          transaction_data: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          executed_at?: string | null
+          id?: string
+          multisig_wallet_id: string
+          signatures?: Json | null
+          status?: string
+          transaction_data: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          executed_at?: string | null
+          id?: string
+          multisig_wallet_id?: string
+          signatures?: Json | null
+          status?: string
+          transaction_data?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "multisig_transactions_multisig_wallet_id_fkey"
+            columns: ["multisig_wallet_id"]
+            isOneToOne: false
+            referencedRelation: "multisig_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      multisig_wallets: {
+        Row: {
+          created_at: string
+          creator_id: string
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          signers: string[]
+          threshold: number
+          updated_at: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          signers: string[]
+          threshold: number
+          updated_at?: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          signers?: string[]
+          threshold?: number
+          updated_at?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       neural_commands: {
         Row: {
           agent_id: string | null
@@ -293,6 +545,92 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          reward_type: string
+          reward_value: number
+          updated_at: string
+          user_id: string
+          uses_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          reward_type?: string
+          reward_value?: number
+          updated_at?: string
+          user_id: string
+          uses_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          reward_type?: string
+          reward_value?: number
+          updated_at?: string
+          user_id?: string
+          uses_count?: number
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code_id: string
+          referred_id: string
+          referrer_id: string
+          reward_amount: number | null
+          reward_claimed: boolean | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code_id: string
+          referred_id: string
+          referrer_id: string
+          reward_amount?: number | null
+          reward_claimed?: boolean | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code_id?: string
+          referred_id?: string
+          referrer_id?: string
+          reward_amount?: number | null
+          reward_claimed?: boolean | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referral_code_id_fkey"
+            columns: ["referral_code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduled_airdrops: {
         Row: {

@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.verify-token]
 verify_jwt = true
+
+[functions.api-gateway]
+verify_jwt = false
+
+[functions.track-referral]
+verify_jwt = false
+
+[functions.create-merkle-airdrop]
+verify_jwt = true

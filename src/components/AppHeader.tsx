@@ -1,41 +1,108 @@
-import { Home } from "lucide-react";
+import { Home, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/UserMenu";
 import { NetworkStatus } from "@/components/NetworkStatus";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useState } from "react";
+import logoImage from "@/assets/solstack-logo.png";
 
 export const AppHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center justify-between px-3 sm:px-4">
-        {/* Left: Home Button (hidden on home page) */}
-        <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-gradient-to-r from-background via-background/95 to-background backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
+      <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-3 sm:px-6">
+        {/* Left: Logo & Home Button */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 group"
+          >
+            <div className="relative">
+              <img 
+                src={logoImage} 
+                alt="SOL Stack" 
+                className="h-9 w-9 rounded-lg shadow-md group-hover:shadow-primary/50 transition-all duration-300 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <div className="hidden sm:flex flex-col items-start">
+              <span className="text-lg font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent group-hover:from-primary group-hover:to-accent transition-all">
+                SOL Stack
+              </span>
+              <span className="text-[10px] text-muted-foreground -mt-1">
+                Solana DeFi Platform
+              </span>
+            </div>
+          </button>
+          
           {!isHome && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate("/")}
-              className="gap-2"
+              className="gap-2 hidden md:flex hover:bg-primary/10 hover:text-primary transition-all"
             >
               <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Home</span>
+              <span>Home</span>
             </Button>
           )}
-          {isHome && <div className="w-14" />} {/* Spacer for alignment */}
         </div>
 
-        {/* Center: Network Status */}
-        <div className="flex-1 flex justify-center">
+        {/* Center: Network Status (hidden on mobile) */}
+        <div className="hidden md:flex flex-1 justify-center">
           <NetworkStatus />
         </div>
 
-        {/* Right: User Menu */}
-        <div className="flex items-center">
+        {/* Right: User Menu & Mobile Menu */}
+        <div className="flex items-center gap-2">
+          {/* Mobile Network Status Badge */}
+          <div className="md:hidden">
+            <NetworkStatus compact />
+          </div>
+          
           <UserMenu />
+          
+          {/* Mobile Navigation Menu */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="md:hidden hover:bg-primary/10"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72 bg-background/95 backdrop-blur-xl border-primary/20">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <img src={logoImage} alt="SOL Stack" className="h-8 w-8 rounded-lg" />
+                  <span className="bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                    Navigation
+                  </span>
+                </SheetTitle>
+              </SheetHeader>
+              <div className="mt-6 space-y-1">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2 hover:bg-primary/10"
+                  onClick={() => {
+                    navigate("/");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Home className="h-4 w-4" />
+                  Home
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

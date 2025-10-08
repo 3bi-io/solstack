@@ -1,46 +1,85 @@
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { Activity, Wifi, WifiOff } from "lucide-react";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
-export const NetworkStatus = () => {
+interface NetworkStatusProps {
+  compact?: boolean;
+}
+
+export const NetworkStatus = ({ compact = false }: NetworkStatusProps) => {
   const { connection } = useConnection();
-  const [isMainnet, setIsMainnet] = useState(false);
-  const [networkHealth, setNetworkHealth] = useState<"healthy" | "degraded" | "unknown">("unknown");
+  const [isConnected, setIsConnected] = useState(false);
+  const [network, setNetwork] = useState<string>("Devnet");
 
   useEffect(() => {
-    const checkNetwork = async () => {
+    const checkConnection = async () => {
       try {
-        const endpoint = connection.rpcEndpoint;
-        setIsMainnet(endpoint.includes('mainnet'));
+        await connection.getVersion();
+        setIsConnected(true);
         
-        // Simple health check
-        await connection.getSlot();
-        setNetworkHealth("healthy");
+        // Detect network from RPC endpoint
+        const endpoint = connection.rpcEndpoint;
+        if (endpoint.includes("mainnet")) {
+          setNetwork("Mainnet");
+        } else if (endpoint.includes("devnet")) {
+          setNetwork("Devnet");
+        } else if (endpoint.includes("testnet")) {
+          setNetwork("Testnet");
+        } else {
+          setNetwork("Custom");
+        }
       } catch (error) {
-        setNetworkHealth("degraded");
+        setIsConnected(false);
       }
     };
 
-    checkNetwork();
-    const interval = setInterval(checkNetwork, 30000); // Check every 30s
+    checkConnection();
+    const interval = setInterval(checkConnection, 30000);
     return () => clearInterval(interval);
   }, [connection]);
+
+  if (compact) {
+    return (
+      <Badge 
+        variant={isConnected ? "default" : "destructive"}
+        className={cn(
+          "gap-1 h-7",
+          isConnected && "bg-accent/20 text-accent border-accent/30"
+        )}
+      >
+        {isConnected ? (
+          <Wifi className="w-3 h-3 animate-pulse" />
+        ) : (
+          <WifiOff className="w-3 h-3" />
+        )}
+      </Badge>
+    );
+  }
 
   return (
     <div className="flex items-center gap-2">
       <Badge 
-        variant={isMainnet ? "destructive" : "secondary"}
-        className="text-xs"
+        variant={isConnected ? "default" : "destructive"}
+        className={cn(
+          "gap-1.5 h-8 px-3 transition-all",
+          isConnected && "bg-gradient-to-r from-accent/20 to-primary/20 text-accent border-accent/30 hover:from-accent/30 hover:to-primary/30"
+        )}
       >
-        {isMainnet ? "Mainnet" : "Devnet"}
+        {isConnected ? (
+          <>
+            <Activity className="w-3.5 h-3.5 animate-pulse" />
+            <span className="text-xs font-semibold">{network}</span>
+            <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+          </>
+        ) : (
+          <>
+            <WifiOff className="w-3.5 h-3.5" />
+            <span className="text-xs font-semibold">Offline</span>
+          </>
+        )}
       </Badge>
-      
-      {networkHealth === "healthy" ? (
-        <CheckCircle2 className="h-4 w-4 text-green-500" />
-      ) : networkHealth === "degraded" ? (
-        <AlertCircle className="h-4 w-4 text-yellow-500" />
-      ) : null}
     </div>
   );
 };

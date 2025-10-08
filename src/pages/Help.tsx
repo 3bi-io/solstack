@@ -95,16 +95,6 @@ const Help = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="item-4">
-                <AccordionTrigger className="text-sm">What are the platform fees?</AccordionTrigger>
-                <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  ProTools Bundler charges a 0.00015 SOL platform fee to maintain and improve our services. For token
-                  launches, 0.00015 SOL of the total supply is minted as the fee. For airdrops, 0.00015 SOL of the
-                  distributed tokens is collected. Network gas fees (paid in SOL) are additional and go to the Solana
-                  network validators. See our Terms of Service for full details.
-                </AccordionContent>
-              </AccordionItem>
-
               <AccordionItem value="item-5">
                 <AccordionTrigger className="text-sm">How do I connect my wallet?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">

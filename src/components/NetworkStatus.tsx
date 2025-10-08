@@ -31,6 +31,7 @@ export const NetworkStatus = ({ compact = false }: NetworkStatusProps) => {
           setNetwork("Custom");
         }
       } catch (error) {
+        console.error("Solana RPC connection error:", error);
         setIsConnected(false);
       }
     };

@@ -4,9 +4,53 @@ This application now uses **real Solana blockchain operations** via @solana/web3
 
 ## Current Configuration
 
-- **Network**: Solana Devnet (for testing)
-- **RPC Endpoint**: `https://api.devnet.solana.com`
-- **Explorer**: https://explorer.solana.com/?cluster=devnet
+- **Network**: Solana Mainnet
+- **RPC Endpoint**: Requires configuration (see below)
+- **Explorer**: https://explorer.solana.com/
+
+## ⚠️ IMPORTANT: RPC Endpoint Setup
+
+The public Solana RPC endpoint (`https://api.mainnet-beta.solana.com`) is **heavily rate-limited** and will cause connection failures. You **must** use a dedicated RPC provider for reliable operation.
+
+### Recommended RPC Providers (Free Tiers Available)
+
+1. **Helius** (Recommended)
+   - Free tier: 100 requests/second
+   - Sign up: https://www.helius.dev/
+   - Example: `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+2. **QuickNode**
+   - Reliable and fast
+   - Sign up: https://www.quicknode.com/
+   - Example: `https://YOUR_ENDPOINT.solana-mainnet.quiknode.pro/YOUR_TOKEN/`
+
+3. **Alchemy**
+   - Good free tier
+   - Sign up: https://www.alchemy.com/solana
+   - Example: `https://solana-mainnet.g.alchemy.com/v2/YOUR_API_KEY`
+
+### How to Configure Your RPC Endpoint
+
+1. Sign up for an RPC provider (Helius recommended)
+2. Get your API key/endpoint URL
+3. Update `src/contexts/SolanaWalletContext.tsx`:
+   ```typescript
+   const RPC_ENDPOINT = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY';
+   ```
+
+### Why This Matters
+
+Without a proper RPC endpoint:
+- ❌ Network status shows "Offline"
+- ❌ Transaction submissions fail
+- ❌ Wallet connections timeout
+- ❌ Token operations don't work
+
+With a dedicated RPC:
+- ✅ Reliable network connectivity
+- ✅ Fast transaction processing
+- ✅ No rate limiting issues
+- ✅ Production-ready performance
 
 ## Requirements
 

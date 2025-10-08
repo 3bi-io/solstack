@@ -23,8 +23,12 @@ export const Hero = () => {
       
       <div className="relative z-10 px-6 sm:px-8 py-12 sm:py-16 text-center">
         <div className="flex justify-center mb-4 sm:mb-6">
-          <div className="text-7xl sm:text-8xl animate-pulse drop-shadow-2xl">
-            🤖
+          <div className="relative">
+            <div className="text-7xl sm:text-8xl animate-pulse drop-shadow-2xl">
+              🤖
+            </div>
+            {/* Glow effect behind emoji */}
+            <div className="absolute inset-0 blur-2xl bg-primary/20 rounded-full -z-10 animate-pulse" />
           </div>
         </div>
         
@@ -32,20 +36,20 @@ export const Hero = () => {
           ProTools Bundler
         </h1>
         
-        <p className="text-muted-foreground text-lg sm:text-xl mb-6 max-w-2xl mx-auto px-4 leading-relaxed">
+        <p className="text-muted-foreground text-lg sm:text-xl mb-6 max-w-2xl mx-auto px-4 leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
           The ultimate Solana toolkit for token launches, airdrops, and transaction management
         </p>
         
-        <div className="flex flex-wrap items-center justify-center gap-4 text-sm sm:text-base">
-          <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full backdrop-blur-sm">
+        <div className="flex flex-wrap items-center justify-center gap-3 text-sm sm:text-base">
+          <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/20" style={{ animationDelay: '0.2s' }}>
             <Zap className="w-4 h-4 text-accent" />
             <span className="font-medium">Lightning Fast</span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full backdrop-blur-sm">
+          <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/20" style={{ animationDelay: '0.3s' }}>
             <Zap className="w-4 h-4 text-accent" />
             <span className="font-medium">Blockchain Verified</span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full backdrop-blur-sm">
+          <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/20" style={{ animationDelay: '0.4s' }}>
             <Zap className="w-4 h-4 text-accent" />
             <span className="font-medium">Solana API</span>
           </div>

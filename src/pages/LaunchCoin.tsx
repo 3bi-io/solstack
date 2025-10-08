@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Rocket, Coins, Image as ImageIcon, AlertCircle, Wallet } from "lucide-react";
+import { Rocket, Coins, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useWallet } from "@/contexts/WalletContext";
-import { useFeedback } from "@/contexts/FeedbackContext";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SolanaSetupAlert } from "@/components/SolanaSetupAlert";
 import { z } from "zod";
@@ -32,19 +32,17 @@ const LaunchCoin = () => {
   });
   const [isLaunching, setIsLaunching] = useState(false);
   const { toast } = useToast();
-  const { isConnected, seedPhrase } = useWallet();
-  const { openFeedback } = useFeedback();
+  const { connected, publicKey } = useWallet();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isConnected || !seedPhrase) {
+    if (!connected || !publicKey) {
       toast({
         title: "Wallet not connected",
-        description: "Please connect your wallet first",
+        description: "Please connect your wallet using the button below",
         variant: "destructive",
       });
-      openFeedback();
       return;
     }
 
@@ -61,47 +59,21 @@ const LaunchCoin = () => {
 
       setIsLaunching(true);
 
-      // Call edge function to launch token
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data, error } = await supabase.functions.invoke('launch-token', {
-        body: {
-          name: formData.name,
-          symbol: formData.symbol,
-          decimals: formData.decimals,
-          supply: formData.supply,
-          description: formData.description,
-          logoUrl: formData.logoUrl,
-          seedPhrase: seedPhrase,
-        }
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to launch token');
-      }
-
+      // Note: Wallet adapter integration pending - will return unsigned transaction
       toast({
-        title: "Token Launched! 🚀",
-        description: `${formData.name} (${formData.symbol}) has been successfully created on Solana.`,
+        title: "Feature Integration In Progress",
+        description: "Wallet adapter integration is being finalized. Edge functions will be updated to support unsigned transactions.",
+        variant: "destructive",
       });
+      setIsLaunching(false);
+      return;
 
-      // Log explorer link
-      if (data.explorerUrl) {
-        console.log('View token on Solana Explorer:', data.explorerUrl);
-      }
-
-      // Reset form
-      setFormData({
-        name: "",
-        symbol: "",
-        decimals: 9,
-        supply: 1000000,
-        description: "",
-        logoUrl: "",
-      });
+      // TODO: Update edge function to support wallet adapter
+      // Flow will be:
+      // 1. Call edge function with walletPublicKey
+      // 2. Edge function returns unsigned transaction
+      // 3. Sign transaction with wallet adapter
+      // 4. Submit signed transaction
     } catch (error) {
       toast({
         title: "Launch Failed",
@@ -133,7 +105,7 @@ const LaunchCoin = () => {
           <CardContent>
             <SolanaSetupAlert />
             
-            {!isConnected && (
+            {!connected && (
               <div className="space-y-3 mb-6">
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
@@ -141,13 +113,9 @@ const LaunchCoin = () => {
                     Please connect your wallet first to launch tokens.
                   </AlertDescription>
                 </Alert>
-                <Button 
-                  onClick={openFeedback}
-                  className="w-full sm:w-auto"
-                >
-                  <Wallet className="w-4 h-4 mr-2" />
-                  Connect Wallet
-                </Button>
+                <div className="flex justify-center">
+                  <WalletMultiButton />
+                </div>
               </div>
             )}
 
@@ -245,7 +213,7 @@ const LaunchCoin = () => {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={!isConnected || isLaunching}
+                disabled={!connected || isLaunching}
               >
                 {isLaunching ? (
                   "Launching..."

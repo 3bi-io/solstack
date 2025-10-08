@@ -2,13 +2,12 @@ import { useState, useEffect } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Info, AlertCircle, CheckCircle2, AlertTriangle, Activity, Wallet } from "lucide-react";
-import { useWallet } from "@/contexts/WalletContext";
-import { useFeedback } from "@/contexts/FeedbackContext";
+import { Search, Info, AlertCircle, CheckCircle2, AlertTriangle, Activity } from "lucide-react";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
 
@@ -25,13 +24,12 @@ const Logs = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
-  const { isConnected } = useWallet();
-  const { openFeedback } = useFeedback();
+  const { connected } = useWallet();
 
   // Fetch real log data
   useEffect(() => {
     const fetchLogs = async () => {
-      if (isConnected) {
+      if (connected) {
         const { supabase } = await import("@/integrations/supabase/client");
         const { data, error } = await supabase
           .from('activity_logs')
@@ -59,7 +57,7 @@ const Logs = () => {
     };
 
     fetchLogs();
-  }, [isConnected]);
+  }, [connected]);
 
   const filteredLogs = logs.filter(log => {
     const matchesSearch = log.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,20 +123,16 @@ const Logs = () => {
             </div>
           </CardHeader>
           <CardContent>
-            {!isConnected ? (
+            {!connected ? (
               <div className="space-y-4">
                 <Alert>
                   <AlertDescription>
                     Please connect your wallet to view activity logs.
                   </AlertDescription>
                 </Alert>
-                <Button 
-                  onClick={openFeedback}
-                  className="w-full sm:w-auto"
-                >
-                  <Wallet className="w-4 h-4 mr-2" />
-                  Connect Wallet
-                </Button>
+                <div className="flex justify-center mt-4">
+                  <WalletMultiButton />
+                </div>
               </div>
             ) : (
               <Tabs value={activeTab} onValueChange={setActiveTab}>

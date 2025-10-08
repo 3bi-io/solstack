@@ -7,10 +7,10 @@ import { QuickActions } from "@/components/QuickActions";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useWallet } from "@/contexts/WalletContext";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "@/hooks/useTelegram";
-import { useFeedback } from "@/contexts/FeedbackContext";
 import { Badge } from "@/components/ui/badge";
 import { 
   Zap, 
@@ -28,8 +28,7 @@ import {
 
 const Index = () => {
   const { isInTelegram, hapticFeedback } = useTelegram();
-  const { isConnected } = useWallet();
-  const { openFeedback } = useFeedback();
+  const { connected } = useWallet();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
 
@@ -80,7 +79,7 @@ const Index = () => {
         
         <div className="space-y-6 sm:space-y-8 mt-6 sm:mt-8">
           {/* Enhanced CTA Section for Non-Connected Users */}
-          {!isConnected && (
+          {!connected && (
             <div className={`transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <Card className="relative overflow-hidden p-5 sm:p-6 md:p-8 bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 text-center group hover:border-primary/40 transition-all">
                 {/* Animated Background Gradient */}
@@ -111,15 +110,7 @@ const Index = () => {
                   </div>
                   
                   <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 px-2">
-                    <Button 
-                      size="lg" 
-                      onClick={openFeedback}
-                      className="gap-2 group/btn relative overflow-hidden shadow-lg hover:shadow-primary/20 w-full sm:w-auto min-h-[44px] touch-manipulation"
-                    >
-                      <span className="relative z-10 text-sm sm:text-base">Connect Wallet to Get Started</span>
-                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform flex-shrink-0" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary-glow to-primary opacity-0 group-hover/btn:opacity-20 transition-opacity" />
-                    </Button>
+                    <WalletMultiButton className="gap-2 group/btn relative overflow-hidden shadow-lg hover:shadow-primary/20 w-full sm:w-auto min-h-[44px] touch-manipulation" />
                     <Button 
                       size="lg" 
                       variant="outline"
@@ -135,7 +126,7 @@ const Index = () => {
           )}
 
           {/* Quick Actions for Connected Users with Animation */}
-          {isConnected && (
+          {connected && (
             <div className={`transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <QuickActions />
             </div>
@@ -183,7 +174,7 @@ const Index = () => {
           </div>
 
           {/* Enhanced Bottom CTA for Connected Users */}
-          {isConnected && (
+          {connected && (
             <div className={`transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <Card className="relative overflow-hidden p-6 sm:p-8 bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20 text-center group hover:border-primary/40 transition-all">
                 {/* Animated glow effect */}

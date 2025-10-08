@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Gift, Users, Send, AlertCircle, CheckCircle2, Wallet } from "lucide-react";
+import { Gift, Users, Send, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useWallet } from "@/contexts/WalletContext";
-import { useFeedback } from "@/contexts/FeedbackContext";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { z } from "zod";
@@ -29,8 +29,7 @@ const Airdrop = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState<{ address: string; status: "success" | "failed" }[]>([]);
   const { toast } = useToast();
-  const { isConnected, seedPhrase } = useWallet();
-  const { openFeedback } = useFeedback();
+  const { connected, publicKey } = useWallet();
 
   const parseAddresses = (text: string): string[] => {
     return text
@@ -42,13 +41,12 @@ const Airdrop = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isConnected || !seedPhrase) {
+    if (!connected || !publicKey) {
       toast({
         title: "Wallet not connected",
-        description: "Please connect your wallet first",
+        description: "Please connect your wallet using the button below",
         variant: "destructive",
       });
-      openFeedback();
       return;
     }
 
@@ -74,37 +72,21 @@ const Airdrop = () => {
       setIsProcessing(true);
       setResults([]);
 
-      // Call edge function to process airdrop
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data, error } = await supabase.functions.invoke("process-airdrop", {
-        body: {
-          tokenAddress: formData.tokenAddress,
-          amount: amountNum,
-          addresses: addressList,
-          seedPhrase: seedPhrase,
-        },
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || "Failed to process airdrop");
-      }
-
-      // Update results from response
-      setResults(
-        data.results.map((r: any) => ({
-          address: r.address,
-          status: r.status,
-        })),
-      );
-
+      // Note: Wallet adapter integration pending - will return unsigned transaction
       toast({
-        title: "Airdrop Complete! 🎁",
-        description: `Successfully sent ${formData.amount} tokens to ${data.summary.successful}/${addressList.length} addresses.`,
+        title: "Feature Integration In Progress",
+        description: "Wallet adapter integration is being finalized. Edge functions will be updated to support unsigned transactions.",
+        variant: "destructive",
       });
+      setIsProcessing(false);
+      return;
+
+      // TODO: Update edge function to support wallet adapter
+      // Flow will be:
+      // 1. Call edge function with walletPublicKey
+      // 2. Edge function returns unsigned transaction
+      // 3. Sign transaction with wallet adapter
+      // 4. Submit signed transaction
     } catch (error) {
       toast({
         title: "Airdrop Failed",
@@ -139,16 +121,15 @@ const Airdrop = () => {
           <CardContent>
             <SolanaSetupAlert />
 
-            {!isConnected && (
+            {!connected && (
               <div className="space-y-3 mb-6">
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>Please connect your wallet first to perform airdrops.</AlertDescription>
                 </Alert>
-                <Button onClick={openFeedback} className="w-full sm:w-auto">
-                  <Wallet className="w-4 h-4 mr-2" />
-                  Connect Wallet
-                </Button>
+                <div className="flex justify-center">
+                  <WalletMultiButton />
+                </div>
               </div>
             )}
 
@@ -199,7 +180,7 @@ const Airdrop = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={!isConnected || isProcessing}>
+              <Button type="submit" className="w-full" disabled={!connected || isProcessing}>
                 {isProcessing ? (
                   "Processing..."
                 ) : (

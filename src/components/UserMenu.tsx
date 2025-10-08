@@ -11,17 +11,16 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Wallet, LogOut, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useWallet } from "@/contexts/WalletContext";
-import { useFeedback } from "@/contexts/FeedbackContext";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export const UserMenu = () => {
-  const { isConnected, disconnectWallet } = useWallet();
-  const { openFeedback } = useFeedback();
+  const { connected, disconnect, publicKey } = useWallet();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleDisconnect = () => {
-    disconnectWallet();
+  const handleDisconnect = async () => {
+    await disconnect();
     toast({
       title: "Wallet Disconnected",
       description: "Your wallet has been disconnected successfully.",
@@ -29,13 +28,8 @@ export const UserMenu = () => {
     navigate("/");
   };
 
-  if (!isConnected) {
-    return (
-      <Button variant="outline" onClick={openFeedback}>
-        <Wallet className="w-4 h-4 mr-2" />
-        Connect Wallet
-      </Button>
-    );
+  if (!connected) {
+    return <WalletMultiButton />;
   }
 
   return (

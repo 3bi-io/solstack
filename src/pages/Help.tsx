@@ -96,6 +96,14 @@ const Help = () => {
               </AccordionItem>
 
               <AccordionItem value="item-4">
+                <AccordionTrigger className="text-sm">Is ProTools free?</AccordionTrigger>
+                <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
+                  ProTools Bundler is free to all users. Network gas fees (paid in SOL) are additional and go to the
+                  Solana network validators. See our Terms of Service for full details.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-5">
                 <AccordionTrigger className="text-sm">How do I connect my wallet?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
                   Go to the Wallet tab and click "Connect Wallet". You'll need to enter your 12-word recovery phrase
@@ -104,7 +112,7 @@ const Help = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="item-5">
+              <AccordionItem value="item-6">
                 <AccordionTrigger className="text-sm">Is my wallet secure?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
                   Yes. We use bank-grade encryption for all sensitive data, including your recovery phrase. Our database
@@ -114,7 +122,7 @@ const Help = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="item-6">
+              <AccordionItem value="item-7">
                 <AccordionTrigger className="text-sm">Do I need SOL in my wallet?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
                   Yes, you need SOL (Solana's native cryptocurrency) to pay for network transaction fees. These gas fees
@@ -124,7 +132,7 @@ const Help = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="item-7">
+              <AccordionItem value="item-8">
                 <AccordionTrigger className="text-sm">Where can I view my transaction history?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
                   All your transactions are available in the Transactions tab. You can see the type, amount, status, and
@@ -133,7 +141,7 @@ const Help = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="item-8">
+              <AccordionItem value="item-9">
                 <AccordionTrigger className="text-sm">What should I do if a transaction fails?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
                   First, check your wallet balance to ensure you have enough SOL for gas fees. Check the error message

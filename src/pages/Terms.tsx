@@ -41,23 +41,10 @@ const Terms = () => {
                     <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                       <p className="font-semibold text-primary mb-2">Transaction Fee</p>
                       <p className="text-muted-foreground leading-relaxed">
-                        ProTools Bundler charges a <strong className="text-foreground">0.00015 SOL platform fee</strong>{" "}
-                        on all transactions processed through our platform. This fee is automatically calculated and
-                        collected during transaction execution.
+                        ProTools Bundler is a <strong className="text-foreground">free</strong> Platform - Trusted by
+                        10,000+ professionals worldwide.
                       </p>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed">The 0.00015 SOL fee applies to:</p>
-                    <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                      <li>Token launches: 0.00015 SOL of the total token supply is minted as a platform fee</li>
-                      <li>
-                        Airdrops: 0.00015 SOL of the total tokens being distributed is collected as a platform fee
-                      </li>
-                      <li>Other transactions: 0.00015 SOL of the transaction value is deducted automatically</li>
-                    </ul>
-                    <p className="text-muted-foreground leading-relaxed">
-                      This fee helps maintain and improve the platform, ensuring reliable service, security updates, and
-                      new feature development.
-                    </p>
                   </div>
                 </section>
 
@@ -146,7 +133,7 @@ const Terms = () => {
                 <section className="pt-4 border-t">
                   <p className="text-muted-foreground leading-relaxed">
                     By using ProTools Bundler, you acknowledge that you have read, understood, and agree to be bound by
-                    these Terms of Service, including the 0.00015 SOL platform fee on all transactions.
+                    these Terms of Service.
                   </p>
                 </section>
               </div>

@@ -222,3 +222,45 @@ export async function getMarketsData(
     return [];
   }
 }
+
+/**
+ * Global market data interface
+ */
+export interface GlobalMarketData {
+  totalMarketCap: number;
+  totalVolume: number;
+  marketCapChangePercentage24h: number;
+  activeCryptocurrencies: number;
+  markets: number;
+  btcDominance: number;
+  ethDominance: number;
+}
+
+/**
+ * Get global cryptocurrency market data
+ */
+export async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
+  try {
+    const response = await fetch(`${COINGECKO_API_BASE}/global`);
+    
+    if (!response.ok) {
+      throw new Error(`CoinGecko API error: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    const data = result.data;
+    
+    return {
+      totalMarketCap: data.total_market_cap.usd,
+      totalVolume: data.total_volume.usd,
+      marketCapChangePercentage24h: data.market_cap_change_percentage_24h_usd,
+      activeCryptocurrencies: data.active_cryptocurrencies,
+      markets: data.markets,
+      btcDominance: data.market_cap_percentage.btc,
+      ethDominance: data.market_cap_percentage.eth,
+    };
+  } catch (error) {
+    console.error("Error fetching global market data from CoinGecko:", error);
+    return null;
+  }
+}

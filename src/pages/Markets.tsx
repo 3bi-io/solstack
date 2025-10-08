@@ -18,9 +18,11 @@ import {
   Star,
   ArrowUpDown,
   Globe,
-  Sparkles
+  Sparkles,
+  Coins,
+  Filter
 } from "lucide-react";
-import { getTrendingTokens, TokenInfo } from "@/lib/coingecko";
+import { getTrendingTokens, TokenInfo, getGlobalMarketData, GlobalMarketData } from "@/lib/coingecko";
 import { getTopTradingPairs, formatOKXPrice, calculatePriceChange } from "@/lib/okx";
 import { toast } from "@/hooks/use-toast";
 import { MarketCard } from "@/components/markets/MarketCard";
@@ -48,6 +50,7 @@ const Markets = () => {
   const { user } = useAuth();
   const [cgTokens, setCgTokens] = useState<TokenInfo[]>([]);
   const [okxPairs, setOkxPairs] = useState<any[]>([]);
+  const [globalData, setGlobalData] = useState<GlobalMarketData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,13 +64,15 @@ const Markets = () => {
   const loadMarketData = async () => {
     setRefreshing(true);
     try {
-      const [cgData, okxData] = await Promise.all([
+      const [cgData, okxData, global] = await Promise.all([
         getTrendingTokens(),
-        getTopTradingPairs(50)
+        getTopTradingPairs(50),
+        getGlobalMarketData()
       ]);
 
       setCgTokens(cgData);
       setOkxPairs(okxData);
+      setGlobalData(global);
       setUpdateCount(prev => prev + 1);
 
       if (!loading) {
@@ -257,7 +262,7 @@ const Markets = () => {
     <div className="min-h-screen bg-background pb-20">
       <AppHeader />
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Hero Stats Section */}
+        {/* Hero Section */}
         <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10 border-primary/20">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/5 rounded-full blur-3xl" />
@@ -306,53 +311,129 @@ const Markets = () => {
               </div>
             </div>
           </CardHeader>
-          
-          <CardContent>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="p-4 bg-background/60 backdrop-blur-sm rounded-xl border border-border/50 hover:border-primary/30 transition-colors">
-                <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="w-4 h-4 text-accent" />
-                  <p className="text-xs text-muted-foreground">Total Market Cap</p>
-                </div>
-                <p className="text-xl font-bold">
-                  ${(globalStats.totalMarketCap / 1e9).toFixed(2)}B
-                </p>
-              </div>
-              <div className="p-4 bg-background/60 backdrop-blur-sm rounded-xl border border-border/50 hover:border-primary/30 transition-colors">
-                <div className="flex items-center gap-2 mb-2">
-                  <BarChart3 className="w-4 h-4 text-primary" />
-                  <p className="text-xs text-muted-foreground">24h Volume</p>
-                </div>
-                <p className="text-xl font-bold">
-                  ${(globalStats.totalVolume / 1e9).toFixed(2)}B
-                </p>
-              </div>
-              <div className="p-4 bg-background/60 backdrop-blur-sm rounded-xl border border-border/50 hover:border-primary/30 transition-colors">
-                <div className="flex items-center gap-2 mb-2">
-                  <Activity className="w-4 h-4 text-accent" />
-                  <p className="text-xs text-muted-foreground">Avg Change</p>
-                </div>
-                <p className={`text-xl font-bold ${globalStats.avgChange >= 0 ? "text-green-500" : "text-red-500"}`}>
-                  {globalStats.avgChange >= 0 ? "+" : ""}{globalStats.avgChange.toFixed(2)}%
-                </p>
-              </div>
-              <div className="p-4 bg-background/60 backdrop-blur-sm rounded-xl border border-border/50 hover:border-primary/30 transition-colors">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                  <p className="text-xs text-muted-foreground">Top Gainers</p>
-                </div>
-                <p className="text-xl font-bold text-green-500">{globalStats.gainers}</p>
-              </div>
-              <div className="p-4 bg-background/60 backdrop-blur-sm rounded-xl border border-border/50 hover:border-primary/30 transition-colors">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingDown className="w-4 h-4 text-red-500" />
-                  <p className="text-xs text-muted-foreground">Top Losers</p>
-                </div>
-                <p className="text-xl font-bold text-red-500">{globalStats.losers}</p>
-              </div>
-            </div>
-          </CardContent>
         </Card>
+
+        {/* Global Market Stats */}
+        {globalData && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-bold">Global Crypto Market</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Market Cap</p>
+                    <p className="text-2xl font-bold mt-1">
+                      ${(globalData.totalMarketCap / 1e12).toFixed(2)}T
+                    </p>
+                    <p className={`text-xs mt-1 ${globalData.marketCapChangePercentage24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {globalData.marketCapChangePercentage24h >= 0 ? '+' : ''}{globalData.marketCapChangePercentage24h.toFixed(2)}% (24h)
+                    </p>
+                  </div>
+                  <DollarSign className="h-8 w-8 text-primary" />
+                </div>
+              </Card>
+
+              <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/30">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">24h Volume</p>
+                    <p className="text-2xl font-bold mt-1">
+                      ${(globalData.totalVolume / 1e9).toFixed(2)}B
+                    </p>
+                  </div>
+                  <BarChart3 className="h-8 w-8 text-accent" />
+                </div>
+              </Card>
+
+              <Card className="p-6 bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/30">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">BTC Dominance</p>
+                    <p className="text-2xl font-bold mt-1">
+                      {globalData.btcDominance.toFixed(1)}%
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ETH: {globalData.ethDominance.toFixed(1)}%
+                    </p>
+                  </div>
+                  <Coins className="h-8 w-8 text-orange-500" />
+                </div>
+              </Card>
+
+              <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Coins</p>
+                    <p className="text-2xl font-bold mt-1">
+                      {globalData.activeCryptocurrencies.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {globalData.markets.toLocaleString()} markets
+                    </p>
+                  </div>
+                  <Activity className="h-8 w-8 text-blue-500" />
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Loaded Tokens Stats */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Filter className="w-5 h-5 text-muted-foreground" />
+            <h2 className="text-xl font-bold">Loaded Tokens</h2>
+            <Badge variant="outline" className="text-xs">
+              {filteredAndSortedData.length} tokens
+            </Badge>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="p-4 bg-card rounded-xl border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <DollarSign className="w-4 h-4 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">Market Cap</p>
+              </div>
+              <p className="text-xl font-bold">
+                ${(globalStats.totalMarketCap / 1e9).toFixed(2)}B
+              </p>
+            </div>
+            <div className="p-4 bg-card rounded-xl border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">24h Volume</p>
+              </div>
+              <p className="text-xl font-bold">
+                ${(globalStats.totalVolume / 1e9).toFixed(2)}B
+              </p>
+            </div>
+            <div className="p-4 bg-card rounded-xl border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="w-4 h-4 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">Avg Change</p>
+              </div>
+              <p className={`text-xl font-bold ${globalStats.avgChange >= 0 ? "text-green-500" : "text-red-500"}`}>
+                {globalStats.avgChange >= 0 ? "+" : ""}{globalStats.avgChange.toFixed(2)}%
+              </p>
+            </div>
+            <div className="p-4 bg-card rounded-xl border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="w-4 h-4 text-green-500" />
+                <p className="text-xs text-muted-foreground">Gainers</p>
+              </div>
+              <p className="text-xl font-bold text-green-500">{globalStats.gainers}</p>
+            </div>
+            <div className="p-4 bg-card rounded-xl border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingDown className="w-4 h-4 text-red-500" />
+                <p className="text-xs text-muted-foreground">Losers</p>
+              </div>
+              <p className="text-xl font-bold text-red-500">{globalStats.losers}</p>
+            </div>
+          </div>
+        </div>
 
         {/* Filters & Market List */}
         <Card>

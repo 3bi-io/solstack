@@ -1,6 +1,6 @@
 import { Zap } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
-import heroLogo from "@/assets/robot-icon.png";
+import heroLogo from "@/assets/robot-hero.png";
 import { UserMenu } from "@/components/UserMenu";
 
 export const Hero = () => {

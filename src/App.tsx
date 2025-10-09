@@ -3,9 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { FeedbackProvider, useFeedback } from "@/contexts/FeedbackContext";
-import { WalletProvider } from "@/contexts/WalletContext";
-import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { GrokChatWidget } from "@/components/GrokChatWidget";
 import { PoweredByBadge } from "@/components/PoweredByBadge";
 import { useState } from "react";
@@ -34,7 +31,6 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { isOpen, closeFeedback } = useFeedback();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showBadge, setShowBadge] = useState(true);
   const [chatbotActive, setChatbotActive] = useState(false);
@@ -46,10 +42,6 @@ const AppContent = () => {
 
   return (
     <>
-      <FeedbackDialog 
-        open={isOpen} 
-        onClose={closeFeedback}
-      />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
@@ -91,11 +83,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <WalletProvider>
-          <FeedbackProvider>
-            <AppContent />
-          </FeedbackProvider>
-        </WalletProvider>
+        <AppContent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

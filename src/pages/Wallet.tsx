@@ -1,27 +1,14 @@
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Wallet as WalletIcon, CheckCircle2, XCircle } from "lucide-react";
-import { useTelegram } from "@/hooks/useTelegram";
-import { useFeedback } from "@/contexts/FeedbackContext";
-import { useWallet } from "@/contexts/WalletContext";
+import { Wallet as WalletIcon, CheckCircle2, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { WalletConnectButton } from "@/components/WalletConnectButton";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Wallet = () => {
-  const { hapticFeedback } = useTelegram();
-  const { openFeedback } = useFeedback();
-  const { isConnected, disconnectWallet } = useWallet();
-
-  const handleConnect = () => {
-    hapticFeedback.impact("medium");
-    openFeedback();
-  };
-
-  const handleDisconnect = () => {
-    hapticFeedback.impact("medium");
-    disconnectWallet();
-  };
+  const { connected, publicKey } = useWallet();
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -36,7 +23,7 @@ const Wallet = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <CardTitle className="text-lg sm:text-xl">Wallet Connection</CardTitle>
-                  {isConnected && (
+                  {connected && (
                     <Badge variant="default" className="gap-1">
                       <CheckCircle2 className="w-3 h-3" />
                       Connected
@@ -44,23 +31,23 @@ const Wallet = () => {
                   )}
                 </div>
                 <CardDescription className="text-xs sm:text-sm">
-                  {isConnected ? "Your wallet is connected and all features are enabled" : "Connect and manage your wallets"}
+                  {connected ? "Your wallet is connected and all features are enabled" : "Connect your Solana wallet"}
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {isConnected ? (
+            {connected && publicKey ? (
               <>
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-primary mt-0.5" />
                     <div className="flex-1">
                       <h3 className="font-semibold text-sm mb-1">Wallet Connected</h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground mb-2">
                         Your wallet is successfully connected. You now have full access to all features including:
                       </p>
-                      <ul className="text-xs text-muted-foreground mt-2 space-y-1 ml-4 list-disc">
+                      <ul className="text-xs text-muted-foreground space-y-1 ml-4 list-disc">
                         <li>Launch new coins</li>
                         <li>View transaction history</li>
                         <li>Manage airdrops</li>
@@ -69,20 +56,31 @@ const Wallet = () => {
                     </div>
                   </div>
                 </div>
-                <Button onClick={handleDisconnect} variant="outline" className="w-full">
-                  <XCircle className="w-4 h-4 mr-2" />
-                  Disconnect Wallet
-                </Button>
+                
+                <div className="bg-muted/30 border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1 font-medium">Connected Address</p>
+                  <p className="font-mono text-xs break-all">{publicKey.toBase58()}</p>
+                </div>
+                
+                <div className="flex justify-center pt-2">
+                  <WalletConnectButton />
+                </div>
               </>
             ) : (
               <>
-                <Button onClick={handleConnect} className="w-full">
-                  <WalletIcon className="w-4 h-4 mr-2" />
-                  Connect Wallet
-                </Button>
-                <div className="text-center py-4 text-muted-foreground">
-                  <p className="text-xs">No wallets connected yet</p>
-                  <p className="text-xs mt-1">Connect your wallet to unlock all features</p>
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    Click the button below to connect your Solana wallet. We support Phantom, Solflare, and other popular wallet extensions.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="flex flex-col items-center gap-4 py-6">
+                  <WalletConnectButton />
+                  <div className="text-center text-muted-foreground">
+                    <p className="text-xs">No wallet connected yet</p>
+                    <p className="text-xs mt-1">Connect your wallet to unlock all features</p>
+                  </div>
                 </div>
               </>
             )}

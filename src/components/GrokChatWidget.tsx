@@ -140,7 +140,7 @@ export const GrokChatWidget = () => {
       <Button
         onClick={() => setIsOpen(true)}
         size="lg"
-        className={`fixed ${isMobile ? 'bottom-4 right-4 h-16 w-16' : 'bottom-6 right-6 h-14 w-14'} rounded-full shadow-lg hover:scale-110 transition-transform z-50`}
+        className={`fixed ${isMobile ? 'bottom-20 right-4 h-16 w-16' : 'bottom-24 right-6 h-14 w-14'} rounded-full shadow-lg hover:scale-110 transition-transform z-50`}
       >
         <div className="relative">
           <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-full blur opacity-75 animate-pulse" />
@@ -174,7 +174,7 @@ export const GrokChatWidget = () => {
 
   return (
     <Card 
-      className={`fixed bottom-6 right-6 w-96 shadow-2xl z-50 flex flex-col transition-all overflow-hidden ${
+      className={`fixed bottom-24 right-6 w-96 shadow-2xl z-50 flex flex-col transition-all overflow-hidden ${
         isMinimized ? 'h-14' : 'h-[600px]'
       }`}
     >

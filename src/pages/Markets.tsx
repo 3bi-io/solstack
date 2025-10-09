@@ -62,6 +62,25 @@ const Markets = () => {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [selectedToken, setSelectedToken] = useState<MarketData | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      
+      setIsAdmin(!!data);
+    };
+    
+    checkAdmin();
+  }, [user]);
 
   const loadMarketData = async () => {
     setRefreshing(true);
@@ -75,7 +94,7 @@ const Markets = () => {
       setMoonShotTokens(moonData);
       setUpdateCount(prev => prev + 1);
 
-      if (!loading) {
+      if (!loading && isAdmin) {
         toast({
           title: "Markets Updated",
           description: `Loaded ${okxData.length} OKX + ${moonData.length} MoonShot tokens`,

@@ -4,7 +4,6 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { 
   PhantomWalletAdapter, 
   SolflareWalletAdapter,
-  CoinbaseWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
@@ -28,7 +27,6 @@ export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({ children }) 
     () => [
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
-      new CoinbaseWalletAdapter(),
       // OKX Wallet will auto-detect if installed
     ],
     []

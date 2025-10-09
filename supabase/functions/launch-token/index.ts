@@ -142,7 +142,7 @@ serve(async (req) => {
 
       console.log('Token account created:', tokenAccount.address.toString());
 
-      // Calculate platform fee (7%)
+      // Calculate platform fee (0.00015 SOL)
       const userSupply = BigInt(tokenData.supply) * BigInt(10 ** tokenData.decimals);
       const platformFee = (userSupply * BigInt(7)) / BigInt(100);
 

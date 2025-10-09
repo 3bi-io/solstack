@@ -134,7 +134,7 @@ serve(async (req) => {
 
     console.log('Sender token account:', senderTokenAccount.address.toString());
 
-    // Calculate platform fee (7% of total airdrop)
+    // Calculate platform fee (0.00015 SOL of total airdrop)
     const totalAirdropAmount = BigInt(airdropData.amount) * BigInt(airdropData.addresses.length) * BigInt(10 ** 9);
     const platformFee = (totalAirdropAmount * BigInt(7)) / BigInt(100);
 

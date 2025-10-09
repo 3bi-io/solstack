@@ -120,9 +120,14 @@ export const WalletConnectButton = () => {
 
   return (
     <div className="relative group">
-      <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-300 animate-pulse" />
+      <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-500 animate-pulse" />
       <div className="relative">
-        <WalletMultiButton className="!bg-gradient-to-r !from-primary !to-accent hover:!from-primary/90 hover:!to-accent/90 !transition-all !duration-300 !shadow-lg hover:!shadow-primary/50 !border-0 !min-h-[38px] !h-auto !py-2 !px-4" />
+        <WalletMultiButton className="!bg-gradient-to-r !from-primary !to-accent hover:!from-primary/90 hover:!to-accent/90 !transition-all !duration-300 !shadow-xl hover:!shadow-primary/60 hover:!scale-105 !border-0 !min-h-[40px] !h-auto !py-2.5 !px-5 !rounded-lg !font-semibold !text-sm">
+          <span className="flex items-center gap-2">
+            <Zap className="w-4 h-4 animate-pulse" />
+            Connect Wallet
+          </span>
+        </WalletMultiButton>
       </div>
     </div>
   );

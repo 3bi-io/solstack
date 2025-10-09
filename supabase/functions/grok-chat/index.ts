@@ -6,6 +6,58 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Function to detect Solana token address (44 character base58 string)
+const isSolanaAddress = (text: string): boolean => {
+  const addressRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/;
+  return addressRegex.test(text);
+};
+
+// Function to fetch token data from DexScreener
+const fetchTokenData = async (tokenAddress: string) => {
+  try {
+    console.log('Fetching token data for:', tokenAddress);
+    
+    const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`);
+    
+    if (!response.ok) {
+      throw new Error(`DexScreener API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.pairs || data.pairs.length === 0) {
+      return null;
+    }
+    
+    // Get the most liquid pair
+    const mainPair = data.pairs.sort((a: any, b: any) => 
+      (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0)
+    )[0];
+    
+    return {
+      name: mainPair.baseToken?.name || 'Unknown',
+      symbol: mainPair.baseToken?.symbol || 'Unknown',
+      address: tokenAddress,
+      priceUsd: mainPair.priceUsd || '0',
+      priceChange24h: mainPair.priceChange?.h24 || 0,
+      volume24h: mainPair.volume?.h24 || 0,
+      liquidity: mainPair.liquidity?.usd || 0,
+      fdv: mainPair.fdv || 0,
+      marketCap: mainPair.marketCap || 0,
+      dexId: mainPair.dexId || 'Unknown',
+      pairAddress: mainPair.pairAddress || 'Unknown',
+      txns24h: {
+        buys: mainPair.txns?.h24?.buys || 0,
+        sells: mainPair.txns?.h24?.sells || 0
+      },
+      info: mainPair.info || {}
+    };
+  } catch (error) {
+    console.error('Error fetching token data:', error);
+    return null;
+  }
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -19,9 +71,55 @@ serve(async (req) => {
       throw new Error('GROK_API_KEY not configured');
     }
 
+    // Check if the latest message contains a Solana token address
+    const lastMessage = messages[messages.length - 1];
+    let enrichedMessages = [...messages];
+    
+    if (lastMessage && lastMessage.role === 'user' && isSolanaAddress(lastMessage.content)) {
+      // Extract potential token addresses from the message
+      const addressMatch = lastMessage.content.match(/\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/);
+      
+      if (addressMatch) {
+        const tokenAddress = addressMatch[0];
+        const tokenData = await fetchTokenData(tokenAddress);
+        
+        if (tokenData) {
+          console.log('Token data fetched successfully:', tokenData.symbol);
+          
+          // Add context about the token to the conversation
+          const contextMessage = {
+            role: 'system',
+            content: `The user just pasted a Solana token address. Here's the live data I fetched:
+
+🪙 Token: ${tokenData.name} (${tokenData.symbol})
+📍 Address: ${tokenData.address}
+💰 Current Price: $${parseFloat(tokenData.priceUsd).toFixed(8)}
+📊 24h Change: ${tokenData.priceChange24h > 0 ? '+' : ''}${tokenData.priceChange24h.toFixed(2)}%
+📈 24h Volume: $${tokenData.volume24h.toLocaleString()}
+💧 Liquidity: $${tokenData.liquidity.toLocaleString()}
+🏦 Market Cap: $${tokenData.marketCap.toLocaleString()}
+💎 FDV: $${tokenData.fdv.toLocaleString()}
+🔄 DEX: ${tokenData.dexId}
+📝 24h Transactions: ${tokenData.txns24h.buys} buys, ${tokenData.txns24h.sells} sells
+
+Provide a comprehensive analysis of this token based on these metrics. Include:
+1. Price action and trend analysis
+2. Liquidity and volume assessment (is it healthy?)
+3. Market sentiment based on buy/sell ratio
+4. Risk factors to consider (liquidity, volatility, etc.)
+5. Any notable observations or red flags
+
+Be direct and start your response immediately with the analysis.`
+          };
+          
+          enrichedMessages = [contextMessage, ...messages];
+        }
+      }
+    }
+
     const systemPrompt = {
       role: 'system',
-      content: `You are a cryptocurrency expert AI assistant powered by Grok. You have deep knowledge about:
+      content: `You are an expert cryptocurrency analyst and Solana blockchain specialist powered by xAI's Grok. You have deep knowledge about:
 - Blockchain technology and consensus mechanisms
 - Major cryptocurrencies (Bitcoin, Ethereum, Solana, etc.)
 - DeFi protocols and smart contracts
@@ -31,7 +129,17 @@ serve(async (req) => {
 - Cryptocurrency regulations and compliance
 - Security best practices for crypto assets
 
-Provide accurate, helpful, and concise answers. When discussing prices or market predictions, always include appropriate disclaimers. Be conversational but professional.`
+**SPECIAL CAPABILITY**: When a user pastes a Solana token address (a 32-44 character base58 string), you automatically recognize it and receive live market data. You then provide detailed metrics and analysis about that token.
+
+When analyzing tokens, focus on:
+- Price trends and momentum indicators
+- Liquidity depth and health
+- Trading volume patterns and velocity
+- Buy/sell pressure and market sentiment
+- Risk factors (low liquidity, high volatility, potential rugpulls)
+- Market cap and FDV analysis
+
+Always cite specific data points when making claims. Be honest about risks and limitations. Provide actionable insights. Be conversational but professional.`
     };
 
     console.log('Calling Grok API with messages:', messages.length);
@@ -44,9 +152,9 @@ Provide accurate, helpful, and concise answers. When discussing prices or market
       },
       body: JSON.stringify({
         model: 'grok-3',
-        messages: [systemPrompt, ...messages],
+        messages: [systemPrompt, ...enrichedMessages],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 1500,
         stream: false,
       }),
     });

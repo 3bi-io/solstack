@@ -1,6 +1,5 @@
-import { Zap, Sparkles, Brain, TrendingUp } from "lucide-react";
-import solstackLogo from "@/assets/solstack-logo.png";
 import heroBackground from "@/assets/hero-background.jpeg";
+import { HeroLogo, HeroTitle, HeroDescription, HeroFeatures } from "./hero";
 
 export const Hero = () => {
   return (
@@ -17,55 +16,10 @@ export const Hero = () => {
       </div>
       
       <div className="relative z-10 px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 text-center">
-        <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
-          <div className="relative">
-            <img 
-              src={solstackLogo} 
-              alt="SOLSTACK Logo" 
-              className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 drop-shadow-2xl object-contain rounded-2xl liquid-flow"
-            />
-            {/* Glow effect behind logo */}
-            <div className="absolute inset-0 blur-2xl bg-primary/30 rounded-full -z-10 animate-pulse" />
-          </div>
-        </div>
-        
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-2 sm:mb-3 md:mb-4 tracking-tight animate-fade-in px-2 relative">
-          <span className="relative inline-block">
-            <span className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary blur-2xl opacity-50 animate-pulse" />
-            <span className="relative bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent [text-shadow:0_0_80px_rgba(var(--primary-rgb),0.5)]" style={{ 
-              WebkitTextStroke: '1px rgba(var(--primary-rgb), 0.3)',
-              letterSpacing: '0.02em'
-            }}>
-              SOLSTACK
-            </span>
-          </span>
-        </h1>
-        
-        <div className="mb-2 sm:mb-3 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-          <span className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1 sm:py-1.5 bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/40 rounded-full text-xs sm:text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20">
-            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-            First Ever AI-Powered DeFi Platform
-          </span>
-        </div>
-        
-        <p className="text-base sm:text-lg md:text-xl mb-4 sm:mb-6 max-w-3xl mx-auto px-4 leading-relaxed animate-fade-in text-muted-foreground" style={{ animationDelay: '0.1s' }}>
-          Experience the cutting edge of <span className="text-primary font-semibold">AI-driven Solana trading</span>. Revolutionary token launches, intelligent market analysis, and automated DeFi strategies powered by advanced machine learning.
-        </p>
-        
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base px-2">
-          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/30 shadow-lg shadow-primary/10" style={{ animationDelay: '0.2s' }}>
-            <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0 animate-pulse" />
-            <span className="font-medium whitespace-nowrap">AI Market Analysis</span>
-          </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/30 shadow-lg shadow-primary/10" style={{ animationDelay: '0.3s' }}>
-            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
-            <span className="font-medium whitespace-nowrap">Smart Trading</span>
-          </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/30 shadow-lg shadow-primary/10" style={{ animationDelay: '0.4s' }}>
-            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
-            <span className="font-medium whitespace-nowrap">Lightning Fast</span>
-          </div>
-        </div>
+        <HeroLogo />
+        <HeroTitle />
+        <HeroDescription />
+        <HeroFeatures />
       </div>
     </div>
   );

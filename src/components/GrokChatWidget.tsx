@@ -294,7 +294,7 @@ export const GrokChatWidget = ({
   );
 
   const ChatInput = () => (
-    <div className="p-4 border-t bg-background">
+    <div className="p-4 border-t bg-background" onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
       <div className="flex gap-2">
         <Input
           value={input}

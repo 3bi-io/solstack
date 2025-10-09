@@ -88,8 +88,7 @@ const Index = () => {
                     ))}
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                    <WalletMultiButton className="gap-2 shadow-lg hover:shadow-primary/20 min-h-[44px]" />
+                  <div className="flex justify-center pt-2">
                     <Button 
                       size="lg" 
                       variant="outline"

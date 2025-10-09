@@ -33,7 +33,6 @@ const mainNavItems = [
   { icon: Rocket, label: "Launch", path: "/launch" },
   { icon: Gift, label: "Airdrop", path: "/airdrop" },
   { icon: Repeat, label: "Swap", path: "/swap" },
-  { icon: BarChart3, label: "Analytics", path: "/analytics" },
 ];
 
 const moreNavItems = [

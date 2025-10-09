@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FeedbackProvider, useFeedback } from "@/contexts/FeedbackContext";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
+import { GrokChatWidget } from "@/components/GrokChatWidget";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import LaunchCoin from "./pages/LaunchCoin";
@@ -80,6 +81,7 @@ const App = () => (
           </FeedbackProvider>
         </WalletProvider>
       </BrowserRouter>
+      <GrokChatWidget />
     </TooltipProvider>
   </QueryClientProvider>
 );

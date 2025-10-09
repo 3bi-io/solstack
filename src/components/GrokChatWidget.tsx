@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { X, Send, Minimize2, Maximize2, Sparkles } from "lucide-react";
+import { X, Send, Minimize2, Maximize2, Sparkles, Move } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -13,6 +13,13 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+const CHAT_POSITION_KEY = "grok-chat-position";
 
 export const GrokChatWidget = () => {
   const isMobile = useIsMobile();
@@ -27,12 +34,167 @@ export const GrokChatWidget = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // Drag functionality
+  const [position, setPosition] = useState<Position>({ x: 24, y: 96 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
+  const [velocity, setVelocity] = useState<Position>({ x: 0, y: 0 });
+  const chatRef = useRef<HTMLDivElement>(null);
+  const lastPositionRef = useRef<Position & { time: number }>({ x: 0, y: 0, time: 0 });
+  const animationFrameRef = useRef<number>();
+
+  // Load saved position
+  useEffect(() => {
+    const saved = localStorage.getItem(CHAT_POSITION_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setPosition(parsed);
+      } catch (e) {
+        console.error("Failed to load chat position:", e);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const savePosition = (pos: Position) => {
+    localStorage.setItem(CHAT_POSITION_KEY, JSON.stringify(pos));
+  };
+
+  const constrainPosition = (x: number, y: number): Position => {
+    const maxX = window.innerWidth - (chatRef.current?.offsetWidth || 0);
+    const maxY = window.innerHeight - (chatRef.current?.offsetHeight || 0);
+    return {
+      x: Math.max(0, Math.min(x, maxX)),
+      y: Math.max(0, Math.min(y, maxY)),
+    };
+  };
+
+  const handleDragStart = (clientX: number, clientY: number) => {
+    if (!chatRef.current || isMinimized) return;
+    
+    const rect = chatRef.current.getBoundingClientRect();
+    setDragOffset({
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    });
+    lastPositionRef.current = { x: clientX, y: clientY, time: Date.now() };
+    setIsDragging(true);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    handleDragStart(e.clientX, e.clientY);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    handleDragStart(touch.clientX, touch.clientY);
+  };
+
+  // Handle momentum/inertia after drag release
+  useEffect(() => {
+    if (isDragging || velocity.x === 0 && velocity.y === 0) return;
+
+    let currentVelocity = { ...velocity };
+    const friction = 0.92;
+    const minVelocity = 0.5;
+
+    const animate = () => {
+      if (Math.abs(currentVelocity.x) < minVelocity && Math.abs(currentVelocity.y) < minVelocity) {
+        setVelocity({ x: 0, y: 0 });
+        return;
+      }
+
+      currentVelocity = {
+        x: currentVelocity.x * friction,
+        y: currentVelocity.y * friction,
+      };
+
+      setPosition(prev => {
+        const newPos = constrainPosition(
+          prev.x + currentVelocity.x,
+          prev.y + currentVelocity.y
+        );
+        savePosition(newPos);
+        return newPos;
+      });
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isDragging, velocity]);
+
+  useEffect(() => {
+    const handleMove = (clientX: number, clientY: number) => {
+      if (!isDragging) return;
+
+      const now = Date.now();
+      const dt = now - lastPositionRef.current.time;
+
+      if (dt > 0) {
+        const vx = (clientX - lastPositionRef.current.x) / dt * 16;
+        const vy = (clientY - lastPositionRef.current.y) / dt * 16;
+        setVelocity({ x: vx, y: vy });
+      }
+
+      lastPositionRef.current = { x: clientX, y: clientY, time: now };
+
+      const newPos = constrainPosition(
+        clientX - dragOffset.x,
+        clientY - dragOffset.y
+      );
+      setPosition(newPos);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      e.preventDefault();
+      handleMove(e.clientX, e.clientY);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      handleMove(touch.clientX, touch.clientY);
+    };
+
+    const handleEnd = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        savePosition(position);
+      }
+    };
+
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove, { passive: false });
+      window.addEventListener("mouseup", handleEnd);
+      window.addEventListener("touchmove", handleTouchMove, { passive: false });
+      window.addEventListener("touchend", handleEnd);
+      window.addEventListener("touchcancel", handleEnd);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleEnd);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleEnd);
+      window.removeEventListener("touchcancel", handleEnd);
+    };
+  }, [isDragging, dragOffset, position]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -174,17 +336,30 @@ export const GrokChatWidget = () => {
 
   return (
     <Card 
-      className={`fixed bottom-24 right-6 w-96 shadow-2xl z-50 flex flex-col transition-all overflow-hidden ${
+      ref={chatRef}
+      className={`fixed touch-none w-96 shadow-2xl z-50 flex flex-col overflow-hidden ${
         isMinimized ? 'h-14' : 'h-[600px]'
-      }`}
+      } ${isDragging ? 'cursor-grabbing scale-105' : ''}`}
+      style={{
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+      }}
     >
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground">
+      <div 
+        className={`flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground ${
+          !isMinimized ? 'cursor-grab' : ''
+        }`}
+        onMouseDown={!isMinimized ? handleMouseDown : undefined}
+        onTouchStart={!isMinimized ? handleTouchStart : undefined}
+      >
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="absolute -inset-1 bg-white/20 rounded-lg blur" />
             <Sparkles className="relative h-5 w-5" />
           </div>
-          <span className="font-semibold">xAI Crypto Assistant</span>
+          <span className="font-semibold select-none">xAI Crypto Assistant</span>
+          {!isMinimized && <Move className="h-4 w-4 opacity-60" />}
         </div>
         <div className="flex items-center gap-1">
           <Button

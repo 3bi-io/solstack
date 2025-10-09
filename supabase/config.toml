@@ -25,7 +25,7 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.ai-market-analysis]
-verify_jwt = true
+verify_jwt = false
 
 [functions.grok-chat]
 verify_jwt = false

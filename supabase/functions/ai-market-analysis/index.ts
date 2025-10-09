@@ -20,22 +20,21 @@ serve(async (req) => {
     const perplexityKey = Deno.env.get('PERPLEXITY_API_KEY');
     const grokKey = Deno.env.get('GROK_API_KEY');
 
+    // Auth is optional - allow public access but save to DB if user is logged in
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('Missing authorization header');
-    }
-
     const supabase = createClient(supabaseUrl, supabaseKey, {
       global: {
-        headers: { Authorization: authHeader }
+        headers: authHeader ? { Authorization: authHeader } : {}
       }
     });
     
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user) {
-      console.error('Auth error:', userError);
-      throw new Error('Unauthorized');
+    let user = null;
+    if (authHeader) {
+      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
+      if (!userError && authUser) {
+        user = authUser;
+        console.log('Authenticated user:', user.id);
+      }
     }
 
     const { tokenAddress, tokenSymbol, marketData, analysisType, aiModel } = await req.json();
@@ -219,35 +218,49 @@ Format as JSON with: entry_points, exit_points, stop_loss, risk_reward, strategy
       confidenceLevel = analysisResult.confidence_level || 'medium';
     }
 
-    // Store analysis in database
-    const { data: savedAnalysis, error: dbError } = await supabase
-      .from('market_analysis')
-      .insert({
-        user_id: user.id,
-        token_address: tokenAddress,
-        token_symbol: tokenSymbol,
-        analysis_type: analysisType,
-        ai_model: aiModel,
-        market_data: marketData,
-        analysis_result: analysisResult,
-        sentiment_score: sentimentScore,
-        price_prediction: pricePrediction,
-        confidence_level: confidenceLevel,
-      })
-      .select()
-      .single();
+    // Store analysis in database only if user is authenticated
+    let savedAnalysis = null;
+    if (user) {
+      const { data, error: dbError } = await supabase
+        .from('market_analysis')
+        .insert({
+          user_id: user.id,
+          token_address: tokenAddress,
+          token_symbol: tokenSymbol,
+          analysis_type: analysisType,
+          ai_model: aiModel,
+          market_data: marketData,
+          analysis_result: analysisResult,
+          sentiment_score: sentimentScore,
+          price_prediction: pricePrediction,
+          confidence_level: confidenceLevel,
+        })
+        .select()
+        .single();
 
-    if (dbError) {
-      console.error('Database error:', dbError);
-      throw dbError;
+      if (dbError) {
+        console.error('Database error:', dbError);
+        // Don't throw - continue with analysis even if DB save fails
+      } else {
+        savedAnalysis = data;
+      }
     }
 
-    console.log(`Analysis completed for ${tokenSymbol}`);
+    console.log(`Analysis completed for ${tokenSymbol}${user ? ' (saved to DB)' : ' (public access)'}`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        analysis: savedAnalysis 
+        analysis: savedAnalysis || {
+          token_address: tokenAddress,
+          token_symbol: tokenSymbol,
+          analysis_type: analysisType,
+          ai_model: aiModel,
+          analysis_result: analysisResult,
+          sentiment_score: sentimentScore,
+          price_prediction: pricePrediction,
+          confidence_level: confidenceLevel,
+        }
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

@@ -89,6 +89,7 @@ export const AIMarketAnalysis = ({ tokenAddress, tokenSymbol, marketData }: AIMa
               <SelectItem value="gpt">GPT-4o Mini</SelectItem>
               <SelectItem value="claude">Claude Sonnet 4</SelectItem>
               <SelectItem value="perplexity">Perplexity</SelectItem>
+              <SelectItem value="grok">Grok (xAI)</SelectItem>
             </SelectContent>
           </Select>
         </div>

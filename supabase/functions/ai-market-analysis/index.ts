@@ -18,6 +18,7 @@ serve(async (req) => {
     const openaiKey = Deno.env.get('OPENAI_API_KEY');
     const claudeKey = Deno.env.get('CLAUDE_API_KEY');
     const perplexityKey = Deno.env.get('PERPLEXITY_API_KEY');
+    const grokKey = Deno.env.get('GROK_API_KEY');
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     
@@ -146,6 +147,31 @@ Format as JSON with: entry_points, exit_points, stop_loss, risk_reward, strategy
             { role: 'user', content: prompt }
           ],
           temperature: 0.2,
+        }),
+      });
+
+      const data = await response.json();
+      const content = data.choices[0].message.content;
+      
+      try {
+        analysisResult = JSON.parse(content);
+      } catch {
+        analysisResult = { analysis: content };
+      }
+    } else if (aiModel === 'grok' && grokKey) {
+      const response = await fetch('https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${grokKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'grok-beta',
+          messages: [
+            { role: 'system', content: 'You are a crypto market analysis expert with real-time data access. Always respond with valid JSON.' },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7,
         }),
       });
 

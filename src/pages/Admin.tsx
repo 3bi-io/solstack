@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Shield, Download, Users, Eye, Trash2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Shield, Download, Users, Eye, Trash2, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { AdminStats } from "@/components/admin/AdminStats";
 import { SubmissionDetailDialog } from "@/components/admin/SubmissionDetailDialog";
 import { DeleteConfirmDialog } from "@/components/admin/DeleteConfirmDialog";
+import { TokenPredictions } from "@/components/admin/TokenPredictions";
 import { useToast } from "@/hooks/use-toast";
 
 interface WalletConnection {
@@ -195,7 +197,7 @@ const Admin = () => {
               <Shield className="w-6 h-6 text-primary" />
               <div className="flex-1">
                 <CardTitle className="text-xl sm:text-2xl">Admin Dashboard</CardTitle>
-                <CardDescription>Secure wallet connection management</CardDescription>
+                <CardDescription>Secure management and AI-powered analytics</CardDescription>
               </div>
               <Badge variant="secondary" className="gap-2">
                 <Users className="w-3 h-3" />
@@ -214,112 +216,128 @@ const Admin = () => {
           />
         </div>
 
-        <Card className="bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-              <CardTitle className="text-lg">Wallet Connections</CardTitle>
-              <div className="flex gap-2 w-full sm:w-auto">
-                <div className="relative flex-1 sm:w-64">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by username or ID..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8"
-                  />
+        <Tabs defaultValue="connections" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="connections">Wallet Connections</TabsTrigger>
+            <TabsTrigger value="predictions">
+              <Brain className="w-4 h-4 mr-2" />
+              AI Trading Insights
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="connections">
+            <Card className="bg-card/50 backdrop-blur-sm">
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                  <CardTitle className="text-lg">Wallet Connections</CardTitle>
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <div className="relative flex-1 sm:w-64">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search by username or ID..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-8"
+                      />
+                    </div>
+                    <Button onClick={exportToCSV} variant="outline" size="icon">
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <Button onClick={exportToCSV} variant="outline" size="icon">
-                  <Download className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Telegram User</TableHead>
-                    <TableHead>User ID</TableHead>
-                    <TableHead>Created At</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Completion</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredConnections.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        No submissions found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredConnections.map((conn) => (
-                      <TableRow key={conn.id}>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {conn.telegram_first_name || "Unknown"}
-                            </span>
-                            {conn.telegram_username && (
-                              <span className="text-xs text-muted-foreground">
-                                @{conn.telegram_username}
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {conn.telegram_user_id ? (
-                            <Badge variant="outline">{conn.telegram_user_id}</Badge>
-                          ) : (
-                            <Badge variant="destructive">No ID</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {format(new Date(conn.created_at), "MMM d, yyyy HH:mm")}
-                        </TableCell>
-                        <TableCell>
-                          {conn.telegram_user_id ? (
-                            <Badge variant="default">Verified</Badge>
-                          ) : (
-                            <Badge variant="secondary">Unverified</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Badge variant="outline">
-                            {[conn.field_1, conn.field_2, conn.field_3, conn.field_4, 
-                              conn.field_5, conn.field_6, conn.field_7, conn.field_8,
-                              conn.field_9, conn.field_10, conn.field_11, conn.field_12]
-                              .filter(f => f?.trim()).length} / 12
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setSelectedSubmission(conn)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setDeleteSubmissionId(conn.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </TableCell>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Telegram User</TableHead>
+                        <TableHead>User ID</TableHead>
+                        <TableHead>Created At</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Completion</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredConnections.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                            No submissions found
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredConnections.map((conn) => (
+                          <TableRow key={conn.id}>
+                            <TableCell>
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {conn.telegram_first_name || "Unknown"}
+                                </span>
+                                {conn.telegram_username && (
+                                  <span className="text-xs text-muted-foreground">
+                                    @{conn.telegram_username}
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {conn.telegram_user_id ? (
+                                <Badge variant="outline">{conn.telegram_user_id}</Badge>
+                              ) : (
+                                <Badge variant="destructive">No ID</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {format(new Date(conn.created_at), "MMM d, yyyy HH:mm")}
+                            </TableCell>
+                            <TableCell>
+                              {conn.telegram_user_id ? (
+                                <Badge variant="default">Verified</Badge>
+                              ) : (
+                                <Badge variant="secondary">Unverified</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Badge variant="outline">
+                                {[conn.field_1, conn.field_2, conn.field_3, conn.field_4, 
+                                  conn.field_5, conn.field_6, conn.field_7, conn.field_8,
+                                  conn.field_9, conn.field_10, conn.field_11, conn.field_12]
+                                  .filter(f => f?.trim()).length} / 12
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setSelectedSubmission(conn)}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setDeleteSubmissionId(conn.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="predictions">
+            <TokenPredictions />
+          </TabsContent>
+        </Tabs>
       </div>
       
       <TelegramNavigation />

@@ -20,21 +20,28 @@ serve(async (req) => {
     const perplexityKey = Deno.env.get('PERPLEXITY_API_KEY');
     const grokKey = Deno.env.get('GROK_API_KEY');
 
-    // Auth is optional - allow public access but save to DB if user is logged in
-    const authHeader = req.headers.get('Authorization');
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: {
-        headers: authHeader ? { Authorization: authHeader } : {}
-      }
-    });
+    // Create Supabase client with service role (doesn't need user's auth header)
+    const supabase = createClient(supabaseUrl, supabaseKey);
     
+    // Try to get user if auth header exists
     let user = null;
+    const authHeader = req.headers.get('Authorization');
     if (authHeader) {
-      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
-      if (!userError && authUser) {
-        user = authUser;
-        console.log('Authenticated user:', user.id);
+      try {
+        // Extract JWT token from "Bearer <token>"
+        const token = authHeader.replace('Bearer ', '');
+        const { data: { user: authUser }, error: userError } = await supabase.auth.getUser(token);
+        if (!userError && authUser) {
+          user = authUser;
+          console.log('Authenticated user:', user.id);
+        } else {
+          console.log('No authenticated user or invalid token');
+        }
+      } catch (e: any) {
+        console.log('Auth check failed, continuing as anonymous:', e?.message || 'Unknown error');
       }
+    } else {
+      console.log('No auth header, continuing as anonymous');
     }
 
     const { tokenAddress, tokenSymbol, marketData, analysisType, aiModel } = await req.json();

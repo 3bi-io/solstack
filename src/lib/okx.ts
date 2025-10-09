@@ -216,6 +216,24 @@ export function formatOKXPrice(price: string | number): string {
 /**
  * Calculate 24h price change percentage
  */
+/**
+ * Get logo URL for a token symbol
+ */
+export function getTokenLogoUrl(symbol: string): string {
+  // Use CryptoCompare API for token logos
+  const cleanSymbol = symbol.replace(/[^a-zA-Z]/g, '').toUpperCase();
+  return `https://www.cryptocompare.com/media/37746251/btc.png`.replace('btc', cleanSymbol.toLowerCase());
+}
+
+/**
+ * Get logo URL using alternative services
+ */
+export function getAlternativeTokenLogo(symbol: string): string {
+  const cleanSymbol = symbol.replace(/[^a-zA-Z]/g, '').toUpperCase();
+  // Using CoinGecko's assets via jsdelivr CDN
+  return `https://assets.coingecko.com/coins/images/1/large/${cleanSymbol.toLowerCase()}.png`;
+}
+
 export function calculatePriceChange(current: string, open24h: string): number {
   const currentPrice = parseFloat(current);
   const openPrice = parseFloat(open24h);

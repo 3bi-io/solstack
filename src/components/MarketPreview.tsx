@@ -471,6 +471,14 @@ export const MarketPreview = () => {
                         <span className="text-xs text-muted-foreground font-mono w-6 flex-shrink-0">
                           #{index + 1}
                         </span>
+                        <img
+                          src={`https://www.cryptocompare.com/media/37746251/${(pair.baseCcy || pair.instId.split("-")[0]).toLowerCase()}.png`}
+                          alt={pair.instId}
+                          className="w-8 h-8 rounded-full flex-shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
                             {pair.instId}

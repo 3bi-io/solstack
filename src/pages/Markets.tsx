@@ -144,16 +144,20 @@ const Markets = () => {
       rank: index + 1,
     }));
 
-    const okxData: MarketData[] = okxPairs.map((pair, index) => ({
-      id: pair.instId,
-      name: pair.instId,
-      symbol: pair.baseCcy || pair.instId.split("-")[0],
-      price: pair.ticker ? parseFloat(pair.ticker.last) : 0,
-      change24h: pair.ticker ? calculatePriceChange(pair.ticker.last, pair.ticker.open24h) : 0,
-      volume24h: pair.ticker ? parseFloat(pair.ticker.vol24h) : 0,
-      source: "okx" as const,
-      rank: index + 1,
-    }));
+    const okxData: MarketData[] = okxPairs.map((pair, index) => {
+      const symbol = pair.baseCcy || pair.instId.split("-")[0];
+      return {
+        id: pair.instId,
+        name: pair.instId,
+        symbol: symbol,
+        image: `https://www.cryptocompare.com/media/37746251/${symbol.toLowerCase()}.png`,
+        price: pair.ticker ? parseFloat(pair.ticker.last) : 0,
+        change24h: pair.ticker ? calculatePriceChange(pair.ticker.last, pair.ticker.open24h) : 0,
+        volume24h: pair.ticker ? parseFloat(pair.ticker.vol24h) : 0,
+        source: "okx" as const,
+        rank: index + 1,
+      };
+    });
 
     const moonData: MarketData[] = moonShotTokens.map((token, index) => {
       const formatted = formatMoonShotToken(token);

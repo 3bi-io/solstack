@@ -61,9 +61,9 @@ export interface MoonShotToken {
  */
 export async function getMoonShotTrending(): Promise<MoonShotToken[]> {
   try {
-    // Get trending Solana tokens sorted by volume and transactions
+    // Use search endpoint with Solana filter for better results
     const response = await fetch(
-      `${DEXSCREENER_API}/tokens/solana`
+      `${DEXSCREENER_API}/search?q=SOL`
     );
 
     if (!response.ok) {
@@ -72,16 +72,17 @@ export async function getMoonShotTrending(): Promise<MoonShotToken[]> {
 
     const data = await response.json();
     
-    // Filter and sort by 24h volume and transactions
+    // Filter for Solana chain and sort by 24h volume and transactions
     const activePairs = (data.pairs || [])
       .filter((pair: any) => {
+        const isSolana = pair.chainId === 'solana';
         const volume24h = pair.volume?.h24 || 0;
         const txns24h = (pair.txns?.h24?.buys || 0) + (pair.txns?.h24?.sells || 0);
-        return volume24h > 1000 && txns24h > 10; // Active tokens only
+        return isSolana && volume24h > 10000 && txns24h > 50; // Active Solana tokens only
       })
       .sort((a: any, b: any) => {
-        const aScore = (a.volume?.h24 || 0) * (a.txns?.h24?.buys || 1);
-        const bScore = (b.volume?.h24 || 0) * (b.txns?.h24?.buys || 1);
+        const aScore = (a.volume?.h24 || 0) * ((a.txns?.h24?.buys || 0) + (a.txns?.h24?.sells || 0));
+        const bScore = (b.volume?.h24 || 0) * ((b.txns?.h24?.buys || 0) + (b.txns?.h24?.sells || 0));
         return bScore - aScore;
       });
     

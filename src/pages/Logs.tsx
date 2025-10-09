@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -101,6 +102,7 @@ const Logs = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <AppHeader />
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-4">

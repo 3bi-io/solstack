@@ -1,22 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTelegram } from "@/hooks/useTelegram";
-import { 
-  Rocket, 
-  BarChart3, 
-  Gift, 
-  TrendingUp, 
-  Repeat, 
-  Settings,
-  TreePine,
-  Shield,
-  Wallet,
-  Key,
-  Users,
-  CreditCard,
-  FileText,
-  HelpCircle,
-  ChartCandlestick
-} from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 import {
@@ -26,27 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-
-const mainNavItems = [
-  { icon: ChartCandlestick, label: "Markets", path: "/markets" },
-  { icon: Rocket, label: "Launch", path: "/launch" },
-  { icon: Gift, label: "Airdrop", path: "/airdrop" },
-  { icon: Repeat, label: "Swap", path: "/swap" },
-];
-
-const moreNavItems = [
-  { icon: Wallet, label: "Wallet", path: "/wallet" },
-  { icon: TrendingUp, label: "Transactions", path: "/transactions" },
-  { icon: FileText, label: "Logs", path: "/logs" },
-  { icon: TreePine, label: "Merkle", path: "/merkle-airdrop" },
-  { icon: Shield, label: "MultiSig", path: "/multisig" },
-  { icon: Key, label: "API Keys", path: "/api-keys" },
-  { icon: Users, label: "Referrals", path: "/referrals" },
-  { icon: CreditCard, label: "Billing", path: "/billing" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-  { icon: HelpCircle, label: "Help", path: "/help" },
-];
+import { 
+  mainNavItems, 
+  toolsNavItems, 
+  advancedNavItems, 
+  accountNavItems 
+} from "@/config/navigation";
 
 export const TelegramNavigation = () => {
   const navigate = useNavigate();
@@ -101,20 +70,52 @@ export const TelegramNavigation = () => {
               className="w-48 bg-card/95 backdrop-blur-sm z-[100]"
               sideOffset={5}
             >
-              {moreNavItems.map((item, index) => {
+              {/* Tools Section */}
+              {toolsNavItems.map((item) => {
                 const Icon = item.icon;
-                const showSeparator = index === 5 || index === 7; // Separate sections
                 return (
-                  <div key={item.path}>
-                    <DropdownMenuItem
-                      onClick={() => handleNavigation(item.path)}
-                      className="cursor-pointer"
-                    >
-                      <Icon className="w-4 h-4 mr-2" />
-                      {item.label}
-                    </DropdownMenuItem>
-                    {showSeparator && <DropdownMenuSeparator />}
-                  </div>
+                  <DropdownMenuItem
+                    key={item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    className="cursor-pointer"
+                  >
+                    <Icon className="w-4 h-4 mr-2" />
+                    {item.label}
+                  </DropdownMenuItem>
+                );
+              })}
+              
+              <DropdownMenuSeparator />
+              
+              {/* Advanced Section */}
+              {advancedNavItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <DropdownMenuItem
+                    key={item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    className="cursor-pointer"
+                  >
+                    <Icon className="w-4 h-4 mr-2" />
+                    {item.label}
+                  </DropdownMenuItem>
+                );
+              })}
+              
+              <DropdownMenuSeparator />
+              
+              {/* Account Section */}
+              {accountNavItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <DropdownMenuItem
+                    key={item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    className="cursor-pointer"
+                  >
+                    <Icon className="w-4 h-4 mr-2" />
+                    {item.label}
+                  </DropdownMenuItem>
                 );
               })}
             </DropdownMenuContent>

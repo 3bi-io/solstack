@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -102,6 +103,7 @@ const Airdrop = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <AppHeader />
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-4">

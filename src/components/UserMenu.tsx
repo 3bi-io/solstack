@@ -62,17 +62,20 @@ export const UserMenu = () => {
 
   return (
     <div className="flex items-center gap-2">
-      <WalletConnectButton />
+      {/* Hide wallet button on mobile - it's in bottom nav */}
+      <div className="hidden sm:block">
+        <WalletConnectButton />
+      </div>
       {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               variant="outline" 
               size="icon" 
-              className="rounded-full border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all group relative overflow-hidden"
+              className="rounded-full border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all group relative overflow-hidden h-9 w-9 sm:h-10 sm:w-10"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <User className="h-5 w-5 relative z-10 group-hover:text-primary transition-colors" />
+              <User className="h-4 w-4 sm:h-5 sm:w-5 relative z-10 group-hover:text-primary transition-colors" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 bg-card/95 backdrop-blur-xl border-primary/20 shadow-xl z-[100]" sideOffset={8}>

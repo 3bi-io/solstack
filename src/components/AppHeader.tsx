@@ -21,18 +21,18 @@ export const AppHeader = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-gradient-to-r from-background via-background/95 to-background backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
-      <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-3 sm:px-6">
+      <div className="container flex h-14 sm:h-16 max-w-screen-2xl items-center justify-between px-2 sm:px-6">
         {/* Left: Logo & Home Button */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 group"
+            className="flex items-center gap-1.5 sm:gap-2 group"
           >
             <div className="relative">
               <img 
                 src={logoImage} 
                 alt="SOL Stack" 
-                className="h-9 w-9 rounded-lg shadow-md group-hover:shadow-primary/50 transition-all duration-300 group-hover:scale-110"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg shadow-md group-hover:shadow-primary/50 transition-all duration-300 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
@@ -65,7 +65,7 @@ export const AppHeader = () => {
         </div>
 
         {/* Right: User Menu & Mobile Menu */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Mobile Network Status Badge */}
           <div className="md:hidden">
             <NetworkStatus compact />
@@ -79,9 +79,9 @@ export const AppHeader = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="md:hidden hover:bg-primary/10"
+                className="md:hidden hover:bg-primary/10 h-9 w-9"
               >
-                <Menu className="h-5 w-5" />
+                <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72 bg-background/95 backdrop-blur-xl border-primary/20">

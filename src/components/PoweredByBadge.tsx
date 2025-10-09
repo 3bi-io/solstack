@@ -11,7 +11,7 @@ export const PoweredByBadge = () => {
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 cursor-pointer animate-fade-in"
+      className="fixed bottom-4 left-4 z-50 cursor-pointer animate-fade-in"
       onClick={handleClick}
       onTouchEnd={handleClick}
     >

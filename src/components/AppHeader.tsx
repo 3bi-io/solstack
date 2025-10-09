@@ -1,4 +1,4 @@
-import { Home, Menu } from "lucide-react";
+import { Home, Menu, Rocket, Gift, ChartCandlestick, Users, Key, GitMerge, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/UserMenu";
 import { NetworkStatus } from "@/components/NetworkStatus";
@@ -100,6 +100,86 @@ export const AppHeader = () => {
                   <Home className="h-4 w-4" />
                   Home
                 </Button>
+
+                <div className="py-2">
+                  <p className="px-3 text-xs font-semibold text-muted-foreground mb-2">Core Features</p>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-primary/10"
+                    onClick={() => {
+                      navigate("/launch");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Rocket className="h-4 w-4" />
+                    Launch Token
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-primary/10"
+                    onClick={() => {
+                      navigate("/airdrop");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Gift className="h-4 w-4" />
+                    Airdrops
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-primary/10"
+                    onClick={() => {
+                      navigate("/markets");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <ChartCandlestick className="h-4 w-4" />
+                    <span className="flex items-center gap-2">
+                      Markets
+                      <Badge variant="secondary" className="text-[10px] h-4">
+                        <Sparkles className="h-2 w-2 mr-0.5" />
+                        AI
+                      </Badge>
+                    </span>
+                  </Button>
+                </div>
+
+                <div className="py-2">
+                  <p className="px-3 text-xs font-semibold text-muted-foreground mb-2">Advanced</p>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-primary/10"
+                    onClick={() => {
+                      navigate("/referrals");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Users className="h-4 w-4" />
+                    Referrals
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-primary/10"
+                    onClick={() => {
+                      navigate("/api-keys");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Key className="h-4 w-4" />
+                    API Access
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-primary/10"
+                    onClick={() => {
+                      navigate("/multisig");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <GitMerge className="h-4 w-4" />
+                    Multi-Sig
+                  </Button>
+                </div>
               </div>
             </SheetContent>
           </Sheet>

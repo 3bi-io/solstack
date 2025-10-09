@@ -263,7 +263,7 @@ const LaunchCoin = () => {
             <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
               <p className="text-xs text-muted-foreground">
                 <strong>Note:</strong> Your token will be created on Solana with you as the mint authority. 
-                The platform covers all transaction fees. A 7% platform fee will be minted to support the service.
+                The platform covers all transaction fees. A 0.00015 SOL platform fee will be minted to support the service.
               </p>
             </div>
           </CardContent>

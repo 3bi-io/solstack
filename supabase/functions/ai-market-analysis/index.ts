@@ -167,6 +167,7 @@ Format as JSON with: entry_points, exit_points, stop_loss, risk_reward, strategy
         analysisResult = { analysis: content };
       }
     } else if (aiModel === 'grok' && grokKey) {
+      console.log('Calling Grok API for market analysis');
       const response = await fetch('https://api.x.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -174,7 +175,7 @@ Format as JSON with: entry_points, exit_points, stop_loss, risk_reward, strategy
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'grok-beta',
+          model: 'grok-3',
           messages: [
             { role: 'system', content: 'You are a crypto market analysis expert with real-time data access. Always respond with valid JSON.' },
             { role: 'user', content: prompt }
@@ -182,6 +183,14 @@ Format as JSON with: entry_points, exit_points, stop_loss, risk_reward, strategy
           temperature: 0.7,
         }),
       });
+
+      console.log('Grok API response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Grok API error:', errorText);
+        throw new Error(`Grok API error: ${response.status} - ${errorText}`);
+      }
 
       const data = await response.json();
       const content = data.choices[0].message.content;

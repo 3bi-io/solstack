@@ -34,6 +34,8 @@ serve(async (req) => {
 Provide accurate, helpful, and concise answers. When discussing prices or market predictions, always include appropriate disclaimers. Be conversational but professional.`
     };
 
+    console.log('Calling Grok API with messages:', messages.length);
+    
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -41,13 +43,15 @@ Provide accurate, helpful, and concise answers. When discussing prices or market
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'grok-beta',
+        model: 'grok-3',
         messages: [systemPrompt, ...messages],
         temperature: 0.7,
         max_tokens: 1000,
         stream: false,
       }),
     });
+
+    console.log('Grok API response status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.text();
@@ -66,8 +70,9 @@ Provide accurate, helpful, and concise answers. When discussing prices or market
     );
   } catch (error) {
     console.error('Error in grok-chat function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -28,6 +28,67 @@ export interface OKXOrderBook {
   ts: string;
 }
 
+// Cache for bulk tickers
+interface OKXCache {
+  data: OKXTicker[];
+  timestamp: number;
+  expiresIn: number;
+}
+
+let bulkTickersCache: OKXCache | null = null;
+const CACHE_DURATION = 30000; // 30 seconds
+
+/**
+ * Get all spot tickers in a single bulk request (cached)
+ * This is much faster than individual requests
+ */
+export async function getOKXBulkTickers(forceRefresh: boolean = false): Promise<OKXTicker[]> {
+  const now = Date.now();
+  
+  // Return cached data if valid
+  if (!forceRefresh && bulkTickersCache && (now - bulkTickersCache.timestamp < CACHE_DURATION)) {
+    console.log('✓ OKX: Using cached data', {
+      age: ((now - bulkTickersCache.timestamp) / 1000).toFixed(1) + 's',
+      tokens: bulkTickersCache.data.length
+    });
+    return bulkTickersCache.data;
+  }
+
+  try {
+    console.log('⟳ OKX: Fetching bulk tickers...');
+    const startTime = Date.now();
+    
+    const response = await fetch(`${OKX_API_BASE}/market/tickers?instType=SPOT`);
+    
+    if (!response.ok) {
+      throw new Error(`OKX API error: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.code !== "0" || !data.data) {
+      console.error('OKX API returned error:', data.msg);
+      return bulkTickersCache?.data || [];
+    }
+
+    const fetchTime = Date.now() - startTime;
+    console.log(`✓ OKX: Fetched ${data.data.length} tickers in ${fetchTime}ms`);
+    
+    // Cache the results
+    bulkTickersCache = {
+      data: data.data,
+      timestamp: now,
+      expiresIn: CACHE_DURATION
+    };
+    
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching OKX bulk tickers:", error);
+    // Return stale cache if available
+    return bulkTickersCache?.data || [];
+  }
+}
+
 /**
  * Get ticker information for a trading pair
  * Public endpoint - no authentication required
@@ -114,25 +175,6 @@ export async function getOKXInstruments(
   }
 }
 
-/**
- * Helper to delay requests (avoid rate limits)
- */
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-/**
- * Get top trading symbols (most liquid USDT pairs)
- */
-function getTopTradingSymbols(): string[] {
-  return [
-    "BTC-USDT", "ETH-USDT", "SOL-USDT", "BNB-USDT", "XRP-USDT",
-    "ADA-USDT", "DOGE-USDT", "MATIC-USDT", "DOT-USDT", "AVAX-USDT",
-    "LINK-USDT", "UNI-USDT", "LTC-USDT", "ATOM-USDT", "TRX-USDT",
-    "XLM-USDT", "FIL-USDT", "NEAR-USDT", "ALGO-USDT", "VET-USDT",
-    "ICP-USDT", "APT-USDT", "ARB-USDT", "OP-USDT", "HBAR-USDT",
-    "SUI-USDT", "IMX-USDT", "INJ-USDT", "RNDR-USDT", "GRT-USDT"
-  ];
-}
-
 export interface OKXTickerData {
   instId: string;
   baseCcy?: string;
@@ -141,43 +183,48 @@ export interface OKXTickerData {
 }
 
 /**
- * Get top trading pairs by volume (up to 50 pairs) with rate limiting
+ * Get top trading pairs by volume (up to 50 pairs) using bulk endpoint
+ * Much faster than individual requests: ~0.5s vs ~6s
  */
 export async function getTopTradingPairs(limit: number = 50): Promise<OKXTickerData[]> {
   try {
-    const topSymbols = getTopTradingSymbols().slice(0, limit);
-    const results: OKXTickerData[] = [];
-
-    // Batch requests to avoid rate limits (5 requests per batch with 1 second delay)
-    const batchSize = 5;
-    for (let i = 0; i < topSymbols.length; i += batchSize) {
-      const batch = topSymbols.slice(i, i + batchSize);
-      
-      // Fetch batch in parallel
-      const batchPromises = batch.map(async (symbol) => {
-        const ticker = await getOKXTicker(symbol);
-        return {
-          instId: symbol,
-          baseCcy: symbol.split('-')[0],
-          ticker,
-          volume: ticker ? parseFloat(ticker.vol24h) || 0 : 0
-        };
-      });
-      
-      const batchResults = await Promise.all(batchPromises);
-      results.push(...batchResults);
-
-      // Delay between batches to avoid rate limits
-      if (i + batchSize < topSymbols.length) {
-        await delay(1000); // 1 second delay between batches
-      }
+    // Fetch all tickers in one request
+    const allTickers = await getOKXBulkTickers();
+    
+    if (allTickers.length === 0) {
+      return [];
     }
 
-    return results.filter(r => r.ticker !== null);
+    // Filter for USDT pairs only and convert to OKXTickerData format
+    const usdtPairs = allTickers
+      .filter(ticker => ticker.instId.endsWith('-USDT'))
+      .map(ticker => ({
+        instId: ticker.instId,
+        baseCcy: ticker.instId.split('-')[0],
+        ticker: ticker,
+        volume: parseFloat(ticker.volCcy24h) || 0
+      }));
+
+    // Sort by volume (descending) and take top N
+    usdtPairs.sort((a, b) => b.volume - a.volume);
+    
+    const topPairs = usdtPairs.slice(0, limit);
+    
+    console.log(`✓ OKX: Returning top ${topPairs.length} pairs by volume`);
+    
+    return topPairs;
   } catch (error) {
-    console.error('Error fetching top trading pairs:', error);
+    console.error('Error getting top trading pairs:', error);
     return [];
   }
+}
+
+/**
+ * Clear the cache (useful for manual refresh)
+ */
+export function clearOKXCache() {
+  bulkTickersCache = null;
+  console.log('✓ OKX: Cache cleared');
 }
 
 /**
@@ -216,6 +263,17 @@ export function formatOKXPrice(price: string | number): string {
 /**
  * Calculate 24h price change percentage
  */
+export function calculatePriceChange(current: string, open24h: string): number {
+  const currentPrice = parseFloat(current);
+  const openPrice = parseFloat(open24h);
+  
+  if (isNaN(currentPrice) || isNaN(openPrice) || openPrice === 0) {
+    return 0;
+  }
+  
+  return ((currentPrice - openPrice) / openPrice) * 100;
+}
+
 /**
  * Get logo URL for a token symbol
  */
@@ -232,15 +290,4 @@ export function getAlternativeTokenLogo(symbol: string): string {
   const cleanSymbol = symbol.replace(/[^a-zA-Z]/g, '').toUpperCase();
   // Using CoinGecko's assets via jsdelivr CDN
   return `https://assets.coingecko.com/coins/images/1/large/${cleanSymbol.toLowerCase()}.png`;
-}
-
-export function calculatePriceChange(current: string, open24h: string): number {
-  const currentPrice = parseFloat(current);
-  const openPrice = parseFloat(open24h);
-  
-  if (isNaN(currentPrice) || isNaN(openPrice) || openPrice === 0) {
-    return 0;
-  }
-  
-  return ((currentPrice - openPrice) / openPrice) * 100;
 }

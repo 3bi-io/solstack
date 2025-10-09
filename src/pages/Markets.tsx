@@ -71,7 +71,7 @@ const Markets = () => {
     try {
       const [cgData, okxData, moonData, global] = await Promise.all([
         getTrendingTokens(),
-        getTopTradingPairs(30), // Reduced to 30 to avoid rate limits
+        getTopTradingPairs(50), // Top 50 pairs using bulk endpoint with caching
         getMoonShotTrending(),
         getGlobalMarketData()
       ]);
@@ -103,8 +103,8 @@ const Markets = () => {
 
   useEffect(() => {
     loadMarketData();
-    // Update every 10 seconds for real-time data
-    const interval = setInterval(loadMarketData, 10000);
+    // Update every 30 seconds (cache duration matches this)
+    const interval = setInterval(loadMarketData, 30000);
     return () => clearInterval(interval);
   }, []);
 

@@ -97,7 +97,7 @@ export const MarketPreview = () => {
       // Load all market data
       const [trendingData, topPairs, moonShot] = await Promise.all([
         getTrendingTokens(),
-        getTopTradingPairs(30),
+        getTopTradingPairs(50), // Top 50 with bulk endpoint and caching
         getMoonShotTrending()
       ]);
 
@@ -126,7 +126,8 @@ export const MarketPreview = () => {
 
   useEffect(() => {
     loadPriceData();
-    const interval = setInterval(loadPriceData, 45000);
+    // Update every 30 seconds to match cache duration
+    const interval = setInterval(loadPriceData, 30000);
     return () => clearInterval(interval);
   }, []);
 

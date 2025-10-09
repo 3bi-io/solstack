@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-import { Shield, Mail, Lock, User } from "lucide-react";
+import { Mail, Lock, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const emailSchema = z.string().email("Invalid email address");
@@ -159,9 +159,8 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-card/50 backdrop-blur-sm">
         <CardHeader className="space-y-3">
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center">
             <div className="text-5xl">🤖</div>
-            <Shield className="w-8 h-8 text-primary" />
           </div>
           <CardTitle className="text-2xl text-center">SOL Stack</CardTitle>
           <CardDescription className="text-center">

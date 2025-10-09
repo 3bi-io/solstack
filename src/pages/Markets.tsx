@@ -28,6 +28,7 @@ import { getMoonShotTrending, formatMoonShotToken, MoonShotToken } from "@/lib/m
 import { toast } from "@/hooks/use-toast";
 import { MarketCard } from "@/components/markets/MarketCard";
 import { MarketFilters, FilterCategory, FilterExchange } from "@/components/markets/MarketFilters";
+import { TokenDetailDialog } from "@/components/markets/TokenDetailDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -62,6 +63,8 @@ const Markets = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [updateCount, setUpdateCount] = useState(0);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [selectedToken, setSelectedToken] = useState<MarketData | null>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   const loadMarketData = async () => {
     setRefreshing(true);
@@ -552,6 +555,10 @@ const Markets = () => {
                       rank={item.rank}
                       isFavorite={favorites.has(item.id)}
                       onToggleFavorite={toggleFavorite}
+                      onViewDetails={() => {
+                        setSelectedToken(item);
+                        setDetailDialogOpen(true);
+                      }}
                     />
                   ))
                 )}
@@ -576,6 +583,13 @@ const Markets = () => {
           </CardContent>
         </Card>
       </div>
+
+      <TokenDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        token={selectedToken}
+      />
+
       <TelegramNavigation />
     </div>
   );

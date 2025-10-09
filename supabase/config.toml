@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.create-merkle-airdrop]
 verify_jwt = true
+
+[functions.ai-market-analysis]
+verify_jwt = true

@@ -28,6 +28,7 @@ interface MarketCardProps {
   rank?: number;
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
+  onViewDetails?: () => void;
 }
 
 export const MarketCard = ({
@@ -43,6 +44,7 @@ export const MarketCard = ({
   rank,
   isFavorite = false,
   onToggleFavorite,
+  onViewDetails,
 }: MarketCardProps) => {
   const navigate = useNavigate();
   const [showActions, setShowActions] = useState(false);
@@ -194,6 +196,17 @@ export const MarketCard = ({
           showActions ? "opacity-100 max-h-20" : "opacity-0 max-h-0 overflow-hidden"
         }`}
       >
+        {onViewDetails && (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="flex-1 gap-1"
+            onClick={onViewDetails}
+          >
+            <Eye className="w-3 h-3" />
+            AI Analysis
+          </Button>
+        )}
         <Button
           size="sm"
           className="flex-1 gap-1"

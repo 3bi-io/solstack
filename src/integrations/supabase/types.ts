@@ -300,6 +300,54 @@ export type Database = {
           },
         ]
       }
+      market_analysis: {
+        Row: {
+          ai_model: string
+          analysis_result: Json
+          analysis_type: string
+          confidence_level: string | null
+          created_at: string
+          id: string
+          market_data: Json
+          price_prediction: number | null
+          sentiment_score: number | null
+          token_address: string
+          token_symbol: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_model: string
+          analysis_result: Json
+          analysis_type: string
+          confidence_level?: string | null
+          created_at?: string
+          id?: string
+          market_data: Json
+          price_prediction?: number | null
+          sentiment_score?: number | null
+          token_address: string
+          token_symbol: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_model?: string
+          analysis_result?: Json
+          analysis_type?: string
+          confidence_level?: string | null
+          created_at?: string
+          id?: string
+          market_data?: Json
+          price_prediction?: number | null
+          sentiment_score?: number | null
+          token_address?: string
+          token_symbol?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       merkle_airdrops: {
         Row: {
           claimed_count: number | null

@@ -37,10 +37,11 @@ const AppContent = () => {
   const { isOpen, closeFeedback } = useFeedback();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showBadge, setShowBadge] = useState(true);
+  const [chatbotActive, setChatbotActive] = useState(false);
 
   const handleBadgeTransform = () => {
     setShowBadge(false);
-    setIsChatOpen(true);
+    setChatbotActive(true);
   };
 
   return (
@@ -77,7 +78,7 @@ const AppContent = () => {
       <GrokChatWidget 
         isOpen={isChatOpen} 
         onOpenChange={setIsChatOpen}
-        showDefaultButton={false}
+        showDefaultButton={chatbotActive}
       />
       {showBadge && <PoweredByBadge onTransform={handleBadgeTransform} />}
     </>

@@ -22,7 +22,6 @@ import {
   Coins,
   Filter
 } from "lucide-react";
-import { getTrendingTokens, TokenInfo, getGlobalMarketData, GlobalMarketData } from "@/lib/coingecko";
 import { getTopTradingPairs, formatOKXPrice, calculatePriceChange } from "@/lib/okx";
 import { getMoonShotTrending, formatMoonShotToken, MoonShotToken } from "@/lib/moonshot";
 import { toast } from "@/hooks/use-toast";
@@ -50,10 +49,8 @@ type SortDirection = "asc" | "desc";
 
 const Markets = () => {
   const { user } = useAuth();
-  const [cgTokens, setCgTokens] = useState<TokenInfo[]>([]);
   const [okxPairs, setOkxPairs] = useState<any[]>([]);
   const [moonShotTokens, setMoonShotTokens] = useState<MoonShotToken[]>([]);
-  const [globalData, setGlobalData] = useState<GlobalMarketData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,23 +66,19 @@ const Markets = () => {
   const loadMarketData = async () => {
     setRefreshing(true);
     try {
-      const [cgData, okxData, moonData, global] = await Promise.all([
-        getTrendingTokens(),
+      const [okxData, moonData] = await Promise.all([
         getTopTradingPairs(50), // Top 50 pairs using bulk endpoint with caching
-        getMoonShotTrending(),
-        getGlobalMarketData()
+        getMoonShotTrending()
       ]);
 
-      setCgTokens(cgData);
       setOkxPairs(okxData);
       setMoonShotTokens(moonData);
-      setGlobalData(global);
       setUpdateCount(prev => prev + 1);
 
       if (!loading) {
         toast({
           title: "Markets Updated",
-          description: `Loaded ${cgData.length + okxData.length + moonData.length} tokens`,
+          description: `Loaded ${okxData.length} OKX + ${moonData.length} MoonShot tokens`,
         });
       }
     } catch (error) {
@@ -131,19 +124,6 @@ const Markets = () => {
 
   // Transform data to unified format
   const allMarketData = useMemo(() => {
-    const cgData: MarketData[] = cgTokens.map((token, index) => ({
-      id: token.id,
-      name: token.name,
-      symbol: token.symbol,
-      image: token.image,
-      price: token.current_price || 0,
-      change24h: token.price_change_percentage_24h || 0,
-      volume24h: token.total_volume || 0,
-      marketCap: token.market_cap,
-      source: "coingecko" as const,
-      rank: index + 1,
-    }));
-
     const okxData: MarketData[] = okxPairs.map((pair, index) => {
       const symbol = pair.baseCcy || pair.instId.split("-")[0];
       return {
@@ -175,8 +155,8 @@ const Markets = () => {
       };
     });
 
-    return [...cgData, ...okxData, ...moonData];
-  }, [cgTokens, okxPairs, moonShotTokens]);
+    return [...okxData, ...moonData];
+  }, [okxPairs, moonShotTokens]);
 
   // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
@@ -200,7 +180,7 @@ const Markets = () => {
     } else if (category === "losers") {
       filtered = filtered.filter(item => item.change24h < 0);
     } else if (category === "trending") {
-      filtered = filtered.filter(item => item.source === "coingecko");
+      filtered = filtered.filter(item => item.source === "moonshot");
     }
 
     // Apply exchange filter
@@ -339,74 +319,6 @@ const Markets = () => {
             </div>
           </CardHeader>
         </Card>
-
-        {/* Global Market Stats */}
-        {globalData && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Globe className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-bold">Global Crypto Market</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Market Cap</p>
-                    <p className="text-2xl font-bold mt-1">
-                      ${(globalData.totalMarketCap / 1e12).toFixed(2)}T
-                    </p>
-                    <p className={`text-xs mt-1 ${globalData.marketCapChangePercentage24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {globalData.marketCapChangePercentage24h >= 0 ? '+' : ''}{globalData.marketCapChangePercentage24h.toFixed(2)}% (24h)
-                    </p>
-                  </div>
-                  <DollarSign className="h-8 w-8 text-primary" />
-                </div>
-              </Card>
-
-              <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">24h Volume</p>
-                    <p className="text-2xl font-bold mt-1">
-                      ${(globalData.totalVolume / 1e9).toFixed(2)}B
-                    </p>
-                  </div>
-                  <BarChart3 className="h-8 w-8 text-accent" />
-                </div>
-              </Card>
-
-              <Card className="p-6 bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">BTC Dominance</p>
-                    <p className="text-2xl font-bold mt-1">
-                      {globalData.btcDominance.toFixed(1)}%
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      ETH: {globalData.ethDominance.toFixed(1)}%
-                    </p>
-                  </div>
-                  <Coins className="h-8 w-8 text-orange-500" />
-                </div>
-              </Card>
-
-              <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Active Coins</p>
-                    <p className="text-2xl font-bold mt-1">
-                      {globalData.activeCryptocurrencies.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {globalData.markets.toLocaleString()} markets
-                    </p>
-                  </div>
-                  <Activity className="h-8 w-8 text-blue-500" />
-                </div>
-              </Card>
-            </div>
-          </div>
-        )}
 
         {/* Loaded Tokens Stats */}
         <div className="space-y-3">

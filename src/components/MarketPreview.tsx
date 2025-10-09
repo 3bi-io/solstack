@@ -6,7 +6,6 @@ import { TrendingUp, TrendingDown, Activity, RefreshCw, Flame, Star, ArrowRight,
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getTrendingTokens, TokenInfo } from "@/lib/coingecko";
 import { getTopTradingPairs, formatOKXPrice, calculatePriceChange } from "@/lib/okx";
 import { getMoonShotTrending, getMoonShotGainers, MoonShotToken } from "@/lib/moonshot";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,14 +26,12 @@ export const MarketPreview = () => {
   const [btcPrice, setBtcPrice] = useState<CryptoPrice>({ price: null, change: 0, name: "Bitcoin", symbol: "BTC" });
   const [ethPrice, setEthPrice] = useState<CryptoPrice>({ price: null, change: 0, name: "Ethereum", symbol: "ETH" });
   const [solPrice, setSolPrice] = useState<CryptoPrice>({ price: null, change: 0, name: "Solana", symbol: "SOL" });
-  const [trending, setTrending] = useState<TokenInfo[]>([]);
   const [okxPairs, setOkxPairs] = useState<any[]>([]);
   const [moonShotTokens, setMoonShotTokens] = useState<MoonShotToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [globalStats, setGlobalStats] = useState<any>(null);
 
   useEffect(() => {
     const savedFavorites = localStorage.getItem("marketFavorites");
@@ -54,61 +51,59 @@ export const MarketPreview = () => {
   const loadPriceData = async () => {
     setRefreshing(true);
     try {
-      const cryptoIds = {
-        bitcoin: { setter: setBtcPrice, name: "Bitcoin", symbol: "BTC" },
-        ethereum: { setter: setEthPrice, name: "Ethereum", symbol: "ETH" },
-        solana: { setter: setSolPrice, name: "Solana", symbol: "SOL" }
-      };
+      // Get BTC, ETH, SOL prices from OKX
+      const [btcTicker, ethTicker, solTicker] = await Promise.all([
+        fetch('https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT').then(r => r.json()),
+        fetch('https://www.okx.com/api/v5/market/ticker?instId=ETH-USDT').then(r => r.json()),
+        fetch('https://www.okx.com/api/v5/market/ticker?instId=SOL-USDT').then(r => r.json())
+      ]);
 
-      // Fetch global market data
-      try {
-        const globalResponse = await fetch("https://api.coingecko.com/api/v3/global");
-        const globalData = await globalResponse.json();
-        setGlobalStats(globalData.data);
-      } catch (error) {
-        console.error("Error fetching global stats:", error);
+      if (btcTicker.data?.[0]) {
+        const ticker = btcTicker.data[0];
+        setBtcPrice({
+          price: parseFloat(ticker.last),
+          change: calculatePriceChange(ticker.last, ticker.open24h),
+          name: "Bitcoin",
+          symbol: "BTC",
+          volume: parseFloat(ticker.volCcy24h)
+        });
       }
 
-      // Fetch major crypto prices
-      const pricePromises = Object.entries(cryptoIds).map(async ([coinId, config]) => {
-        try {
-          const response = await fetch(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`
-          );
-          const data = await response.json();
-          
-          if (data[coinId]) {
-            config.setter({
-              price: data[coinId].usd,
-              change: data[coinId].usd_24h_change || 0,
-              name: config.name,
-              symbol: config.symbol,
-              marketCap: data[coinId].usd_market_cap,
-              volume: data[coinId].usd_24h_vol
-            });
-          }
-        } catch (error) {
-          console.error(`Error fetching ${config.name} price:`, error);
-        }
-      });
+      if (ethTicker.data?.[0]) {
+        const ticker = ethTicker.data[0];
+        setEthPrice({
+          price: parseFloat(ticker.last),
+          change: calculatePriceChange(ticker.last, ticker.open24h),
+          name: "Ethereum",
+          symbol: "ETH",
+          volume: parseFloat(ticker.volCcy24h)
+        });
+      }
 
-      await Promise.all(pricePromises);
+      if (solTicker.data?.[0]) {
+        const ticker = solTicker.data[0];
+        setSolPrice({
+          price: parseFloat(ticker.last),
+          change: calculatePriceChange(ticker.last, ticker.open24h),
+          name: "Solana",
+          symbol: "SOL",
+          volume: parseFloat(ticker.volCcy24h)
+        });
+      }
 
       // Load all market data
-      const [trendingData, topPairs, moonShot] = await Promise.all([
-        getTrendingTokens(),
+      const [topPairs, moonShot] = await Promise.all([
         getTopTradingPairs(50), // Top 50 with bulk endpoint and caching
         getMoonShotTrending()
       ]);
 
-      if (trendingData.length > 0) setTrending(trendingData);
       if (topPairs.length > 0) setOkxPairs(topPairs);
       if (moonShot.length > 0) setMoonShotTokens(moonShot);
       
       if (!loading) {
         toast({
           title: "Markets Updated",
-          description: `${trendingData.length} CoinGecko + ${topPairs.length} OKX + ${moonShot.length} MoonShot tokens`,
+          description: `${topPairs.length} OKX + ${moonShot.length} MoonShot tokens`,
         });
       }
     } catch (error) {
@@ -130,15 +125,6 @@ export const MarketPreview = () => {
     const interval = setInterval(loadPriceData, 30000);
     return () => clearInterval(interval);
   }, []);
-
-  const filteredTrending = useMemo(() => {
-    if (!searchQuery) return trending;
-    return trending.filter(
-      (token) =>
-        token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [trending, searchQuery]);
 
   const filteredOkx = useMemo(() => {
     if (!searchQuery) return okxPairs;
@@ -193,12 +179,6 @@ export const MarketPreview = () => {
                   Real-time
                 </Badge>
               </CardTitle>
-              {globalStats && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Total Market Cap: ${(globalStats.total_market_cap?.usd / 1e12).toFixed(2)}T • 
-                  24h Vol: ${(globalStats.total_volume?.usd / 1e9).toFixed(1)}B
-                </p>
-              )}
             </div>
           </div>
           <Button
@@ -269,115 +249,17 @@ export const MarketPreview = () => {
           />
         </div>
 
-        <Tabs defaultValue="coingecko" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-muted/50">
-            <TabsTrigger value="coingecko" className="gap-1 data-[state=active]:bg-primary/10">
-              <Flame className="w-3 h-3" />
-              Top 50
+        <Tabs defaultValue="okx" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+            <TabsTrigger value="okx" className="gap-1 data-[state=active]:bg-primary/10">
+              <Activity className="w-3 h-3" />
+              OKX Top 50
             </TabsTrigger>
             <TabsTrigger value="moonshot" className="gap-1 data-[state=active]:bg-primary/10">
               <Sparkles className="w-3 h-3" />
               MoonShot
             </TabsTrigger>
-            <TabsTrigger value="okx" className="gap-1 data-[state=active]:bg-primary/10">
-              <Activity className="w-3 h-3" />
-              OKX
-            </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="coingecko" className="mt-3">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
-                <Flame className="w-3 h-3 text-accent" />
-                Top Tokens by Market Cap
-              </p>
-              <Badge variant="outline" className="text-xs">
-                {filteredTrending.length} tokens
-              </Badge>
-            </div>
-            <ScrollArea className="h-[350px] pr-4">
-              <div className="space-y-2">
-                {filteredTrending.slice(0, 20).map((token: any, index) => (
-                  <div
-                    key={token.id}
-                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-all cursor-pointer group border border-transparent hover:border-primary/20"
-                    onClick={() => navigate("/markets")}
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <span className="text-xs text-muted-foreground font-mono w-6 flex-shrink-0">
-                        #{index + 1}
-                      </span>
-                      {token.image && (
-                        <img
-                          src={token.image}
-                          alt={token.name}
-                          className="w-8 h-8 rounded-full flex-shrink-0"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
-                            {token.symbol.toUpperCase()}
-                          </p>
-                          {token.is_trending && (
-                            <Flame className="w-3 h-3 text-accent flex-shrink-0 animate-pulse" />
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleFavorite(token.symbol);
-                            }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <Star
-                              className={`w-3 h-3 ${
-                                favorites.includes(token.symbol)
-                                  ? "fill-accent text-accent"
-                                  : "text-muted-foreground"
-                              }`}
-                            />
-                          </button>
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {token.name}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0 ml-2">
-                      {token.current_price > 0 ? (
-                        <>
-                          <p className="text-sm font-semibold whitespace-nowrap">
-                            ${token.current_price >= 1 
-                              ? token.current_price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
-                              : token.current_price < 0.01 
-                              ? token.current_price.toFixed(6)
-                              : token.current_price.toFixed(4)
-                            }
-                          </p>
-                          <Badge
-                            variant={
-                              token.price_change_percentage_24h >= 0
-                                ? "default"
-                                : "destructive"
-                            }
-                            className="text-[10px] h-5 mt-1"
-                          >
-                            {token.price_change_percentage_24h >= 0 ? "+" : ""}
-                            {token.price_change_percentage_24h?.toFixed(2)}%
-                          </Badge>
-                        </>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">N/A</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </TabsContent>
 
           <TabsContent value="moonshot" className="mt-3">
             <div className="flex items-center justify-between mb-3">

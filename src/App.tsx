@@ -12,6 +12,7 @@ import LaunchCoin from "./pages/LaunchCoin";
 import Transactions from "./pages/Transactions";
 import Airdrop from "./pages/Airdrop";
 import Wallet from "./pages/Wallet";
+import WalletApp from "./pages/WalletApp";
 import Logs from "./pages/Logs";
 import Help from "./pages/Help";
 import Admin from "./pages/Admin";
@@ -53,6 +54,7 @@ const AppContent = () => {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/airdrop" element={<Airdrop />} />
         <Route path="/wallet" element={<Wallet />} />
+        <Route path="/wallet-app" element={<WalletApp />} />
         <Route path="/logs" element={<Logs />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/swap" element={<Swap />} />

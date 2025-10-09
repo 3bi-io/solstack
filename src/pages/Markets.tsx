@@ -236,9 +236,13 @@ const Markets = () => {
     const avgChange = allMarketData.reduce((sum, item) => sum + item.change24h, 0) / (allMarketData.length || 1);
     const gainers = allMarketData.filter(item => item.change24h > 0).length;
     const losers = allMarketData.filter(item => item.change24h < 0).length;
-    const totalMarketCap = allMarketData.reduce((sum, item) => sum + (item.marketCap || 0), 0);
+    
+    // Only calculate market cap for tokens that have this data (MoonShot tokens)
+    const tokensWithMarketCap = allMarketData.filter(item => item.marketCap && item.marketCap > 0);
+    const totalMarketCap = tokensWithMarketCap.reduce((sum, item) => sum + (item.marketCap || 0), 0);
+    const hasMarketCapData = tokensWithMarketCap.length > 0;
 
-    return { totalVolume, avgChange, gainers, losers, totalMarketCap };
+    return { totalVolume, avgChange, gainers, losers, totalMarketCap, hasMarketCapData, tokensWithMarketCap: tokensWithMarketCap.length };
   }, [allMarketData]);
 
   const exportData = () => {
@@ -342,15 +346,23 @@ const Markets = () => {
         {/* Loaded Tokens Stats */}
         <div className="space-y-3">
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="p-4 bg-card rounded-xl border border-border">
-              <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="w-4 h-4 text-muted-foreground" />
-                <p className="text-xs text-muted-foreground">Market Cap</p>
+            {globalStats.hasMarketCapData && (
+              <div className="p-4 bg-card rounded-xl border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <DollarSign className="w-4 h-4 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">
+                    Market Cap ({globalStats.tokensWithMarketCap} tokens)
+                  </p>
+                </div>
+                <p className="text-xl font-bold">
+                  ${globalStats.totalMarketCap >= 1e9 
+                    ? (globalStats.totalMarketCap / 1e9).toFixed(2) + 'B' 
+                    : globalStats.totalMarketCap >= 1e6 
+                    ? (globalStats.totalMarketCap / 1e6).toFixed(2) + 'M' 
+                    : globalStats.totalMarketCap.toFixed(0)}
+                </p>
               </div>
-              <p className="text-xl font-bold">
-                ${(globalStats.totalMarketCap / 1e9).toFixed(2)}B
-              </p>
-            </div>
+            )}
             <div className="p-4 bg-card rounded-xl border border-border">
               <div className="flex items-center gap-2 mb-2">
                 <BarChart3 className="w-4 h-4 text-muted-foreground" />

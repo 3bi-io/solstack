@@ -5,198 +5,64 @@ interface Position {
   y: number;
 }
 
-const STORAGE_KEY = "powered-by-badge-position";
-const MIN_TOUCH_TARGET = 44; // Minimum touch target size in pixels
-
 export const PoweredByBadge = () => {
-  const [position, setPosition] = useState<Position>({ x: 16, y: 16 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
-  const [velocity, setVelocity] = useState<Position>({ x: 0, y: 0 });
+  const [isDisappearing, setIsDisappearing] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const badgeRef = useRef<HTMLDivElement>(null);
-  const lastPositionRef = useRef<Position & { time: number }>({ x: 0, y: 0, time: 0 });
-  const animationFrameRef = useRef<number>();
 
-  // Load saved position from localStorage
+  // Initialize position to bottom-right
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setPosition(parsed);
-      } catch (e) {
-        console.error("Failed to load badge position:", e);
-      }
+    if (badgeRef.current) {
+      const badge = badgeRef.current;
+      badge.style.right = '16px';
+      badge.style.bottom = '16px';
     }
   }, []);
 
-  // Save position to localStorage
-  const savePosition = (pos: Position) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pos));
-  };
-
-  const constrainPosition = (x: number, y: number): Position => {
-    const maxX = window.innerWidth - (badgeRef.current?.offsetWidth || 0);
-    const maxY = window.innerHeight - (badgeRef.current?.offsetHeight || 0);
-    return {
-      x: Math.max(0, Math.min(x, maxX)),
-      y: Math.max(0, Math.min(y, maxY)),
-    };
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!badgeRef.current) return;
+  const handleClick = () => {
+    if (isDisappearing || !badgeRef.current) return;
     
-    const rect = badgeRef.current.getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-    lastPositionRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
-    setIsDragging(true);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault();
-    if (!badgeRef.current) return;
+    setIsDisappearing(true);
     
-    const touch = e.touches[0];
-    const rect = badgeRef.current.getBoundingClientRect();
-    setDragOffset({
-      x: touch.clientX - rect.left,
-      y: touch.clientY - rect.top,
-    });
-    lastPositionRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
-    setIsDragging(true);
+    // Calculate center position
+    const badge = badgeRef.current;
+    const rect = badge.getBoundingClientRect();
+    const centerX = (window.innerWidth / 2) - (rect.width / 2);
+    const centerY = (window.innerHeight / 2) - (rect.height / 2);
+    
+    // Move to center
+    badge.style.left = `${centerX}px`;
+    badge.style.top = `${centerY}px`;
+    badge.style.right = 'auto';
+    badge.style.bottom = 'auto';
+    
+    // Hide after animation completes
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 600);
   };
 
-  // Handle momentum/inertia after drag release
-  useEffect(() => {
-    if (isDragging || velocity.x === 0 && velocity.y === 0) return;
-
-    let currentVelocity = { ...velocity };
-    const friction = 0.92;
-    const minVelocity = 0.5;
-
-    const animate = () => {
-      if (Math.abs(currentVelocity.x) < minVelocity && Math.abs(currentVelocity.y) < minVelocity) {
-        setVelocity({ x: 0, y: 0 });
-        return;
-      }
-
-      currentVelocity = {
-        x: currentVelocity.x * friction,
-        y: currentVelocity.y * friction,
-      };
-
-      setPosition(prev => {
-        const newPos = constrainPosition(
-          prev.x + currentVelocity.x,
-          prev.y + currentVelocity.y
-        );
-        savePosition(newPos);
-        return newPos;
-      });
-
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [isDragging, velocity]);
-
-  useEffect(() => {
-    const handleMove = (clientX: number, clientY: number) => {
-      if (!isDragging) return;
-
-      const now = Date.now();
-      const dt = now - lastPositionRef.current.time;
-
-      if (dt > 0) {
-        const vx = (clientX - lastPositionRef.current.x) / dt * 16;
-        const vy = (clientY - lastPositionRef.current.y) / dt * 16;
-        setVelocity({ x: vx, y: vy });
-      }
-
-      lastPositionRef.current = { x: clientX, y: clientY, time: now };
-
-      const newPos = constrainPosition(
-        clientX - dragOffset.x,
-        clientY - dragOffset.y
-      );
-      setPosition(newPos);
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      e.preventDefault();
-      handleMove(e.clientX, e.clientY);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      handleMove(touch.clientX, touch.clientY);
-    };
-
-    const handleEnd = () => {
-      if (isDragging) {
-        setIsDragging(false);
-        savePosition(position);
-      }
-    };
-
-    if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove, { passive: false });
-      window.addEventListener("mouseup", handleEnd);
-      window.addEventListener("touchmove", handleTouchMove, { passive: false });
-      window.addEventListener("touchend", handleEnd);
-      window.addEventListener("touchcancel", handleEnd);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleEnd);
-      window.removeEventListener("touchmove", handleTouchMove);
-      window.removeEventListener("touchend", handleEnd);
-      window.removeEventListener("touchcancel", handleEnd);
-    };
-  }, [isDragging, dragOffset, position]);
+  if (!isVisible) return null;
 
   return (
     <div
       ref={badgeRef}
-      className={`fixed z-50 touch-none animate-fade-in ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+      className="fixed z-50 animate-fade-in cursor-pointer"
       style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        minWidth: `${MIN_TOUCH_TARGET}px`,
-        minHeight: `${MIN_TOUCH_TARGET}px`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+        transition: isDisappearing ? 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease-out' : 'none',
+        opacity: isDisappearing ? 0 : 1,
       }}
-      onMouseDown={handleMouseDown}
-      onTouchStart={handleTouchStart}
+      onClick={handleClick}
+      onTouchEnd={handleClick}
     >
       <div className="relative group">
         <div 
-          className={`absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-full blur transition-all duration-300 ${
-            isDragging ? "opacity-80 blur-lg" : "opacity-30 group-hover:opacity-60"
-          }`} 
+          className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-full blur transition-all duration-300 opacity-30 group-hover:opacity-60" 
         />
         <div 
-          className={`relative px-4 sm:px-6 py-2 sm:py-2.5 bg-background/95 backdrop-blur-sm border border-primary/40 rounded-full transition-all duration-200 ${
-            isDragging ? "scale-105 shadow-2xl border-primary/60" : "group-hover:scale-102"
-          }`}
+          className="relative px-4 sm:px-6 py-2 sm:py-2.5 bg-background/95 backdrop-blur-sm border border-primary/40 rounded-full transition-all duration-200 group-hover:scale-102"
         >
-          <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap tracking-wide select-none pointer-events-none">
+          <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap tracking-wide select-none">
             Powered by <span className="text-primary">Cᴏᴅʏ Fᴏʀʙᴇꜱ</span>
           </span>
         </div>

@@ -25,6 +25,7 @@ import Settings from "./pages/Settings";
 import Referrals from "./pages/Referrals";
 import ApiKeys from "./pages/ApiKeys";
 import Markets from "./pages/Markets";
+import GrokAnalysis from "./pages/GrokAnalysis";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const AppContent = () => {
         <Route path="/help" element={<Help />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/markets" element={<Markets />} />
+        <Route path="/grok-analysis" element={<GrokAnalysis />} />
         <Route path="/launch" element={<LaunchCoin />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/airdrop" element={<Airdrop />} />

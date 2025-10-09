@@ -13,6 +13,7 @@ import {
   CreditCard,
   Settings,
   HelpCircle,
+  Brain,
   type LucideIcon
 } from "lucide-react";
 
@@ -30,6 +31,12 @@ export const mainNavItems: NavItem[] = [
     label: "Markets", 
     path: "/markets",
     badge: "AI"
+  },
+  { 
+    icon: Brain, 
+    label: "Grok AI", 
+    path: "/grok-analysis",
+    badge: "NEW"
   },
   { 
     icon: Rocket, 

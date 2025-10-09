@@ -58,7 +58,7 @@ const Markets = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState<FilterCategory>("all");
-  const [exchange, setExchange] = useState<FilterExchange>("coingecko");
+  const [exchange, setExchange] = useState<FilterExchange>("all");
   const [sortField, setSortField] = useState<SortField>("volume24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [updateCount, setUpdateCount] = useState(0);

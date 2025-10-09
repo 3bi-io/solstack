@@ -22,7 +22,7 @@ import {
   Coins,
   Filter
 } from "lucide-react";
-import { getTopTradingPairs, formatOKXPrice, calculatePriceChange } from "@/lib/okx";
+import { getTopTradingPairs, formatOKXPrice, calculatePriceChange, getTokenLogoUrl } from "@/lib/okx";
 import { getMoonShotTrending, formatMoonShotToken, MoonShotToken } from "@/lib/moonshot";
 import { toast } from "@/hooks/use-toast";
 import { MarketCard } from "@/components/markets/MarketCard";
@@ -149,7 +149,7 @@ const Markets = () => {
         id: pair.instId,
         name: pair.instId,
         symbol: symbol,
-        image: `https://www.cryptocompare.com/media/37746251/${symbol.toLowerCase()}.png`,
+        image: getTokenLogoUrl(symbol),
         price: pair.ticker ? parseFloat(pair.ticker.last) : 0,
         change24h: pair.ticker ? calculatePriceChange(pair.ticker.last, pair.ticker.open24h) : 0,
         volume24h: pair.ticker ? parseFloat(pair.ticker.vol24h) : 0,

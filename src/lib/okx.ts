@@ -275,19 +275,38 @@ export function calculatePriceChange(current: string, open24h: string): number {
 }
 
 /**
- * Get logo URL for a token symbol
+ * Get logo URL for a token symbol with proper CDN sources
+ * Uses Coinpaprika CDN which has good coverage for major tokens
  */
 export function getTokenLogoUrl(symbol: string): string {
-  // Use CryptoCompare API for token logos
-  const cleanSymbol = symbol.replace(/[^a-zA-Z]/g, '').toUpperCase();
-  return `https://www.cryptocompare.com/media/37746251/btc.png`.replace('btc', cleanSymbol.toLowerCase());
-}
-
-/**
- * Get logo URL using alternative services
- */
-export function getAlternativeTokenLogo(symbol: string): string {
-  const cleanSymbol = symbol.replace(/[^a-zA-Z]/g, '').toUpperCase();
-  // Using CoinGecko's assets via jsdelivr CDN
-  return `https://assets.coingecko.com/coins/images/1/large/${cleanSymbol.toLowerCase()}.png`;
+  const cleanSymbol = symbol.replace(/[^a-zA-Z]/g, '').toLowerCase();
+  
+  // Map common symbols to their proper IDs
+  const symbolMap: { [key: string]: string } = {
+    'btc': 'btc-bitcoin',
+    'eth': 'eth-ethereum',
+    'usdt': 'usdt-tether',
+    'bnb': 'bnb-binance-coin',
+    'sol': 'sol-solana',
+    'xrp': 'xrp-xrp',
+    'ada': 'ada-cardano',
+    'doge': 'doge-dogecoin',
+    'dot': 'dot-polkadot',
+    'matic': 'matic-polygon',
+    'avax': 'avax-avalanche',
+    'link': 'link-chainlink',
+    'atom': 'atom-cosmos',
+    'uni': 'uni-uniswap',
+    'ltc': 'ltc-litecoin',
+    'etc': 'etc-ethereum-classic',
+    'bch': 'bch-bitcoin-cash',
+    'near': 'near-near-protocol',
+    'algo': 'algo-algorand',
+    'xlm': 'xlm-stellar',
+  };
+  
+  const coinId = symbolMap[cleanSymbol] || `${cleanSymbol}-${cleanSymbol}`;
+  
+  // Use Coinpaprika CDN - reliable for major tokens
+  return `https://static.coinpaprika.com/coin/${coinId}/logo.png`;
 }

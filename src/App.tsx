@@ -7,6 +7,7 @@ import { FeedbackProvider, useFeedback } from "@/contexts/FeedbackContext";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { GrokChatWidget } from "@/components/GrokChatWidget";
+import { PoweredByBadge } from "@/components/PoweredByBadge";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import LaunchCoin from "./pages/LaunchCoin";
@@ -82,6 +83,7 @@ const App = () => (
         </WalletProvider>
       </BrowserRouter>
       <GrokChatWidget />
+      <PoweredByBadge />
     </TooltipProvider>
   </QueryClientProvider>
 );

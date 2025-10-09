@@ -73,7 +73,7 @@ export const GrokChatWidget = () => {
       <Button
         onClick={() => setIsOpen(true)}
         size="lg"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:scale-110 transition-transform z-50 p-2"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:scale-110 transition-transform z-50 p-2 bg-white hover:bg-white"
       >
         <img src={grokLogo} alt="Grok" className="w-full h-full object-contain" />
       </Button>

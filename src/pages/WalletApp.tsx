@@ -2,6 +2,8 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FeatureMockup } from "@/components/wallet-preview/FeatureMockup";
+import { DashboardMockup, SwapMockup, StakingMockup, NFTMockup } from "@/components/wallet-preview/mockups";
 import { 
   Shield, 
   Zap, 
@@ -205,6 +207,55 @@ const WalletApp = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Mockups Showcase */}
+      <section className="py-20 px-4 bg-gradient-to-b from-background to-card/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <Badge className="mb-4 text-sm px-4 py-2 bg-primary/10 text-primary border-primary/30">
+              Experience the Interface
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-black mb-4">
+              See Features in <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Action</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Every feature designed with beauty and simplicity in mind
+            </p>
+          </div>
+
+          <div className="space-y-32">
+            <FeatureMockup
+              icon={Wallet}
+              title="Real-Time Portfolio Dashboard"
+              description="Track your entire portfolio at a glance. View live balances, performance charts, and quick actions all in one beautiful interface. Stay on top of your investments with instant insights."
+              mockupContent={<DashboardMockup />}
+            />
+
+            <FeatureMockup
+              icon={RefreshCw}
+              title="AI-Powered DEX Aggregator"
+              description="Get the best swap rates automatically. Our AI scans multiple DEXs including Jupiter, Raydium, and Orca to find you the optimal price with zero fees. Trade smarter, not harder."
+              mockupContent={<SwapMockup />}
+              reversed
+            />
+
+            <FeatureMockup
+              icon={Coins}
+              title="Effortless Staking & Rewards"
+              description="Maximize your passive income with one-tap staking. Choose from top validators, track your rewards in real-time, and compound your earnings automatically. Your money working for you 24/7."
+              mockupContent={<StakingMockup />}
+            />
+
+            <FeatureMockup
+              icon={Layers}
+              title="Premium NFT Gallery"
+              description="Showcase your digital collection in style. Browse, organize, and trade NFTs with live floor prices and instant listing capabilities. Your art, perfectly presented."
+              mockupContent={<NFTMockup />}
+              reversed
+            />
           </div>
         </div>
       </section>

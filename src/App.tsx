@@ -8,6 +8,7 @@ import { WalletProvider } from "@/contexts/WalletContext";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { GrokChatWidget } from "@/components/GrokChatWidget";
 import { PoweredByBadge } from "@/components/PoweredByBadge";
+import { useState } from "react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import LaunchCoin from "./pages/LaunchCoin";
@@ -34,6 +35,13 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { isOpen, closeFeedback } = useFeedback();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showBadge, setShowBadge] = useState(true);
+
+  const handleBadgeTransform = () => {
+    setShowBadge(false);
+    setIsChatOpen(true);
+  };
 
   return (
     <>
@@ -66,6 +74,12 @@ const AppContent = () => {
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <GrokChatWidget 
+        isOpen={isChatOpen} 
+        onOpenChange={setIsChatOpen}
+        showDefaultButton={false}
+      />
+      {showBadge && <PoweredByBadge onTransform={handleBadgeTransform} />}
     </>
   );
 };
@@ -82,8 +96,6 @@ const App = () => (
           </FeedbackProvider>
         </WalletProvider>
       </BrowserRouter>
-      <GrokChatWidget />
-      <PoweredByBadge />
     </TooltipProvider>
   </QueryClientProvider>
 );

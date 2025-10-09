@@ -21,9 +21,28 @@ interface Position {
 
 const CHAT_POSITION_KEY = "grok-chat-position";
 
-export const GrokChatWidget = () => {
+interface GrokChatWidgetProps {
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showDefaultButton?: boolean;
+}
+
+export const GrokChatWidget = ({ 
+  isOpen: externalIsOpen, 
+  onOpenChange,
+  showDefaultButton = false 
+}: GrokChatWidgetProps = {}) => {
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = (value: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(value);
+    } else {
+      setInternalIsOpen(value);
+    }
+  };
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -297,7 +316,7 @@ export const GrokChatWidget = () => {
     </div>
   );
 
-  if (!isOpen) {
+  if (!isOpen && showDefaultButton) {
     return (
       <Button
         onClick={() => setIsOpen(true)}
@@ -310,6 +329,10 @@ export const GrokChatWidget = () => {
         </div>
       </Button>
     );
+  }
+
+  if (!isOpen) {
+    return null;
   }
 
   if (isMobile) {

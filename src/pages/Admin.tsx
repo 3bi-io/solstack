@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Shield, Download, Users, Eye, Trash2, AlertTriangle } from "lucide-react";
+import { Search, Shield, Download, Users, Eye, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { AdminStats } from "@/components/admin/AdminStats";
@@ -212,19 +212,6 @@ const Admin = () => {
             verifiedSubmissions={verifiedCount}
             recentSubmissions={recentCount}
           />
-        </div>
-
-        {/* Security Warning */}
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-sm text-destructive mb-1">Admin Security Notice</h3>
-              <p className="text-xs text-muted-foreground">
-                You are viewing sensitive Solana wallet data. All access is logged. Never share, screenshot, or export this data to unsecured locations.
-              </p>
-            </div>
-          </div>
         </div>
 
         <Card className="bg-card/50 backdrop-blur-sm">

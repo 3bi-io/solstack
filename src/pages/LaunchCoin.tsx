@@ -10,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { SolanaSetupAlert } from "@/components/SolanaSetupAlert";
 import { z } from "zod";
 
 const tokenSchema = z.object({
@@ -136,8 +135,6 @@ const LaunchCoin = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <SolanaSetupAlert />
-            
             {!connected && (
               <div className="space-y-3 mb-6">
                 <Alert>

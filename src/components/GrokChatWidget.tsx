@@ -45,7 +45,17 @@ export const GrokChatWidget = () => {
         body: { messages: [...messages, userMessage] }
       });
 
-      if (error) throw error;
+      console.log('Supabase function response:', { data, error });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      if (!data || !data.message) {
+        console.error('Invalid response data:', data);
+        throw new Error('Invalid response from server');
+      }
 
       const assistantMessage: Message = { 
         role: 'assistant', 

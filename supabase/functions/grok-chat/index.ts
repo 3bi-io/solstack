@@ -60,7 +60,15 @@ Provide accurate, helpful, and concise answers. When discussing prices or market
     }
 
     const data = await response.json();
+    console.log('Grok API response data:', JSON.stringify(data));
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid response structure:', data);
+      throw new Error('Invalid response from Grok API');
+    }
+    
     const assistantMessage = data.choices[0].message.content;
+    console.log('Sending response, message length:', assistantMessage?.length);
 
     return new Response(
       JSON.stringify({ message: assistantMessage }),

@@ -35,7 +35,7 @@ export const TelegramNavigation = () => {
           <WalletConnectButton />
         </div>
         
-        <div className="grid grid-cols-6 gap-1">
+        <div className="flex items-center justify-center gap-1 max-w-md mx-auto">
           {mainNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -45,7 +45,7 @@ export const TelegramNavigation = () => {
                 variant={isActive ? "default" : "ghost"}
                 size="sm"
                 onClick={() => handleNavigation(item.path)}
-                className="flex flex-col items-center justify-center gap-1 h-16 py-2 px-1"
+                className="flex flex-col items-center justify-center gap-1 h-16 py-2 px-1 flex-1 min-w-[60px] max-w-[80px]"
               >
                 <Icon className="w-5 h-5 shrink-0" />
                 <span className="text-[10px] leading-tight text-center whitespace-nowrap">{item.label}</span>
@@ -59,7 +59,7 @@ export const TelegramNavigation = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex flex-col items-center justify-center gap-1 h-16 py-2 px-1"
+                className="flex flex-col items-center justify-center gap-1 h-16 py-2 px-1 flex-1 min-w-[60px] max-w-[80px]"
               >
                 <MoreHorizontal className="w-5 h-5 shrink-0" />
                 <span className="text-[10px] leading-tight text-center whitespace-nowrap">More</span>

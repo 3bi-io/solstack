@@ -1,4 +1,4 @@
-import { Zap } from "lucide-react";
+import { Zap, Sparkles, Brain, TrendingUp } from "lucide-react";
 import solstackLogo from "@/assets/solstack-logo.png";
 import heroBackground from "@/assets/hero-background.jpeg";
 
@@ -42,27 +42,28 @@ export const Hero = () => {
         </h1>
         
         <div className="mb-2 sm:mb-3 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-          <span className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-primary/20 border border-primary/30 rounded-full text-xs sm:text-sm font-semibold text-primary-foreground">
-            The Official solstack.me
+          <span className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1 sm:py-1.5 bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/40 rounded-full text-xs sm:text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20">
+            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+            First Ever AI-Powered DeFi Platform
           </span>
         </div>
         
-        <p className="text-base sm:text-lg md:text-xl mb-4 sm:mb-6 max-w-2xl mx-auto px-4 leading-relaxed animate-fade-in text-muted-foreground" style={{ animationDelay: '0.1s' }}>
-          The official Solana toolkit for token launches, airdrops, and transaction management
+        <p className="text-base sm:text-lg md:text-xl mb-4 sm:mb-6 max-w-3xl mx-auto px-4 leading-relaxed animate-fade-in text-muted-foreground" style={{ animationDelay: '0.1s' }}>
+          Experience the cutting edge of <span className="text-primary font-semibold">AI-driven Solana trading</span>. Revolutionary token launches, intelligent market analysis, and automated DeFi strategies powered by advanced machine learning.
         </p>
         
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base px-2">
-          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/20" style={{ animationDelay: '0.2s' }}>
-            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
-            <span className="font-medium whitespace-nowrap">Official Platform</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/30 shadow-lg shadow-primary/10" style={{ animationDelay: '0.2s' }}>
+            <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0 animate-pulse" />
+            <span className="font-medium whitespace-nowrap">AI Market Analysis</span>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/20" style={{ animationDelay: '0.3s' }}>
-            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
-            <span className="font-medium whitespace-nowrap">Blockchain Verified</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/30 shadow-lg shadow-primary/10" style={{ animationDelay: '0.3s' }}>
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
+            <span className="font-medium whitespace-nowrap">Smart Trading</span>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/20" style={{ animationDelay: '0.4s' }}>
+          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full backdrop-blur-sm hover:bg-primary/20 transition-all hover-scale animate-fade-in border border-primary/30 shadow-lg shadow-primary/10" style={{ animationDelay: '0.4s' }}>
             <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
-            <span className="font-medium whitespace-nowrap">Trusted by Thousands</span>
+            <span className="font-medium whitespace-nowrap">Lightning Fast</span>
           </div>
         </div>
       </div>

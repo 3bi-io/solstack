@@ -4,11 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { X, Send, Minimize2, Maximize2 } from "lucide-react";
+import { X, Send, Minimize2, Maximize2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import grokLogo from "@/assets/grok-logo.png";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -22,7 +21,7 @@ export const GrokChatWidget = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "👋 Hi! I'm your Grok-powered crypto assistant. Ask me anything about cryptocurrency, blockchain, DeFi, or market analysis!"
+      content: "👋 Hi! I'm your xAI-powered crypto assistant. Ask me anything about cryptocurrency, blockchain, DeFi, or market analysis!"
     }
   ]);
   const [input, setInput] = useState("");
@@ -141,9 +140,12 @@ export const GrokChatWidget = () => {
       <Button
         onClick={() => setIsOpen(true)}
         size="lg"
-        className={`fixed ${isMobile ? 'bottom-4 right-4 h-16 w-16' : 'bottom-6 right-6 h-14 w-14'} rounded-full shadow-lg hover:scale-110 transition-transform z-50 p-2 bg-white hover:bg-white`}
+        className={`fixed ${isMobile ? 'bottom-4 right-4 h-16 w-16' : 'bottom-6 right-6 h-14 w-14'} rounded-full shadow-lg hover:scale-110 transition-transform z-50`}
       >
-        <img src={grokLogo} alt="Grok" className="w-full h-full object-contain" />
+        <div className="relative">
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-full blur opacity-75 animate-pulse" />
+          <Sparkles className="relative h-8 w-8" />
+        </div>
       </Button>
     );
   }
@@ -152,10 +154,13 @@ export const GrokChatWidget = () => {
     return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
-          <SheetHeader className="p-4 border-b bg-primary text-primary-foreground">
-            <div className="flex items-center gap-2">
-              <img src={grokLogo} alt="Grok" className="h-6 w-6 object-contain" />
-              <SheetTitle className="text-primary-foreground">Grok Crypto Assistant</SheetTitle>
+          <SheetHeader className="p-4 border-b bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="absolute -inset-1 bg-white/20 rounded-lg blur" />
+                <Sparkles className="relative h-6 w-6" />
+              </div>
+              <SheetTitle className="text-primary-foreground">xAI Crypto Assistant</SheetTitle>
             </div>
           </SheetHeader>
           <ScrollArea className="flex-1 p-4" ref={scrollRef}>
@@ -169,21 +174,24 @@ export const GrokChatWidget = () => {
 
   return (
     <Card 
-      className={`fixed bottom-6 right-6 w-96 shadow-2xl z-50 flex flex-col transition-all ${
+      className={`fixed bottom-6 right-6 w-96 shadow-2xl z-50 flex flex-col transition-all overflow-hidden ${
         isMinimized ? 'h-14' : 'h-[600px]'
       }`}
     >
-      <div className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground rounded-t-lg">
-        <div className="flex items-center gap-2">
-          <img src={grokLogo} alt="Grok" className="h-6 w-6 object-contain" />
-          <span className="font-semibold">Grok Crypto Assistant</span>
+      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="absolute -inset-1 bg-white/20 rounded-lg blur" />
+            <Sparkles className="relative h-5 w-5" />
+          </div>
+          <span className="font-semibold">xAI Crypto Assistant</span>
         </div>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsMinimized(!isMinimized)}
-            className="h-8 w-8 p-0 hover:bg-primary-foreground/20"
+            className="h-8 w-8 p-0 hover:bg-white/20 text-primary-foreground"
           >
             {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
           </Button>
@@ -191,7 +199,7 @@ export const GrokChatWidget = () => {
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="h-8 w-8 p-0 hover:bg-primary-foreground/20"
+            className="h-8 w-8 p-0 hover:bg-white/20 text-primary-foreground"
           >
             <X className="h-4 w-4" />
           </Button>

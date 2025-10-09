@@ -13,7 +13,18 @@ import {
   Download,
   Star,
   Users,
-  TrendingUp
+  TrendingUp,
+  Wallet,
+  Coins,
+  RefreshCw,
+  Bell,
+  Layers,
+  Scan,
+  ChartBar,
+  Sparkles,
+  Network,
+  Key,
+  Gift
 } from "lucide-react";
 import solstackLogo from "@/assets/solstack-logo.png";
 
@@ -22,39 +33,92 @@ const WalletApp = () => {
     {
       icon: Shield,
       title: "Military-Grade Security",
-      description: "Your keys, your crypto. Protected by advanced encryption and biometric authentication."
+      description: "Bank-level encryption with multi-signature support and hardware wallet integration."
     },
     {
       icon: Zap,
-      title: "Lightning Fast",
-      description: "Execute trades and transfers in milliseconds on the Solana blockchain."
+      title: "Lightning Fast Transactions",
+      description: "Sub-second transactions on Solana with the lowest fees in the industry."
     },
     {
-      icon: Fingerprint,
-      title: "Biometric Lock",
-      description: "Face ID and fingerprint authentication for instant secure access."
+      icon: Wallet,
+      title: "Built-in DEX Aggregator",
+      description: "Access the best prices across multiple DEXs with intelligent routing."
     },
     {
-      icon: Globe,
-      title: "Multi-Chain Support",
-      description: "Manage Solana, SPL tokens, and NFTs all in one beautiful interface."
+      icon: Coins,
+      title: "Staking & Yield Farming",
+      description: "Earn passive income with one-tap staking and DeFi yield opportunities."
     },
     {
-      icon: Lock,
-      title: "Self-Custody",
-      description: "You control your private keys. We never have access to your funds."
+      icon: Layers,
+      title: "NFT Gallery & Marketplace",
+      description: "Showcase your NFTs, discover new collections, and trade seamlessly."
     },
     {
-      icon: TrendingUp,
-      title: "Real-Time Analytics",
-      description: "Track your portfolio performance with live market data and insights."
+      icon: RefreshCw,
+      title: "Cross-Chain Swaps",
+      description: "Bridge assets between Solana, Ethereum, BSC, and 20+ blockchains."
+    },
+    {
+      icon: ChartBar,
+      title: "Advanced Portfolio Tracking",
+      description: "Real-time portfolio analytics, profit/loss tracking, and tax reporting."
+    },
+    {
+      icon: Bell,
+      title: "Smart Price Alerts",
+      description: "Never miss opportunities with AI-powered alerts and market insights."
+    },
+    {
+      icon: Scan,
+      title: "QR Code Payments",
+      description: "Send and receive crypto instantly with QR codes and NFC support."
+    },
+    {
+      icon: Sparkles,
+      title: "AI Trading Assistant",
+      description: "Get personalized trading recommendations powered by advanced AI."
+    },
+    {
+      icon: Network,
+      title: "Web3 DApp Browser",
+      description: "Seamlessly connect to thousands of dApps, games, and DeFi protocols."
+    },
+    {
+      icon: Gift,
+      title: "Rewards & Cashback",
+      description: "Earn rewards on every transaction and get exclusive perks."
     }
   ];
 
   const stats = [
-    { icon: Users, value: "100K+", label: "Active Users" },
+    { icon: Users, value: "2M+", label: "Active Users" },
     { icon: Star, value: "4.9", label: "App Store Rating" },
-    { icon: Download, value: "500K+", label: "Downloads" }
+    { icon: Download, value: "10M+", label: "Downloads" }
+  ];
+
+  const advancedFeatures = [
+    {
+      title: "Hardware Wallet Support",
+      description: "Connect Ledger and Trezor for maximum security",
+      icon: Key
+    },
+    {
+      title: "Multi-Signature Wallets",
+      description: "Shared wallets for teams and organizations",
+      icon: Users
+    },
+    {
+      title: "WalletConnect Integration",
+      description: "Connect to any Web3 app with one tap",
+      icon: Network
+    },
+    {
+      title: "Fiat On/Off Ramp",
+      description: "Buy crypto with credit cards and bank transfers",
+      icon: Coins
+    }
   ];
 
   return (
@@ -78,8 +142,8 @@ const WalletApp = () => {
             </h1>
             
             <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12">
-              The most secure and user-friendly Solana wallet for iOS and Android. 
-              Your gateway to the future of finance.
+              The most powerful all-in-one crypto wallet. Trade, stake, earn, and explore Web3 with 
+              military-grade security and lightning-fast performance.
             </p>
 
             {/* Download Buttons */}
@@ -149,25 +213,54 @@ const WalletApp = () => {
       <section className="py-20 px-4 bg-card/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
+            <Badge className="mb-4 text-sm px-4 py-2 bg-accent/10 text-accent border-accent/30">
+              Powerful Features
+            </Badge>
             <h2 className="text-4xl md:text-5xl font-black mb-4">
-              Built for <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Everyone</span>
+              Everything You Need in <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">One Wallet</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Whether you're a crypto beginner or a seasoned trader, SOLStack Wallet provides everything you need.
+              From beginners to power users, SOLStack delivers professional-grade tools with consumer-friendly design.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:border-primary/50">
+              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:border-primary/50 hover:-translate-y-1">
                 <CardContent className="p-6">
-                  <div className="mb-4 p-3 bg-primary/10 rounded-lg w-fit group-hover:bg-primary/20 transition-colors">
-                    <feature.icon className="w-6 h-6 text-primary" />
+                  <div className="mb-4 p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl w-fit group-hover:from-primary/20 group-hover:to-accent/20 transition-all">
+                    <feature.icon className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
+                  <h3 className="text-base font-bold mb-2 group-hover:text-primary transition-colors">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                 </CardContent>
               </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Advanced Features Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 text-sm px-4 py-2 bg-primary/10 text-primary border-primary/30">
+              Advanced Capabilities
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-black mb-4">
+              Pro Features for <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Power Users</span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {advancedFeatures.map((feature, index) => (
+              <div key={index} className="text-center">
+                <div className="mb-4 mx-auto p-4 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl w-fit border border-primary/20">
+                  <feature.icon className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground">{feature.description}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -190,20 +283,25 @@ const WalletApp = () => {
                     </span>
                   </h2>
                   <p className="text-muted-foreground mb-6">
-                    We never store your private keys. Your wallet is encrypted on your device with military-grade security protocols. Only you have access to your funds.
+                    We never store your private keys. Your wallet is encrypted on your device with military-grade security protocols. 
+                    Audited by leading security firms and trusted by millions.
                   </p>
                   <ul className="space-y-3">
                     <li className="flex items-center gap-2">
                       <Shield className="w-5 h-5 text-primary" />
-                      <span>End-to-end encryption</span>
+                      <span>AES-256 encryption + secure enclave</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <Lock className="w-5 h-5 text-primary" />
-                      <span>Biometric authentication</span>
+                      <span>Multi-factor authentication</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <Fingerprint className="w-5 h-5 text-primary" />
-                      <span>Self-custody wallet</span>
+                      <span>Biometric + PIN protection</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Key className="w-5 h-5 text-primary" />
+                      <span>Hardware wallet compatible</span>
                     </li>
                   </ul>
                 </div>
@@ -223,10 +321,10 @@ const WalletApp = () => {
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-black mb-6">
-            Ready to Get Started?
+            Join the Future of Finance
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Join thousands of users managing their crypto with confidence.
+            Join millions of users worldwide who trust SOLStack for their crypto journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 

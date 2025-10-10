@@ -1,19 +1,17 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { 
   Connection, 
   Keypair, 
   PublicKey,
-  Transaction,
-  SystemProgram,
   LAMPORTS_PER_SOL
 } from "https://esm.sh/@solana/web3.js@1.87.6";
 import {
   createMint,
   getOrCreateAssociatedTokenAccount,
   mintTo,
-  TOKEN_PROGRAM_ID,
 } from "https://esm.sh/@solana/spl-token@0.3.9";
 
 const corsHeaders = {
@@ -21,16 +19,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface TokenRequest {
-  name: string;
-  symbol: string;
-  decimals: number;
-  supply: number;
-  description?: string;
-  logoUrl?: string;
-  userWalletAddress: string;
-  userId?: string;
-}
+// Input validation schema
+const tokenRequestSchema = z.object({
+  name: z.string().min(1).max(32, 'Name must be 1-32 characters'),
+  symbol: z.string().min(1).max(10, 'Symbol must be 1-10 characters'),
+  decimals: z.number().int().min(0).max(9, 'Decimals must be 0-9'),
+  supply: z.number().positive().max(1e15, 'Supply too large'),
+  description: z.string().max(500).optional(),
+  logoUrl: z.string().url().max(500).optional().or(z.literal('')),
+  userWalletAddress: z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/, 'Invalid Solana address'),
+  userId: z.string().uuid().optional(),
+});
+
+type TokenRequest = z.infer<typeof tokenRequestSchema>;
 
 // Helper function to get platform wallet from secret
 function getPlatformWallet(): Keypair | null {
@@ -41,7 +42,6 @@ function getPlatformWallet(): Keypair | null {
       return null;
     }
     
-    // Parse the secret key array from JSON
     const secretKeyArray = JSON.parse(platformKeypairJson);
     const secretKey = Uint8Array.from(secretKeyArray);
     
@@ -63,16 +63,22 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const tokenData: TokenRequest = await req.json();
-    console.log('Launching token for user:', tokenData.userWalletAddress);
-
-    // Validate input
-    if (!tokenData.name || !tokenData.symbol || !tokenData.supply || !tokenData.userWalletAddress) {
+    // Parse and validate input
+    const rawData = await req.json();
+    const validationResult = tokenRequestSchema.safeParse(rawData);
+    
+    if (!validationResult.success) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: validationResult.error.format() 
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const tokenData = validationResult.data;
+    console.log('Launching token for user:', tokenData.userWalletAddress);
 
     // Validate user wallet address
     let userPubkey: PublicKey;
@@ -96,7 +102,7 @@ serve(async (req) => {
 
     console.log('Creating token with platform wallet, minting to:', userPubkey.toString());
 
-    // Connect to Solana (using devnet for testing)
+    // Connect to Solana
     const connection = new Connection(
       Deno.env.get('SOLANA_RPC_URL') || 'https://api.devnet.solana.com',
       'confirmed'
@@ -120,12 +126,12 @@ serve(async (req) => {
         );
       }
 
-      // Create mint (SPL token) - Platform is initial mint authority
+      // Create mint (SPL token)
       const mint = await createMint(
         connection,
-        payer, // Platform pays for creation
-        payer.publicKey, // Platform is mint authority (can transfer later)
-        payer.publicKey, // Platform is freeze authority (can transfer later)
+        payer,
+        payer.publicKey,
+        payer.publicKey,
         tokenData.decimals
       );
 
@@ -135,31 +141,31 @@ serve(async (req) => {
       // Create associated token account for user
       const tokenAccount = await getOrCreateAssociatedTokenAccount(
         connection,
-        payer, // Platform pays for account creation
+        payer,
         mint,
-        userPubkey // User owns the token account
+        userPubkey
       );
 
       console.log('Token account created:', tokenAccount.address.toString());
 
-      // Calculate platform fee (0.00015 SOL)
+      // Calculate supplies
       const userSupply = BigInt(tokenData.supply) * BigInt(10 ** tokenData.decimals);
       const platformFee = (userSupply * BigInt(7)) / BigInt(100);
 
-      // Mint user's supply to user
+      // Mint user's supply
       const mintTxSignature = await mintTo(
         connection,
-        payer, // Platform pays and signs
+        payer,
         mint,
         tokenAccount.address,
-        payer.publicKey, // Platform is mint authority
+        payer.publicKey,
         userSupply
       );
 
       signature = mintTxSignature;
       console.log('Minted user supply. Signature:', signature);
 
-      // Mint platform fee to platform wallet (before transferring authority)
+      // Mint platform fee
       const platformWalletAddress = Deno.env.get('PLATFORM_WALLET_ADDRESS');
       if (platformWalletAddress && platformFee > 0n) {
         try {
@@ -176,18 +182,17 @@ serve(async (req) => {
             payer,
             mint,
             platformTokenAccount.address,
-            payer.publicKey, // Platform is still mint authority
+            payer.publicKey,
             platformFee
           );
 
           console.log('Platform fee minted:', platformFee.toString());
         } catch (platformError) {
           console.error('Failed to mint platform fee:', platformError);
-          // Continue even if platform fee minting fails
         }
       }
 
-      // Transfer mint authority to user (gives user full control)
+      // Transfer mint authority to user
       try {
         const { setAuthority, AuthorityType } = await import('https://esm.sh/@solana/spl-token@0.3.9');
         
@@ -195,15 +200,14 @@ serve(async (req) => {
           connection,
           payer,
           mint,
-          payer.publicKey, // Current authority (platform)
+          payer.publicKey,
           AuthorityType.MintTokens,
-          userPubkey // New authority (user)
+          userPubkey
         );
         
         console.log('Mint authority transferred to user');
       } catch (authorityError) {
         console.error('Failed to transfer mint authority:', authorityError);
-        // Continue even if authority transfer fails
       }
 
     } catch (solanaError) {
@@ -221,7 +225,7 @@ serve(async (req) => {
         decimals: tokenData.decimals,
         supply: tokenData.supply,
         description: tokenData.description,
-        logo_url: tokenData.logoUrl,
+        logo_url: tokenData.logoUrl || null,
         mint_address: mintAddress,
         status: 'success',
       })
@@ -250,8 +254,8 @@ serve(async (req) => {
       level: 'success',
       message: `Token ${tokenData.name} (${tokenData.symbol}) launched successfully`,
       category: 'token',
-      details: `Initial supply: ${tokenData.supply.toLocaleString()} ${tokenData.symbol}. Mint: ${mintAddress}. Owner: ${tokenData.userWalletAddress}`,
-      metadata: { token_id: token.id, mint_address: mintAddress, signature, user_wallet: tokenData.userWalletAddress },
+      details: `Initial supply: ${tokenData.supply.toLocaleString()} ${tokenData.symbol}. Mint: ${mintAddress}`,
+      metadata: { token_id: token.id, mint_address: mintAddress, signature },
     });
 
     console.log('Token created successfully:', token);

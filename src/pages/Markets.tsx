@@ -30,6 +30,7 @@ import { MarketFilters, FilterCategory, FilterExchange } from "@/components/mark
 import { TokenDetailDialog } from "@/components/markets/TokenDetailDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 interface MarketData {
   id: string;
@@ -62,25 +63,8 @@ const Markets = () => {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [selectedToken, setSelectedToken] = useState<MarketData | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Check if user is admin
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (!user) return;
-      
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .maybeSingle();
-      
-      setIsAdmin(!!data);
-    };
-    
-    checkAdmin();
-  }, [user]);
+  // Use secure admin check hook for consistent server-side validation
+  const { isAdmin } = useAdminCheck();
 
   const loadMarketData = async () => {
     setRefreshing(true);

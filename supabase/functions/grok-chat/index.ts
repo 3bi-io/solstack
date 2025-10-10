@@ -1,10 +1,44 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation
+const chatMessageSchema = z.object({
+  role: z.enum(['system', 'user', 'assistant']),
+  content: z.string().min(1).max(10000),
+});
+
+const chatRequestSchema = z.object({
+  messages: z.array(chatMessageSchema).min(1).max(50),
+});
+
+// Rate limiting
+const rateLimits = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW = 3600000; // 1 hour
+const MAX_REQUESTS_PER_HOUR = 20;
+
+function checkRateLimit(userId: string): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+  const userLimit = rateLimits.get(userId);
+
+  if (!userLimit || now > userLimit.resetTime) {
+    rateLimits.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return { allowed: true, remaining: MAX_REQUESTS_PER_HOUR - 1 };
+  }
+
+  if (userLimit.count >= MAX_REQUESTS_PER_HOUR) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  userLimit.count++;
+  return { allowed: true, remaining: MAX_REQUESTS_PER_HOUR - userLimit.count };
+}
 
 // Function to detect Solana token address (44 character base58 string)
 const isSolanaAddress = (text: string): boolean => {
@@ -64,7 +98,50 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Get authenticated user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check rate limit
+    const rateLimit = checkRateLimit(user.id);
+    if (!rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Max 20 requests per hour.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Parse and validate input
+    const rawData = await req.json();
+    const validationResult = chatRequestSchema.safeParse(rawData);
+    
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validationResult.error.format() }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { messages } = validationResult.data;
     const grokApiKey = Deno.env.get('GROK_API_KEY');
 
     if (!grokApiKey) {
@@ -87,8 +164,8 @@ serve(async (req) => {
           console.log('Token data fetched successfully:', tokenData.symbol);
           
           // Add context about the token to the conversation
-          const contextMessage = {
-            role: 'system',
+          const contextMessage: z.infer<typeof chatMessageSchema> = {
+            role: 'system' as const,
             content: `The user just pasted a Solana token address. Here's the live data I fetched:
 
 🪙 Token: ${tokenData.name} (${tokenData.symbol})

@@ -210,19 +210,54 @@ Format as JSON with: entry_points, exit_points, stop_loss, risk_reward, strategy
       throw new Error('No valid AI API key configured');
     }
 
-    // Extract sentiment score and predictions
-    if (analysisType === 'market_overview' && analysisResult.sentiment) {
+    // Extract sentiment score and predictions with better error handling
+    if (analysisType === 'market_overview') {
       const sentimentMap: Record<string, number> = { 
         bullish: 0.8, 
         neutral: 0.5, 
         bearish: 0.2 
       };
-      sentimentScore = sentimentMap[analysisResult.sentiment.toLowerCase()] || 0.5;
+      
+      // Handle different sentiment formats
+      let sentimentValue = null;
+      if (analysisResult.sentiment) {
+        if (typeof analysisResult.sentiment === 'string') {
+          sentimentValue = analysisResult.sentiment.toLowerCase();
+        } else if (typeof analysisResult.sentiment === 'object' && analysisResult.sentiment.current_sentiment) {
+          sentimentValue = String(analysisResult.sentiment.current_sentiment).toLowerCase();
+        }
+      }
+      
+      if (sentimentValue) {
+        // Match any sentiment keyword in the string
+        if (sentimentValue.includes('bullish')) sentimentScore = 0.8;
+        else if (sentimentValue.includes('bearish')) sentimentScore = 0.2;
+        else sentimentScore = 0.5;
+      }
     }
 
-    if (analysisType === 'price_prediction' && analysisResult.predictions) {
-      pricePrediction = analysisResult.predictions['24h'] || null;
-      confidenceLevel = analysisResult.confidence_level || 'medium';
+    if (analysisType === 'price_prediction') {
+      // Handle different prediction formats
+      if (analysisResult.predictions) {
+        if (typeof analysisResult.predictions === 'object') {
+          // Try different possible formats
+          pricePrediction = analysisResult.predictions['24h']?.predicted_price 
+            || analysisResult.predictions['24h']?.price_range 
+            || analysisResult.predictions['24h'] 
+            || null;
+        }
+      }
+      
+      // Handle different confidence level formats
+      if (analysisResult.confidence_level) {
+        if (typeof analysisResult.confidence_level === 'string') {
+          confidenceLevel = analysisResult.confidence_level;
+        } else if (typeof analysisResult.confidence_level === 'object' && analysisResult.confidence_level.overall) {
+          confidenceLevel = analysisResult.confidence_level.overall;
+        }
+      } else {
+        confidenceLevel = 'medium';
+      }
     }
 
     // Store analysis in database only if user is authenticated

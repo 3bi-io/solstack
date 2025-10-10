@@ -71,7 +71,12 @@ const GrokAnalysis = () => {
 
       if (error) throw error;
 
-      setAnalysis(data);
+      // Handle both direct analysis result and wrapped response
+      const analysisData = data?.analysis || data;
+      setAnalysis(analysisData);
+      
+      console.log('Analysis data received:', analysisData);
+      
       toast({
         title: "Analysis Complete",
         description: "Grok has analyzed the token successfully",

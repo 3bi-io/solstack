@@ -39,10 +39,15 @@ export const AIMarketAnalysis = ({ tokenAddress, tokenSymbol, marketData }: AIMa
 
       if (error) throw error;
 
+      // Handle both direct analysis result and wrapped response
+      const analysisData = data?.analysis || data;
+      
       setAnalysisResults(prev => ({
         ...prev,
-        [analysisType]: data.analysis,
+        [analysisType]: analysisData,
       }));
+
+      console.log('Analysis data received for', analysisType, ':', analysisData);
 
       toast({
         title: "Analysis Complete",

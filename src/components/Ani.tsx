@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Sparkles, Zap } from "lucide-react";
+import { Sparkles, Zap, History } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuraSession {
   wallet: string;
   timestamp: number;
   intensity: number;
+  message?: string;
+  score?: number;
 }
 
 export const Ani = () => {
@@ -16,27 +19,77 @@ export const Ani = () => {
   const [isGlowing, setIsGlowing] = useState(false);
   const [intensity, setIntensity] = useState(1.0);
   const [sessions, setSessions] = useState<AuraSession[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const triggerAuraFlash = () => {
+  // Load aura history on mount
+  useEffect(() => {
+    if (connected && publicKey) {
+      loadHistory();
+    }
+  }, [connected, publicKey]);
+
+  const loadHistory = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('aura-timp', {
+        body: { action: 'history' },
+      });
+
+      if (error) throw error;
+
+      if (data?.history) {
+        setSessions(data.history);
+      }
+    } catch (error) {
+      console.error('Failed to load history:', error);
+    }
+  };
+
+  const triggerAuraFlash = async () => {
     if (!connected || !publicKey) {
       toast.error("Connect wallet to activate Aura");
       return;
     }
 
+    setIsLoading(true);
     setIsGlowing(true);
-    const newSession: AuraSession = {
-      wallet: publicKey.toString(),
-      timestamp: Date.now(),
-      intensity: intensity,
-    };
 
-    setSessions((prev) => [newSession, ...prev.slice(0, 9)]);
+    try {
+      const { data, error } = await supabase.functions.invoke('aura-timp', {
+        body: {
+          action: 'flash',
+          wallet: publicKey.toString(),
+          intensity: intensity,
+        },
+      });
 
-    toast.success("Aura activated!", {
-      description: "Your wallet is glowing with temporal energy",
-    });
+      if (error) throw error;
 
-    setTimeout(() => setIsGlowing(false), 3000);
+      const newSession: AuraSession = {
+        wallet: publicKey.toString(),
+        timestamp: Date.now(),
+        intensity: intensity,
+        message: data.glow,
+      };
+
+      setSessions((prev) => [newSession, ...prev.slice(0, 9)]);
+
+      toast.success("Aura activated!", {
+        description: data.message || "Your wallet is glowing with temporal energy",
+      });
+
+      // Show similar sessions if found
+      if (data.similar_sessions?.length > 0) {
+        console.log('Similar past sessions:', data.similar_sessions);
+      }
+    } catch (error: any) {
+      console.error('Aura flash error:', error);
+      toast.error("Aura flash failed", {
+        description: error.message || "Please try again",
+      });
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => setIsGlowing(false), 3000);
+    }
   };
 
   return (
@@ -113,17 +166,29 @@ export const Ani = () => {
             />
           </div>
 
-          {/* Trigger Button */}
-          <Button
-            onClick={triggerAuraFlash}
-            disabled={!connected}
-            className="w-full relative overflow-hidden group"
-            size="lg"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Zap className="w-5 h-5 mr-2 relative z-10" />
-            <span className="relative z-10">Flash Aura</span>
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <Button
+              onClick={triggerAuraFlash}
+              disabled={!connected || isLoading}
+              className="flex-1 relative overflow-hidden group"
+              size="lg"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Zap className="w-5 h-5 mr-2 relative z-10" />
+              <span className="relative z-10">
+                {isLoading ? "Flashing..." : "Flash Aura"}
+              </span>
+            </Button>
+            <Button
+              onClick={loadHistory}
+              disabled={!connected || isLoading}
+              variant="outline"
+              size="lg"
+            >
+              <History className="w-5 h-5" />
+            </Button>
+          </div>
 
           {/* Session History */}
           {sessions.length > 0 && (

@@ -7,6 +7,7 @@ import { MarketPreview } from "@/components/MarketPreview";
 import { FeaturesShowcase } from "@/components/FeaturesShowcase";
 import { AICapabilitiesCard } from "@/components/AICapabilitiesCard";
 import { AdvancedFeaturesGrid } from "@/components/AdvancedFeaturesGrid";
+import { RecentBundles } from "@/components/RecentBundles";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -108,6 +109,13 @@ const Index = () => {
           <div className={`transition-all duration-700 delay-150 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <QuickActions />
           </div>
+
+          {/* Recent Bundles */}
+          {connected && (
+            <div className={`transition-all duration-700 delay-175 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <RecentBundles />
+            </div>
+          )}
 
           <Separator className="my-8" />
 

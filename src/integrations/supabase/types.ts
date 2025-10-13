@@ -300,6 +300,101 @@ export type Database = {
           },
         ]
       }
+      bundle_wallets: {
+        Row: {
+          allocated_amount: number
+          bundle_id: string
+          created_at: string
+          error_message: string | null
+          id: string
+          status: string
+          transaction_signature: string | null
+          updated_at: string
+          wallet_address: string
+          wallet_name: string | null
+        }
+        Insert: {
+          allocated_amount: number
+          bundle_id: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          transaction_signature?: string | null
+          updated_at?: string
+          wallet_address: string
+          wallet_name?: string | null
+        }
+        Update: {
+          allocated_amount?: number
+          bundle_id?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          transaction_signature?: string | null
+          updated_at?: string
+          wallet_address?: string
+          wallet_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_wallets_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "bundles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bundles: {
+        Row: {
+          bundle_config: Json
+          bundle_name: string
+          created_at: string
+          distribution_strategy: string
+          error_message: string | null
+          executed_at: string | null
+          id: string
+          status: string
+          total_amount: number
+          total_wallets: number
+          transaction_signatures: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bundle_config?: Json
+          bundle_name: string
+          created_at?: string
+          distribution_strategy?: string
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          status?: string
+          total_amount: number
+          total_wallets: number
+          transaction_signatures?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bundle_config?: Json
+          bundle_name?: string
+          created_at?: string
+          distribution_strategy?: string
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          status?: string
+          total_amount?: number
+          total_wallets?: number
+          transaction_signatures?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       market_analysis: {
         Row: {
           ai_model: string

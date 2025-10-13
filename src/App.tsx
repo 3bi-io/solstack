@@ -27,6 +27,7 @@ import Referrals from "./pages/Referrals";
 import ApiKeys from "./pages/ApiKeys";
 import Markets from "./pages/Markets";
 import GrokAnalysis from "./pages/GrokAnalysis";
+import AdminGrokChat from "./pages/AdminGrokChat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,7 @@ const AppContent = () => {
         <Route path="/referrals" element={<Referrals />} />
         <Route path="/api-keys" element={<ApiKeys />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/grok-chat" element={<AdminGrokChat />} />
         
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />

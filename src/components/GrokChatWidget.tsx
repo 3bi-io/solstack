@@ -254,7 +254,7 @@ export const GrokChatWidget = ({
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -299,7 +299,7 @@ export const GrokChatWidget = ({
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder="Ask about crypto..."
           disabled={isLoading}
           className="flex-1 h-12"

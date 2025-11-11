@@ -102,29 +102,38 @@ serve(async (req) => {
 
     console.log('Creating token with platform wallet, minting to:', userPubkey.toString());
 
-    // Connect to Solana
-    const connection = new Connection(
-      Deno.env.get('SOLANA_RPC_URL') || 'https://api.devnet.solana.com',
-      'confirmed'
-    );
+    // Connect to Solana Mainnet
+    const rpcUrl = Deno.env.get('SOLANA_RPC_URL');
+    if (!rpcUrl) {
+      return new Response(
+        JSON.stringify({ error: 'Solana RPC not configured. Please configure SOLANA_RPC_URL secret.' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const connection = new Connection(rpcUrl, 'confirmed');
 
     let mintAddress: string;
     let signature: string;
 
     try {
-      // Check balance
+      // Check balance - Mainnet requires more SOL for transaction fees
       const balance = await connection.getBalance(payer.publicKey);
-      console.log('Wallet balance:', balance / LAMPORTS_PER_SOL, 'SOL');
+      console.log('Platform wallet balance:', balance / LAMPORTS_PER_SOL, 'SOL');
 
-      if (balance < 0.01 * LAMPORTS_PER_SOL) {
+      const requiredBalance = 0.05 * LAMPORTS_PER_SOL; // Higher requirement for mainnet
+      if (balance < requiredBalance) {
         return new Response(
           JSON.stringify({ 
-            error: 'Insufficient SOL balance. Need at least 0.01 SOL for token creation.',
-            balance: balance / LAMPORTS_PER_SOL 
+            error: 'Insufficient SOL balance in platform wallet. Need at least 0.05 SOL for mainnet token creation.',
+            balance: balance / LAMPORTS_PER_SOL,
+            required: requiredBalance / LAMPORTS_PER_SOL
           }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+      
+      console.log('✓ Balance check passed');
 
       // Create mint (SPL token)
       const mint = await createMint(
@@ -266,7 +275,7 @@ serve(async (req) => {
         token,
         mintAddress,
         signature,
-        explorerUrl: `https://explorer.solana.com/address/${mintAddress}?cluster=devnet`,
+        explorerUrl: `https://explorer.solana.com/address/${mintAddress}`,
         message: 'Token launched successfully on Solana blockchain' 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

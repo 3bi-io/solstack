@@ -53,9 +53,14 @@ serve(async (req) => {
       .update({ status: 'processing' })
       .eq('id', bundleId);
 
-    // Get Solana connection
-    const rpcUrl = Deno.env.get('SOLANA_RPC_URL') || 'https://api.mainnet-beta.solana.com';
+    // Get Solana Mainnet connection
+    const rpcUrl = Deno.env.get('SOLANA_RPC_URL');
+    if (!rpcUrl) {
+      throw new Error('SOLANA_RPC_URL not configured');
+    }
+    
     const connection = new Connection(rpcUrl, 'confirmed');
+    console.log('Connected to Solana mainnet');
 
     const results = [];
     const signatures = [];

@@ -12,15 +12,16 @@ export const SolanaSetupAlert = () => {
           This app uses <strong>Solana Mainnet</strong> for REAL transactions with actual value.
         </p>
         <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-          <li>All transactions are permanent and irreversible</li>
-          <li>You need actual SOL tokens (with real-world value) to use this app</li>
-          <li>Transaction fees are paid in real SOL</li>
-          <li>Test thoroughly before large transactions</li>
+          <li><strong>Real money:</strong> All transactions use actual SOL with real-world value</li>
+          <li><strong>Permanent:</strong> All transactions are permanent and irreversible on the blockchain</li>
+          <li><strong>Transaction fees:</strong> Gas fees are paid in real SOL for every operation</li>
+          <li><strong>Your wallet:</strong> You maintain full control and custody of your funds</li>
+          <li><strong>Safety first:</strong> Start with small amounts to test functionality</li>
         </ul>
         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-destructive/20">
           <Wallet className="h-3 w-3 text-muted-foreground" />
           <p className="text-[11px] text-muted-foreground">
-            Connect your wallet (Phantom, Solflare) using the wallet button below
+            Connect your mainnet wallet (Phantom, Solflare, OKX) to begin
           </p>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">
@@ -31,7 +32,16 @@ export const SolanaSetupAlert = () => {
             className="text-xs h-7"
           >
             <ExternalLink className="w-3 h-3 mr-1" />
-            Solana Explorer
+            Mainnet Explorer
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.open("https://status.solana.com", "_blank")}
+            className="text-xs h-7"
+          >
+            <ExternalLink className="w-3 h-3 mr-1" />
+            Network Status
           </Button>
         </div>
       </AlertDescription>

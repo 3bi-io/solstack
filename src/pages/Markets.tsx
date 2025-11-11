@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -272,8 +273,22 @@ const Markets = () => {
     );
   }
 
+  const marketStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Live Solana Markets - Real-Time Token Prices & Analysis",
+    description: "Track live Solana token prices from OKX and MoonShot. Real-time market data, 24h trading volume, price changes, and market cap for Solana tokens.",
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
+      <SEO
+        title="Live Solana Markets - Real-Time Token Prices & Analysis"
+        description="Track live Solana token prices from OKX and MoonShot. Real-time market data, 24h trading volume, price changes, and market cap for Solana tokens. Multi-source aggregation for best market intelligence."
+        keywords="Solana market data, live crypto prices, Solana tokens, OKX markets, MoonShot tokens, crypto trading, token prices, market analysis, Solana DEX"
+        url="/markets"
+        structuredData={marketStructuredData}
+      />
       <AppHeader />
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Hero Section */}

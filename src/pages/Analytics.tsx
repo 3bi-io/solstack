@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { TrendingUp, TrendingDown, DollarSign, Zap, Coins, Activity } from "lucide-react";
@@ -144,8 +145,22 @@ export default function Analytics() {
     { name: 'Failed', value: analytics.failedTransactions, color: '#ef4444' },
   ];
 
+  const analyticsStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Analytics Dashboard - Track Your Solana Transactions",
+    description: "Comprehensive analytics for your Solana transactions, tokens, and airdrops. Track costs, savings, and performance metrics.",
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Analytics Dashboard - Track Solana Transaction Costs & Savings"
+        description="Comprehensive analytics for your Solana transactions. Track transaction costs, fee savings from bundling, token launches, airdrops, and success rates. Real-time performance metrics and visualizations."
+        keywords="Solana analytics, crypto transaction tracker, blockchain analytics, DeFi dashboard, transaction costs, fee savings, crypto metrics"
+        url="/analytics"
+        structuredData={analyticsStructuredData}
+      />
       <AppHeader />
       <div className="container mx-auto p-4 space-y-6">
         <div className="space-y-2">

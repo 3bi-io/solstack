@@ -8,6 +8,7 @@ import { FeaturesShowcase } from "@/components/FeaturesShowcase";
 import { AICapabilitiesCard } from "@/components/AICapabilitiesCard";
 import { AdvancedFeaturesGrid } from "@/components/AdvancedFeaturesGrid";
 import { RecentBundles } from "@/components/RecentBundles";
+import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -47,8 +48,28 @@ const Index = () => {
     { icon: Globe, text: "Global Network" },
   ];
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://solstack.me/",
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20 sm:pb-24 overflow-hidden">
+      <SEO
+        title="SOL Stack - AI-Powered Solana DeFi Platform | Token Launch & Trading"
+        description="Experience the cutting edge of AI-driven Solana trading. Revolutionary token launches, intelligent market analysis, and automated DeFi strategies powered by advanced machine learning. Launch tokens, distribute airdrops, and trade with Jupiter integration."
+        keywords="Solana token launch, AI crypto trading, Solana bundler, crypto airdrop, DeFi platform, Jupiter aggregator, pump.fun alternative, Solana DeFi, blockchain trading, crypto market analysis"
+        url="/"
+        structuredData={breadcrumbSchema}
+      />
       <AppHeader />
       
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">

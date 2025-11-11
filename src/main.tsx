@@ -4,14 +4,17 @@ import "./index.css";
 import { SolanaWalletProvider } from "./contexts/SolanaWalletContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { Buffer } from "buffer";
+import { HelmetProvider } from "react-helmet";
 
 // Polyfill Buffer for browser
 window.Buffer = Buffer;
 
 createRoot(document.getElementById("root")!).render(
-  <AuthProvider>
-    <SolanaWalletProvider>
-      <App />
-    </SolanaWalletProvider>
-  </AuthProvider>
+  <HelmetProvider>
+    <AuthProvider>
+      <SolanaWalletProvider>
+        <App />
+      </SolanaWalletProvider>
+    </AuthProvider>
+  </HelmetProvider>
 );

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -101,8 +102,22 @@ const Airdrop = () => {
   const addressCount = parseAddresses(formData.addresses).length;
   const totalAmount = addressCount * parseFloat(formData.amount || "0");
 
+  const airdropStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Token Airdrop Distribution - Bulk Send Solana Tokens",
+    description: "Distribute tokens to multiple wallets instantly on Solana blockchain. Efficient airdrop platform for token distribution.",
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Token Airdrop Distribution - Bulk Send Solana Tokens"
+        description="Distribute tokens to multiple wallets instantly on Solana blockchain. Efficient multi-wallet airdrop platform with atomic transactions. Send tokens to hundreds of recipients at once."
+        keywords="crypto airdrop, token distribution, bulk send tokens, Solana airdrop, multi-wallet send, token giveaway"
+        url="/airdrop"
+        structuredData={airdropStructuredData}
+      />
       <AppHeader />
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">

@@ -1,5 +1,6 @@
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -12,8 +13,55 @@ const Help = () => {
   // Use secure admin check hook for consistent server-side validation
   const { isAdmin } = useAdminCheck();
 
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What is SOL Stack?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "SOL Stack is a comprehensive AI-powered platform for managing Solana blockchain operations. Launch tokens, distribute airdrops, track transactions, and manage your crypto wallet - all in one place.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How do I launch a token?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Navigate to the Launch tab, fill in your token details (name, symbol, supply, decimals), and click 'Launch Token' to create your SPL token on Solana.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How do airdrops work?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Enter your token address, amount per recipient, and a list of wallet addresses. The platform will distribute tokens to all addresses automatically with atomic transactions.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is SOL Stack free?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "SOL Stack provides free access to all features. Users only pay Solana network gas fees required for blockchain transactions.",
+        },
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Help & Support - SOL Stack Documentation & FAQs"
+        description="Get help with SOL Stack. Find answers to common questions about token launches, airdrops, wallet connections, and Solana blockchain transactions."
+        keywords="SOL Stack help, crypto support, Solana FAQ, token launch help, airdrop guide, wallet help"
+        url="/help"
+        structuredData={faqStructuredData}
+      />
+      <AppHeader />
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {isAdmin && (
           <Card className="bg-card/50 backdrop-blur-sm mb-4 border-primary/20">

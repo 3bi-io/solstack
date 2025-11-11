@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Home, AlertCircle } from "lucide-react";
@@ -16,6 +17,12 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="404 - Page Not Found | SOL Stack"
+        description="The page you're looking for doesn't exist. Return to SOL Stack homepage to access token launch, airdrops, and Solana trading features."
+        url={location.pathname}
+        noindex={true}
+      />
       <AppHeader />
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-8 sm:py-12">
         <Card className="bg-card/50 backdrop-blur-sm text-center">

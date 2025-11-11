@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,8 +119,28 @@ const LaunchCoin = () => {
     }
   };
 
+  const launchStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Solana Token Launch Platform",
+    description: "Create and deploy SPL tokens on Solana blockchain with AI-powered platform. Easy token launch with no coding required.",
+    applicationCategory: "FinanceApplication",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "SOL",
+    },
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Launch Solana Token - Create SPL Token on Solana Blockchain"
+        description="Create and deploy your SPL token on Solana in minutes. Easy token launch platform with no coding required. Set name, symbol, supply, and deploy instantly. AI-powered token creation platform."
+        keywords="create Solana token, launch SPL token, Solana token creator, deploy crypto token, blockchain token launch, SPL token, pump.fun alternative, token creation"
+        url="/launch"
+        structuredData={launchStructuredData}
+      />
       <AppHeader />
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">

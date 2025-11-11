@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -163,8 +164,22 @@ export default function Swap() {
   const priceImpactColor =
     priceImpact < 1 ? "text-green-500" : priceImpact < 3 ? "text-yellow-500" : "text-red-500";
 
+  const swapStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Solana Token Swap - Jupiter DEX Aggregator",
+    description: "Swap Solana tokens with best rates via Jupiter aggregator. Access all Solana DEXs with one click.",
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Solana Token Swap - Jupiter DEX Aggregator Integration"
+        description="Trade Solana tokens with the best rates across all DEXs. Powered by Jupiter aggregator for optimal routing and minimal slippage. Swap SOL, USDC, and all Solana tokens instantly."
+        keywords="Solana swap, Jupiter aggregator, Solana DEX, token swap, crypto trading, DeFi swap, Solana exchange, best swap rates"
+        url="/swap"
+        structuredData={swapStructuredData}
+      />
       <AppHeader />
       <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <div className="space-y-2 px-2">

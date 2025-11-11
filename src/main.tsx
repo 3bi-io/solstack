@@ -4,7 +4,7 @@ import "./index.css";
 import { SolanaWalletProvider } from "./contexts/SolanaWalletContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { Buffer } from "buffer";
-import { HelmetProvider } from "react-helmet";
+import { HelmetProvider } from "react-helmet-async";
 
 // Polyfill Buffer for browser
 window.Buffer = Buffer;

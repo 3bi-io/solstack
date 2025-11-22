@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -102,6 +103,12 @@ const Logs = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Activity Logs - Monitor System Events | SOL Stack"
+        description="Monitor all system activities and events"
+        url="/logs"
+        noindex={true}
+      />
       <AppHeader />
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">

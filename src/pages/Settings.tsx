@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -115,6 +116,12 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Settings - Manage Account Preferences | SOL Stack"
+        description="Manage your account preferences and notifications"
+        url="/settings"
+        noindex={true}
+      />
       <AppHeader />
       <div className="container mx-auto p-4">
         <div className="max-w-2xl mx-auto space-y-6">

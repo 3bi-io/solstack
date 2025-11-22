@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -142,8 +143,23 @@ export default function MultiSig() {
     return Object.keys(tx.signatures || {}).length;
   };
 
+  const multiSigStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Multi-Signature Solana Wallets",
+    description: "Create secure wallets requiring multiple approvals for transactions. Team treasuries and shared funds with on-chain verification.",
+    applicationCategory: "FinanceApplication",
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Multi-Signature Wallets - Secure Shared Solana Wallets | SOL Stack"
+        description="Create secure multi-sig wallets requiring multiple approvals for transactions. Ideal for team treasuries and shared funds with on-chain verification. Enhanced security for Solana."
+        keywords="multi-signature wallet, multisig Solana, shared wallet, team treasury, multi-approval wallet, Solana multisig, crypto team wallet"
+        url="/multisig"
+        structuredData={multiSigStructuredData}
+      />
       <AppHeader />
       <div className="container mx-auto p-4">
         <div className="max-w-6xl mx-auto space-y-6">

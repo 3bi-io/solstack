@@ -1,5 +1,6 @@
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Shield, FileText } from "lucide-react";
@@ -7,6 +8,13 @@ import { Shield, FileText } from "lucide-react";
 const Terms = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Terms of Service - Legal Information | SOL Stack"
+        description="Read SOL Stack's Terms of Service. Understand platform fees, user responsibilities, and legal guidelines for using our Solana DeFi platform."
+        keywords="terms of service, legal terms, platform fees, user agreement"
+        url="/terms"
+        noindex={true}
+      />
       <AppHeader />
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">

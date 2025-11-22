@@ -1,4 +1,5 @@
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -123,8 +124,26 @@ const WalletApp = () => {
     }
   ];
 
+  const walletAppStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "MobileApplication",
+    name: "SOLStack Wallet - Solana Crypto Wallet",
+    description: "The most powerful all-in-one crypto wallet. Trade, stake, earn, and explore Web3 with military-grade security.",
+    applicationCategory: "FinanceApplication",
+    operatingSystem: ["iOS 14+", "Android 10+"],
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", ratingCount: "50000" },
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5">
+      <SEO
+        title="SOLStack Wallet - All-in-One Solana Crypto Wallet App | iOS & Android"
+        description="The most powerful all-in-one Solana crypto wallet. Trade, stake, earn, and explore Web3 with military-grade security and lightning-fast performance. Download for iOS and Android."
+        keywords="Solana wallet, crypto wallet app, Solana mobile wallet, crypto wallet iOS, crypto wallet Android, DeFi wallet, Solana DeFi app, mobile crypto wallet"
+        url="/wallet-app"
+        structuredData={walletAppStructuredData}
+      />
       <AppHeader />
       
       {/* Hero Section */}

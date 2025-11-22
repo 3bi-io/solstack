@@ -1,5 +1,6 @@
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Wallet as WalletIcon, CheckCircle2, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -10,8 +11,23 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 const Wallet = () => {
   const { connected, publicKey } = useWallet();
 
+  const walletStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Solana Wallet Connection",
+    description: "Connect your Solana wallet to access DeFi features. Support for Phantom, Solflare, and all major Solana wallets.",
+    applicationCategory: "FinanceApplication",
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Connect Solana Wallet - Phantom, Solflare & More | SOL Stack"
+        description="Securely connect your Solana wallet to access DeFi features. Support for Phantom, Solflare, and all major Solana wallet extensions. Safe and encrypted connection."
+        keywords="Solana wallet, connect wallet, Phantom wallet, Solflare, wallet adapter, Solana wallet connection, crypto wallet"
+        url="/wallet"
+        structuredData={walletStructuredData}
+      />
       <AppHeader />
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">

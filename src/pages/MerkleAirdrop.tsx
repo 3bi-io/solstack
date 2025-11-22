@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,8 +70,29 @@ export default function MerkleAirdrop() {
     }
   };
 
+  const merkleStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "Create Gas-Efficient Merkle Tree Airdrop on Solana",
+    description: "Step-by-step guide to create gas-efficient Merkle tree airdrops where recipients claim tokens themselves.",
+    step: [
+      { "@type": "HowToStep", text: "Upload your recipient list with amounts" },
+      { "@type": "HowToStep", text: "System generates Merkle tree and root hash" },
+      { "@type": "HowToStep", text: "Share claim link with recipients" },
+      { "@type": "HowToStep", text: "Recipients claim using their proof" },
+      { "@type": "HowToStep", text: "Smart contract verifies and distributes tokens" }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Merkle Tree Airdrop - Gas-Efficient Token Distribution | SOL Stack"
+        description="Create gas-efficient Merkle tree airdrops on Solana. Recipients claim tokens themselves with cryptographic proofs, saving you transaction costs. Scalable distribution to thousands."
+        keywords="Merkle airdrop, gas efficient distribution, Solana airdrop, token claim, Merkle proof, crypto airdrop, token distribution, Solana Merkle tree"
+        url="/merkle-airdrop"
+        structuredData={merkleStructuredData}
+      />
       <AppHeader />
       <div className="container mx-auto p-4">
         <div className="max-w-4xl mx-auto space-y-6">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -188,6 +189,12 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Admin Dashboard | SOL Stack"
+        description="Admin dashboard"
+        url="/admin"
+        noindex={true}
+      />
       <AppHeader />
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Header */}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -107,8 +108,22 @@ const Transactions = () => {
     }
   };
 
+  const transactionStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Transaction History - Track Your Solana Blockchain Transactions",
+    description: "View and manage your complete Solana transaction history with detailed status tracking and blockchain explorer integration.",
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Transaction History - Track Solana Transactions | SOL Stack"
+        description="View your complete Solana transaction history with detailed analytics. Track token launches, airdrops, swaps, and all blockchain activities in one place with real-time status updates."
+        keywords="Solana transactions, blockchain history, transaction tracking, SOL transfer history, crypto transaction log, Solana explorer"
+        url="/transactions"
+        structuredData={transactionStructuredData}
+      />
       <AppHeader />
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="bg-card/50 backdrop-blur-sm">

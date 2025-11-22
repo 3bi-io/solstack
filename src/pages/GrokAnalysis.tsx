@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,8 +94,24 @@ const GrokAnalysis = () => {
     }
   };
 
+  const grokStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Grok AI Token Analysis",
+    description: "AI-powered cryptocurrency analysis from Grok. Real-time market insights, price predictions, sentiment analysis, and trading strategies.",
+    applicationCategory: "FinanceApplication",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
+      <SEO
+        title="Grok AI Token Analysis - Advanced Crypto Market Predictions | SOL Stack"
+        description="Get AI-powered cryptocurrency analysis from Grok. Real-time market insights, price predictions, sentiment analysis, and trading strategies for Solana tokens. Advanced AI market intelligence."
+        keywords="Grok AI, crypto analysis, token predictions, AI market analysis, trading insights, Solana analysis, crypto sentiment analysis, AI trading bot"
+        url="/grok-analysis"
+        structuredData={grokStructuredData}
+      />
       <AppHeader />
       
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { TrendingUp, TrendingDown, DollarSign, BarChart3 } from "lucide-react";
 import { AIMarketAnalysis } from "@/components/AIMarketAnalysis";
+import { TokenSEO } from "@/components/TokenSEO";
 
 interface TokenDetailDialogProps {
   open: boolean;
@@ -45,8 +46,19 @@ export const TokenDetailDialog = ({ open, onOpenChange, token }: TokenDetailDial
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+    <>
+      <TokenSEO
+        symbol={token.symbol}
+        name={token.name}
+        price={token.price}
+        marketCap={token.marketCap || 0}
+        change24h={token.change24h}
+        volume24h={token.volume24h}
+        logoUrl={token.image}
+        exchange={token.source}
+      />
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             {token.image && (
@@ -119,5 +131,6 @@ export const TokenDetailDialog = ({ open, onOpenChange, token }: TokenDetailDial
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 };

@@ -22,13 +22,26 @@ export const SEO = ({
   title = "SOL Stack - AI-Powered Solana DeFi Platform",
   description = "Experience the cutting edge of AI-driven Solana trading. Revolutionary token launches, intelligent market analysis, and automated DeFi strategies powered by advanced machine learning.",
   keywords = "Solana, DeFi, AI trading, token launch, airdrop platform, crypto, blockchain, Jupiter aggregator, pump.fun alternative, Solana bundler, crypto analytics",
-  image = "https://storage.googleapis.com/gpt-engineer-file-uploads/W1hSv6TZsaSmimtDCBPaJhIlFNp2/social-images/social-1760261657684-IMG_0577.jpeg",
+  image,
   url = "https://solstack.me",
   type = "website",
   article,
   structuredData,
   noindex = false,
 }: SEOProps) => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  
+  // Determine theme based on URL or content
+  const getTheme = () => {
+    if (url.includes('/launch')) return 'token';
+    if (url.includes('/markets')) return 'market';
+    if (url.includes('/analytics') || url.includes('/grok')) return 'analytics';
+    return 'default';
+  };
+  
+  // Generate dynamic OG image if no custom image provided
+  const ogImage = image || `${supabaseUrl}/functions/v1/generate-og-image?title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}&theme=${getTheme()}`;
+
   const baseUrl = "https://solstack.me";
   const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
   const fullTitle = title.includes("SOL Stack") ? title : `${title} | SOL Stack`;
@@ -119,7 +132,10 @@ export const SEO = ({
       <meta property="og:type" content={type} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={fullTitle} />
       <meta property="og:url" content={fullUrl} />
       <meta property="og:site_name" content="SOL Stack" />
       
@@ -150,7 +166,8 @@ export const SEO = ({
       <meta name="twitter:creator" content="@SOLSTACK_me" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
+      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image:alt" content={fullTitle} />
       
       {/* Structured Data (JSON-LD) */}
       {allStructuredData.map((schema, index) => (

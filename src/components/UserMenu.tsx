@@ -77,7 +77,7 @@ export const UserMenu = () => {
             
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Token & Airdrop</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigate("/launch-coin")}>
+            <DropdownMenuItem onClick={() => navigate("/launch")}>
               <Rocket className="mr-2 h-4 w-4" />
               <span>Launch Token</span>
             </DropdownMenuItem>

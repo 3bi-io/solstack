@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -178,6 +179,12 @@ export default function ApiKeys() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="API Keys - Manage Programmatic Access | SOL Stack"
+        description="Manage API keys for programmatic access"
+        url="/api-keys"
+        noindex={true}
+      />
       <AppHeader />
       <div className="container mx-auto p-4">
         <div className="max-w-4xl mx-auto space-y-6">

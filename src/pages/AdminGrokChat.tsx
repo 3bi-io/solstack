@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
@@ -86,6 +87,12 @@ export default function AdminGrokChat() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Super Grok Chat - AI Assistant | SOL Stack"
+        description="Admin AI assistant"
+        url="/admin/grok-chat"
+        noindex={true}
+      />
       <AppHeader />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-6">

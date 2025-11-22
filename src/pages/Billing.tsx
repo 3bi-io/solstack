@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { AppHeader } from "@/components/AppHeader";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -136,6 +137,12 @@ export default function Billing() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEO
+        title="Subscription & Billing - Manage Your Plan | SOL Stack"
+        description="Manage your subscription and billing"
+        url="/billing"
+        noindex={true}
+      />
       <AppHeader />
       <div className="container mx-auto p-4">
         <div className="max-w-6xl mx-auto space-y-6">

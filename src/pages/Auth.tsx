@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { SEO } from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -157,6 +158,13 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <SEO
+        title="Sign In or Sign Up - Access Your SOL Stack Account"
+        description="Sign in to your SOL Stack account or create a new one. Secure authentication for accessing token launches, airdrops, and DeFi features."
+        keywords="sign in, sign up, login, create account, authentication"
+        url="/auth"
+        noindex={true}
+      />
       <Card className="w-full max-w-md bg-card/50 backdrop-blur-sm">
         <CardHeader className="space-y-3">
           <div className="flex items-center justify-center">

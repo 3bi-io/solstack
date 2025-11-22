@@ -59,5 +59,22 @@ Disallow: /
 User-agent: PetalBot
 Disallow: /
 
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+# Disallow admin and user-specific pages from all bots
+User-agent: *
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /settings
+Disallow: /billing
+Disallow: /referrals
+Disallow: /api-keys
+Disallow: /logs
+Disallow: /auth
+
 # Sitemap
 Sitemap: https://solstack.me/sitemap.xml

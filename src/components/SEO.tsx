@@ -76,10 +76,31 @@ export const SEO = ({
     ],
   };
 
+  // BreadcrumbList Schema
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: baseUrl,
+      },
+      ...(url !== "/" ? [{
+        "@type": "ListItem",
+        position: 2,
+        name: title.replace(" | SOL Stack", "").replace("SOL Stack - ", ""),
+        item: fullUrl,
+      }] : []),
+    ],
+  };
+
   // Combine all structured data
   const allStructuredData = [
     organizationSchema,
     webAppSchema,
+    breadcrumbSchema,
     ...(structuredData ? [structuredData] : []),
   ];
 

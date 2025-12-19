@@ -5,6 +5,8 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { CoinbaseWalletAdapter } from '@solana/wallet-adapter-coinbase';
 import { TrustWalletAdapter } from '@solana/wallet-adapter-trust';
+import { BackpackWalletAdapter } from '@solana/wallet-adapter-backpack';
+import { BraveWalletAdapter } from '@solana/wallet-adapter-brave';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 // ⚠️ CRITICAL: Configure your dedicated Solana Mainnet RPC endpoint below
@@ -36,19 +38,23 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 // use the SOLANA_RPC_URL secret configured in Supabase.
 const RPC_ENDPOINT = 'https://magical-convincing-sun.solana-mainnet.quiknode.pro/ffea6c68c8d168b0c2e2bcacbfe1c7cf676da07e/';
 
-// Supporting popular browser-based Solana wallets
+// Supporting popular browser-based Solana wallets:
 // - Phantom: Most popular Solana wallet
 // - Solflare: Feature-rich wallet with staking support
 // - Coinbase Wallet: Major exchange wallet
 // - Trust Wallet: Popular mobile wallet with browser extension
+// - Backpack: xNFT-enabled wallet by Coral
+// - Brave: Built-in Brave browser wallet
 
 export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
+      new BackpackWalletAdapter(),
       new CoinbaseWalletAdapter(),
       new TrustWalletAdapter(),
+      new BraveWalletAdapter(),
     ],
     []
   );

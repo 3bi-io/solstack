@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useBundleExecutor, BundleExecutionResult, BundleProgress } from './useBundleExecutor';
 
 export interface BundleWallet {
   address: string;
@@ -18,7 +19,13 @@ export interface BundleConfig {
 
 export const useBundleManager = () => {
   const [isCreating, setIsCreating] = useState(false);
-  const [isExecuting, setIsExecuting] = useState(false);
+  const { 
+    executeSolBundle, 
+    executeTokenBundle, 
+    isExecuting, 
+    progress, 
+    cancelExecution 
+  } = useBundleExecutor();
 
   const createBundle = useCallback(async (config: BundleConfig) => {
     setIsCreating(true);
@@ -73,37 +80,52 @@ export const useBundleManager = () => {
     }
   }, []);
 
-  const executeBundle = useCallback(async (bundleId: string, wallets: BundleWallet[], config: Partial<BundleConfig>) => {
-    setIsExecuting(true);
+  const executeBundle = useCallback(async (
+    bundleId: string, 
+    wallets: BundleWallet[], 
+    config: Partial<BundleConfig>
+  ): Promise<{ success: boolean; results: BundleExecutionResult[]; signatures: string[] }> => {
     try {
-      const { data, error } = await supabase.functions.invoke('execute-bundle', {
-        body: {
-          bundleId,
-          wallets,
-          distributionStrategy: config.distributionStrategy || 'equal',
-          recipient: config.recipient,
-          token: config.token || 'SOL',
-        },
-      });
-
-      if (error) throw error;
-
-      if (data.success) {
-        toast.success(`Bundle executed successfully! ${data.signatures.length} transactions completed`);
-      } else {
-        toast.error('Bundle execution completed with errors');
+      const recipient = config.recipient;
+      if (!recipient) {
+        throw new Error('Recipient address is required');
       }
 
-      return data;
+      const token = config.token || 'SOL';
+      let results: BundleExecutionResult[];
+
+      if (token === 'SOL') {
+        results = await executeSolBundle(bundleId, wallets, recipient);
+      } else {
+        results = await executeTokenBundle(bundleId, wallets, recipient, token);
+      }
+
+      const signatures = results
+        .filter(r => r.status === 'success' && r.signature)
+        .map(r => r.signature!);
+
+      const allSuccess = results.every(r => r.status === 'success');
+
+      if (allSuccess) {
+        toast.success(`Bundle executed successfully! ${signatures.length} transactions completed`);
+      } else if (signatures.length > 0) {
+        toast.warning(`Bundle partially completed: ${signatures.length}/${wallets.length} succeeded`);
+      } else {
+        toast.error('Bundle execution failed');
+      }
+
+      return {
+        success: allSuccess,
+        results,
+        signatures,
+      };
 
     } catch (error) {
       console.error('Bundle execution error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to execute bundle');
       throw error;
-    } finally {
-      setIsExecuting(false);
     }
-  }, []);
+  }, [executeSolBundle, executeTokenBundle]);
 
   const getBundles = useCallback(async () => {
     try {
@@ -134,5 +156,7 @@ export const useBundleManager = () => {
     getBundles,
     isCreating,
     isExecuting,
+    progress,
+    cancelExecution,
   };
 };

@@ -1,3 +1,8 @@
+// Buffer polyfill must be first - before any other imports
+import { Buffer } from "buffer";
+(window as any).Buffer = Buffer;
+(globalThis as any).Buffer = Buffer;
+
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";

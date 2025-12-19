@@ -9,16 +9,19 @@ import App from "./App.tsx";
 import "./index.css";
 import { SolanaWalletProvider } from "./contexts/SolanaWalletContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { AccessibilityProvider } from "./contexts/AccessibilityContext";
 import { HelmetProvider } from "react-helmet-async";
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-      <AuthProvider>
-        <SolanaWalletProvider>
-          <App />
-        </SolanaWalletProvider>
-      </AuthProvider>
+      <AccessibilityProvider>
+        <AuthProvider>
+          <SolanaWalletProvider>
+            <App />
+          </SolanaWalletProvider>
+        </AuthProvider>
+      </AccessibilityProvider>
     </ThemeProvider>
   </HelmetProvider>
 );

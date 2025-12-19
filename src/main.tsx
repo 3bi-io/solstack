@@ -4,6 +4,7 @@ import { Buffer } from "buffer";
 (globalThis as any).Buffer = Buffer;
 
 import { createRoot } from "react-dom/client";
+import { ThemeProvider } from "next-themes";
 import App from "./App.tsx";
 import "./index.css";
 import { SolanaWalletProvider } from "./contexts/SolanaWalletContext";
@@ -12,10 +13,12 @@ import { HelmetProvider } from "react-helmet-async";
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
-    <AuthProvider>
-      <SolanaWalletProvider>
-        <App />
-      </SolanaWalletProvider>
-    </AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <AuthProvider>
+        <SolanaWalletProvider>
+          <App />
+        </SolanaWalletProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </HelmetProvider>
 );

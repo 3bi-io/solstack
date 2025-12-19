@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/UserMenu";
 import { NetworkStatus } from "@/components/NetworkStatus";
 import { WalletBalanceDisplay } from "@/components/wallet";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -71,12 +72,15 @@ export const AppHeader = () => {
           <NetworkStatus />
         </div>
 
-        {/* Right: Wallet Balance, User Menu & Mobile Menu */}
+        {/* Right: Theme Toggle, Wallet Balance, User Menu & Mobile Menu */}
         <div className="flex items-center gap-1 sm:gap-2">
           {/* Mobile Network Status Badge */}
           <div className="md:hidden">
             <NetworkStatus compact />
           </div>
+          
+          {/* Theme Toggle */}
+          <ThemeToggle />
           
           {/* Wallet Balance - hidden on small mobile */}
           <div className="hidden sm:block">

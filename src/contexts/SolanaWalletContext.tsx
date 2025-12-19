@@ -3,6 +3,8 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
+import { CoinbaseWalletAdapter } from '@solana/wallet-adapter-coinbase';
+import { TrustWalletAdapter } from '@solana/wallet-adapter-trust';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 // ⚠️ CRITICAL: Configure your dedicated Solana Mainnet RPC endpoint below
@@ -35,13 +37,18 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 const RPC_ENDPOINT = 'https://magical-convincing-sun.solana-mainnet.quiknode.pro/ffea6c68c8d168b0c2e2bcacbfe1c7cf676da07e/';
 
 // Supporting popular browser-based Solana wallets
-// Hardware wallets (Ledger/Trezor) removed to avoid native module dependencies
+// - Phantom: Most popular Solana wallet
+// - Solflare: Feature-rich wallet with staking support
+// - Coinbase Wallet: Major exchange wallet
+// - Trust Wallet: Popular mobile wallet with browser extension
 
 export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
+      new CoinbaseWalletAdapter(),
+      new TrustWalletAdapter(),
     ],
     []
   );

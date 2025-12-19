@@ -1,6 +1,7 @@
-import { Wallet, RefreshCw, ChevronDown, Coins } from 'lucide-react';
+import { Wallet, RefreshCw, ChevronDown, Coins, TrendingUp, DollarSign } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletBalance } from '@/hooks/useWalletBalance';
+import { useCoinGeckoPrices, formatUsd } from '@/hooks/useCoinGeckoPrices';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -19,7 +20,16 @@ interface WalletBalanceDisplayProps {
 
 export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayProps) => {
   const { connected } = useWallet();
-  const { sol, solFormatted, tokens, isLoading, refresh } = useWalletBalance();
+  const { sol, solFormatted, tokens, isLoading: balanceLoading, refresh: refreshBalance } = useWalletBalance();
+  const { solPrice, isLoading: priceLoading, refresh: refreshPrice } = useCoinGeckoPrices();
+
+  const isLoading = balanceLoading || priceLoading;
+  const solUsdValue = solPrice ? sol * solPrice : null;
+
+  const handleRefresh = () => {
+    refreshBalance();
+    refreshPrice();
+  };
 
   if (!connected) {
     return null;
@@ -32,9 +42,16 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
         {isLoading ? (
           <Skeleton className="h-4 w-12" />
         ) : (
-          <span className="text-xs font-medium text-foreground">
-            {solFormatted} SOL
-          </span>
+          <div className="flex flex-col items-start">
+            <span className="text-xs font-medium text-foreground">
+              {solFormatted} SOL
+            </span>
+            {solUsdValue !== null && (
+              <span className="text-[10px] text-muted-foreground">
+                {formatUsd(solUsdValue)}
+              </span>
+            )}
+          </div>
         )}
       </div>
     );
@@ -53,9 +70,16 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
               <Wallet className="h-3 w-3 text-primary-foreground" />
             </div>
             {isLoading ? (
-              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-4 w-20" />
             ) : (
-              <span className="font-semibold">{solFormatted} SOL</span>
+              <div className="flex flex-col items-start text-left">
+                <span className="font-semibold text-sm leading-none">{solFormatted} SOL</span>
+                {solUsdValue !== null && (
+                  <span className="text-[10px] text-muted-foreground leading-none mt-0.5">
+                    ≈ {formatUsd(solUsdValue)}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -63,7 +87,7 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-64 bg-card/95 backdrop-blur-xl border-primary/20"
+        className="w-72 bg-card/95 backdrop-blur-xl border-primary/20"
       >
         <div className="flex items-center justify-between px-3 py-2">
           <DropdownMenuLabel className="p-0 text-sm font-semibold">
@@ -75,7 +99,7 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
             className="h-6 w-6"
             onClick={(e) => {
               e.preventDefault();
-              refresh();
+              handleRefresh();
             }}
           >
             <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
@@ -83,6 +107,21 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
         </div>
         
         <DropdownMenuSeparator />
+        
+        {/* Total Portfolio Value */}
+        {solUsdValue !== null && (
+          <>
+            <div className="px-3 py-2 bg-primary/5 mx-2 rounded-lg mb-2">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-primary" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Portfolio Value</p>
+                  <p className="text-lg font-bold text-foreground">{formatUsd(solUsdValue)}</p>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
         
         {/* SOL Balance */}
         <div className="px-3 py-3">
@@ -97,16 +136,29 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
               </div>
             </div>
             <div className="text-right">
-              {isLoading ? (
+              {balanceLoading ? (
                 <Skeleton className="h-5 w-20" />
               ) : (
                 <>
                   <p className="font-semibold">{solFormatted}</p>
-                  <p className="text-xs text-muted-foreground">SOL</p>
+                  {solUsdValue !== null && (
+                    <p className="text-xs text-green-500 flex items-center justify-end gap-0.5">
+                      <TrendingUp className="h-3 w-3" />
+                      {formatUsd(solUsdValue)}
+                    </p>
+                  )}
                 </>
               )}
             </div>
           </div>
+          
+          {/* SOL Price Info */}
+          {solPrice && (
+            <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
+              <span>SOL Price</span>
+              <span className="font-mono">${solPrice.toFixed(2)}</span>
+            </div>
+          )}
         </div>
         
         {/* Token Balances */}
@@ -144,7 +196,7 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
           </>
         )}
         
-        {tokens.length === 0 && !isLoading && (
+        {tokens.length === 0 && !balanceLoading && (
           <>
             <DropdownMenuSeparator />
             <div className="px-3 py-3 text-center">
@@ -152,6 +204,14 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
             </div>
           </>
         )}
+        
+        {/* Price Source */}
+        <DropdownMenuSeparator />
+        <div className="px-3 py-2 text-center">
+          <p className="text-[10px] text-muted-foreground">
+            Prices from CoinGecko • Updates every 2 min
+          </p>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

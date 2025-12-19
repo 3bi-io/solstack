@@ -9,6 +9,7 @@ export interface TokenPrice {
 
 interface UseCoinGeckoPricesReturn {
   solPrice: number | null;
+  sol24hChange: number | null;
   tokenPrices: Map<string, TokenPrice>;
   isLoading: boolean;
   error: string | null;
@@ -18,11 +19,12 @@ interface UseCoinGeckoPricesReturn {
 const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 
 // Cache to avoid rate limiting
-let priceCache: { sol: number | null; timestamp: number } = { sol: null, timestamp: 0 };
+let priceCache: { sol: number | null; sol24hChange: number | null; timestamp: number } = { sol: null, sol24hChange: null, timestamp: 0 };
 const CACHE_DURATION = 60000; // 1 minute
 
 export function useCoinGeckoPrices(): UseCoinGeckoPricesReturn {
   const [solPrice, setSolPrice] = useState<number | null>(null);
+  const [sol24hChange, setSol24hChange] = useState<number | null>(null);
   const [tokenPrices] = useState<Map<string, TokenPrice>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,7 @@ export function useCoinGeckoPrices(): UseCoinGeckoPricesReturn {
     const now = Date.now();
     if (priceCache.sol !== null && now - priceCache.timestamp < CACHE_DURATION) {
       setSolPrice(priceCache.sol);
+      setSol24hChange(priceCache.sol24hChange);
       return;
     }
 
@@ -60,8 +63,10 @@ export function useCoinGeckoPrices(): UseCoinGeckoPricesReturn {
       
       if (data.solana?.usd) {
         const price = data.solana.usd;
+        const change24h = data.solana.usd_24h_change ?? null;
         setSolPrice(price);
-        priceCache = { sol: price, timestamp: now };
+        setSol24hChange(change24h);
+        priceCache = { sol: price, sol24hChange: change24h, timestamp: now };
       }
     } catch (err) {
       console.error('CoinGecko price fetch error:', err);
@@ -70,6 +75,7 @@ export function useCoinGeckoPrices(): UseCoinGeckoPricesReturn {
       // Use cached price if available
       if (priceCache.sol !== null) {
         setSolPrice(priceCache.sol);
+        setSol24hChange(priceCache.sol24hChange);
       }
     } finally {
       setIsLoading(false);
@@ -86,6 +92,7 @@ export function useCoinGeckoPrices(): UseCoinGeckoPricesReturn {
 
   return {
     solPrice,
+    sol24hChange,
     tokenPrices,
     isLoading,
     error,

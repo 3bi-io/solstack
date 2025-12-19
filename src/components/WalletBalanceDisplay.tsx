@@ -1,4 +1,4 @@
-import { Wallet, RefreshCw, ChevronDown, Coins, TrendingUp, DollarSign } from 'lucide-react';
+import { Wallet, RefreshCw, ChevronDown, Coins, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletBalance } from '@/hooks/useWalletBalance';
 import { useCoinGeckoPrices, formatUsd } from '@/hooks/useCoinGeckoPrices';
@@ -21,7 +21,7 @@ interface WalletBalanceDisplayProps {
 export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayProps) => {
   const { connected } = useWallet();
   const { sol, solFormatted, tokens, isLoading: balanceLoading, refresh: refreshBalance } = useWalletBalance();
-  const { solPrice, isLoading: priceLoading, refresh: refreshPrice } = useCoinGeckoPrices();
+  const { solPrice, sol24hChange, isLoading: priceLoading, refresh: refreshPrice } = useCoinGeckoPrices();
 
   const isLoading = balanceLoading || priceLoading;
   const solUsdValue = solPrice ? sol * solPrice : null;
@@ -156,7 +156,22 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
           {solPrice && (
             <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
               <span>SOL Price</span>
-              <span className="font-mono">${solPrice.toFixed(2)}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono">${solPrice.toFixed(2)}</span>
+                {sol24hChange !== null && (
+                  <span className={cn(
+                    "flex items-center gap-0.5 font-medium",
+                    sol24hChange >= 0 ? "text-green-500" : "text-red-500"
+                  )}>
+                    {sol24hChange >= 0 ? (
+                      <TrendingUp className="h-3 w-3" />
+                    ) : (
+                      <TrendingDown className="h-3 w-3" />
+                    )}
+                    {sol24hChange >= 0 ? '+' : ''}{sol24hChange.toFixed(2)}%
+                  </span>
+                )}
+              </div>
             </div>
           )}
         </div>

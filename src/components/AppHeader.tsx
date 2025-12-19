@@ -2,7 +2,7 @@ import { Home, Menu, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/UserMenu";
 import { NetworkStatus } from "@/components/NetworkStatus";
-import { WalletBalanceDisplay } from "@/components/WalletBalanceDisplay";
+import { WalletBalanceDisplay } from "@/components/wallet";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -13,12 +13,18 @@ import {
   toolsNavItems, 
   advancedNavItems 
 } from "@/config/navigation";
+import { NavButton } from "@/components/navigation/NavButton";
 
 export const AppHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-gradient-to-r from-background via-background/95 to-background backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
@@ -103,90 +109,50 @@ export const AppHeader = () => {
                 </SheetTitle>
               </SheetHeader>
               <div className="mt-6 space-y-1">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-2 hover:bg-primary/10"
-                  onClick={() => {
-                    navigate("/");
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  <Home className="h-4 w-4" />
-                  Home
-                </Button>
+                <NavButton
+                  icon={Home}
+                  label="Home"
+                  onClick={() => handleNavigate("/")}
+                />
 
                 {/* Main Features */}
                 <div className="py-2">
                   <p className="px-3 text-xs font-semibold text-muted-foreground mb-2">Core Features</p>
-                  {mainNavItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Button
-                        key={item.path}
-                        variant="ghost"
-                        className="w-full justify-start gap-2 hover:bg-primary/10"
-                        onClick={() => {
-                          navigate(item.path);
-                          setMobileMenuOpen(false);
-                        }}
-                      >
-                        <Icon className="h-4 w-4" />
-                        <span className="flex items-center gap-2">
-                          {item.label}
-                          {item.badge && (
-                            <Badge variant="secondary" className="text-[10px] h-4">
-                              <Sparkles className="h-2 w-2 mr-0.5" />
-                              {item.badge}
-                            </Badge>
-                          )}
-                        </span>
-                      </Button>
-                    );
-                  })}
+                  {mainNavItems.map((item) => (
+                    <NavButton
+                      key={item.path}
+                      icon={item.icon}
+                      label={item.label}
+                      badge={item.badge}
+                      onClick={() => handleNavigate(item.path)}
+                    />
+                  ))}
                 </div>
 
                 {/* Tools */}
                 <div className="py-2">
                   <p className="px-3 text-xs font-semibold text-muted-foreground mb-2">Tools</p>
-                  {toolsNavItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Button
-                        key={item.path}
-                        variant="ghost"
-                        className="w-full justify-start gap-2 hover:bg-primary/10"
-                        onClick={() => {
-                          navigate(item.path);
-                          setMobileMenuOpen(false);
-                        }}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.label}
-                      </Button>
-                    );
-                  })}
+                  {toolsNavItems.map((item) => (
+                    <NavButton
+                      key={item.path}
+                      icon={item.icon}
+                      label={item.label}
+                      onClick={() => handleNavigate(item.path)}
+                    />
+                  ))}
                 </div>
 
                 {/* Advanced */}
                 <div className="py-2">
                   <p className="px-3 text-xs font-semibold text-muted-foreground mb-2">Advanced</p>
-                  {advancedNavItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Button
-                        key={item.path}
-                        variant="ghost"
-                        className="w-full justify-start gap-2 hover:bg-primary/10"
-                        onClick={() => {
-                          navigate(item.path);
-                          setMobileMenuOpen(false);
-                        }}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.label}
-                      </Button>
-                    );
-                  })}
+                  {advancedNavItems.map((item) => (
+                    <NavButton
+                      key={item.path}
+                      icon={item.icon}
+                      label={item.label}
+                      onClick={() => handleNavigate(item.path)}
+                    />
+                  ))}
                 </div>
               </div>
             </SheetContent>

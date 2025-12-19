@@ -1,10 +1,8 @@
 import { FC, ReactNode, useMemo } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { 
-  PhantomWalletAdapter, 
-  SolflareWalletAdapter,
-} from '@solana/wallet-adapter-wallets';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
+import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 // ⚠️ CRITICAL: Configure your dedicated Solana Mainnet RPC endpoint below
@@ -36,15 +34,14 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 // use the SOLANA_RPC_URL secret configured in Supabase.
 const RPC_ENDPOINT = 'https://magical-convincing-sun.solana-mainnet.quiknode.pro/ffea6c68c8d168b0c2e2bcacbfe1c7cf676da07e/';
 
-// Supporting multiple popular Solana wallets
-// OKX Wallet support: Install OKX Wallet browser extension to use
+// Supporting popular browser-based Solana wallets
+// Hardware wallets (Ledger/Trezor) removed to avoid native module dependencies
 
 export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
-      // OKX Wallet will auto-detect if installed
     ],
     []
   );

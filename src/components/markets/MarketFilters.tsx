@@ -1,12 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import {
   Search,
@@ -19,15 +12,12 @@ import {
 } from "lucide-react";
 
 export type FilterCategory = "all" | "favorites" | "gainers" | "losers" | "trending";
-export type FilterExchange = "all" | "okx" | "moonshot";
 
 interface MarketFiltersProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   category: FilterCategory;
   onCategoryChange: (category: FilterCategory) => void;
-  exchange: FilterExchange;
-  onExchangeChange: (exchange: FilterExchange) => void;
   resultsCount: number;
 }
 
@@ -36,8 +26,6 @@ export const MarketFilters = ({
   onSearchChange,
   category,
   onCategoryChange,
-  exchange,
-  onExchangeChange,
   resultsCount,
 }: MarketFiltersProps) => {
   const categories = [
@@ -48,12 +36,11 @@ export const MarketFilters = ({
     { value: "trending" as const, label: "Trending", icon: Flame },
   ];
 
-  const hasActiveFilters = searchQuery || category !== "all" || exchange !== "all";
+  const hasActiveFilters = searchQuery || category !== "all";
 
   const clearFilters = () => {
     onSearchChange("");
     onCategoryChange("all");
-    onExchangeChange("all");
   };
 
   return (
@@ -95,20 +82,10 @@ export const MarketFilters = ({
         ))}
       </div>
 
-      {/* Exchange Filter & Results */}
+      {/* Results Count */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Source:</span>
-          <Select value={exchange} onValueChange={(v) => onExchangeChange(v as FilterExchange)}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Sources</SelectItem>
-              <SelectItem value="okx">OKX</SelectItem>
-              <SelectItem value="moonshot">🚀 MoonShot</SelectItem>
-            </SelectContent>
-          </Select>
+          <span className="text-sm text-muted-foreground">Source: OKX</span>
         </div>
 
         <div className="flex items-center gap-3">

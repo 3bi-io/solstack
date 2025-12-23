@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTopTradingPairs, calculatePriceChange, getTokenLogoUrl } from '@/lib/okx';
-import { getMoonShotTrending, formatMoonShotToken } from '@/lib/moonshot';
 import { queryKeys, staleTimes } from './useApiQuery';
 
 export interface MarketToken {
@@ -12,14 +11,13 @@ export interface MarketToken {
   change24h: number;
   volume24h: number;
   marketCap?: number;
-  source: 'okx' | 'moonshot';
+  source: 'okx';
   rank?: number;
 }
 
 interface MarketDataResult {
   tokens: MarketToken[];
   okxCount: number;
-  moonShotCount: number;
 }
 
 /**
@@ -31,10 +29,7 @@ export function useOptimizedMarketData() {
   const query = useQuery({
     queryKey: queryKeys.marketData(),
     queryFn: async (): Promise<MarketDataResult> => {
-      const [okxData, moonData] = await Promise.all([
-        getTopTradingPairs(50),
-        getMoonShotTrending(),
-      ]);
+      const okxData = await getTopTradingPairs(50);
 
       const okxTokens: MarketToken[] = okxData.map((pair: any, index: number) => {
         const symbol = pair.baseCcy || pair.instId.split("-")[0];
@@ -51,30 +46,13 @@ export function useOptimizedMarketData() {
         };
       });
 
-      const moonTokens: MarketToken[] = moonData.map((token: any, index: number) => {
-        const formatted = formatMoonShotToken(token);
-        return {
-          id: formatted.id,
-          name: formatted.name,
-          symbol: formatted.symbol,
-          image: formatted.imageUrl,
-          price: formatted.price,
-          change24h: formatted.priceChange24h,
-          volume24h: formatted.volume24h,
-          marketCap: formatted.marketCap,
-          source: 'moonshot' as const,
-          rank: index + 1,
-        };
-      });
-
       return {
-        tokens: [...okxTokens, ...moonTokens],
+        tokens: okxTokens,
         okxCount: okxTokens.length,
-        moonShotCount: moonTokens.length,
       };
     },
     staleTime: staleTimes.market,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
     refetchOnWindowFocus: true,
   });
 
@@ -85,7 +63,6 @@ export function useOptimizedMarketData() {
   return {
     tokens: query.data?.tokens ?? [],
     okxCount: query.data?.okxCount ?? 0,
-    moonShotCount: query.data?.moonShotCount ?? 0,
     isLoading: query.isLoading,
     isRefreshing: query.isFetching && !query.isLoading,
     error: query.error?.message ?? null,

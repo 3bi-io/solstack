@@ -189,12 +189,12 @@ const Index = () => {
                   Real-Time Market Intelligence
                 </h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Track markets from CoinGecko, OKX, and MoonShot. Live updates every 10 seconds with advanced filtering and favorites
+                  Track markets from OKX with live updates every 30 seconds, advanced filtering and favorites
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <CheckCircle className="w-4 h-4 text-accent" />
-                    <span>3 Data Sources</span>
+                    <span>Real-Time Data</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <CheckCircle className="w-4 h-4 text-accent" />

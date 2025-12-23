@@ -24,10 +24,9 @@ import {
   Filter
 } from "lucide-react";
 import { getTopTradingPairs, formatOKXPrice, calculatePriceChange, getTokenLogoUrl } from "@/lib/okx";
-import { getMoonShotTrending, formatMoonShotToken, MoonShotToken } from "@/lib/moonshot";
 import { toast } from "@/hooks/use-toast";
 import { MarketCard } from "@/components/markets/MarketCard";
-import { MarketFilters, FilterCategory, FilterExchange } from "@/components/markets/MarketFilters";
+import { MarketFilters, FilterCategory } from "@/components/markets/MarketFilters";
 import { TokenDetailDialog } from "@/components/markets/TokenDetailDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +41,7 @@ interface MarketData {
   change24h: number;
   volume24h: number;
   marketCap?: number;
-  source: "coingecko" | "okx" | "moonshot";
+  source: "okx";
   rank?: number;
 }
 
@@ -52,37 +51,30 @@ type SortDirection = "asc" | "desc";
 const Markets = () => {
   const { user } = useAuth();
   const [okxPairs, setOkxPairs] = useState<any[]>([]);
-  const [moonShotTokens, setMoonShotTokens] = useState<MoonShotToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState<FilterCategory>("all");
-  const [exchange, setExchange] = useState<FilterExchange>("all");
   const [sortField, setSortField] = useState<SortField>("volume24h");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [updateCount, setUpdateCount] = useState(0);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [selectedToken, setSelectedToken] = useState<MarketData | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-  // Use secure admin check hook for consistent server-side validation
   const { isAdmin } = useAdminCheck();
 
   const loadMarketData = async () => {
     setRefreshing(true);
     try {
-      const [okxData, moonData] = await Promise.all([
-        getTopTradingPairs(50), // Top 50 pairs using bulk endpoint with caching
-        getMoonShotTrending()
-      ]);
+      const okxData = await getTopTradingPairs(50);
 
       setOkxPairs(okxData);
-      setMoonShotTokens(moonData);
       setUpdateCount(prev => prev + 1);
 
       if (!loading && isAdmin) {
         toast({
           title: "Markets Updated",
-          description: `Loaded ${okxData.length} OKX + ${moonData.length} MoonShot tokens`,
+          description: `Loaded ${okxData.length} OKX tokens`,
         });
       }
     } catch (error) {
@@ -100,12 +92,10 @@ const Markets = () => {
 
   useEffect(() => {
     loadMarketData();
-    // Update every 30 seconds (cache duration matches this)
     const interval = setInterval(loadMarketData, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Load favorites from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("market-favorites");
     if (stored) {
@@ -126,7 +116,6 @@ const Markets = () => {
     });
   };
 
-  // Transform data to unified format
   const allMarketData = useMemo(() => {
     const okxData: MarketData[] = okxPairs.map((pair, index) => {
       const symbol = pair.baseCcy || pair.instId.split("-")[0];
@@ -143,30 +132,12 @@ const Markets = () => {
       };
     });
 
-    const moonData: MarketData[] = moonShotTokens.map((token, index) => {
-      const formatted = formatMoonShotToken(token);
-      return {
-        id: formatted.id,
-        name: formatted.name,
-        symbol: formatted.symbol,
-        image: formatted.imageUrl,
-        price: formatted.price,
-        change24h: formatted.priceChange24h,
-        volume24h: formatted.volume24h,
-        marketCap: formatted.marketCap,
-        source: "moonshot" as const,
-        rank: index + 1,
-      };
-    });
+    return okxData;
+  }, [okxPairs]);
 
-    return [...okxData, ...moonData];
-  }, [okxPairs, moonShotTokens]);
-
-  // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
     let filtered = allMarketData;
 
-    // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -176,7 +147,6 @@ const Markets = () => {
       );
     }
 
-    // Apply category filter
     if (category === "favorites") {
       filtered = filtered.filter(item => favorites.has(item.id));
     } else if (category === "gainers") {
@@ -184,15 +154,9 @@ const Markets = () => {
     } else if (category === "losers") {
       filtered = filtered.filter(item => item.change24h < 0);
     } else if (category === "trending") {
-      filtered = filtered.filter(item => item.source === "moonshot");
+      filtered = filtered.slice(0, 10); // Top 10 by volume as trending
     }
 
-    // Apply exchange filter
-    if (exchange !== "all") {
-      filtered = filtered.filter(item => item.source === exchange);
-    }
-
-    // Apply sorting
     filtered.sort((a, b) => {
       let aVal = a[sortField] || 0;
       let bVal = b[sortField] || 0;
@@ -204,7 +168,7 @@ const Markets = () => {
     });
 
     return filtered;
-  }, [allMarketData, searchQuery, category, exchange, favorites, sortField, sortDirection]);
+  }, [allMarketData, searchQuery, category, favorites, sortField, sortDirection]);
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -215,24 +179,18 @@ const Markets = () => {
     }
   };
 
-  // Calculate global stats
   const globalStats = useMemo(() => {
     const totalVolume = allMarketData.reduce((sum, item) => sum + item.volume24h, 0);
     const avgChange = allMarketData.reduce((sum, item) => sum + item.change24h, 0) / (allMarketData.length || 1);
     const gainers = allMarketData.filter(item => item.change24h > 0).length;
     const losers = allMarketData.filter(item => item.change24h < 0).length;
-    
-    // Only calculate market cap for tokens that have this data (MoonShot tokens)
-    const tokensWithMarketCap = allMarketData.filter(item => item.marketCap && item.marketCap > 0);
-    const totalMarketCap = tokensWithMarketCap.reduce((sum, item) => sum + (item.marketCap || 0), 0);
-    const hasMarketCapData = tokensWithMarketCap.length > 0;
 
-    return { totalVolume, avgChange, gainers, losers, totalMarketCap, hasMarketCapData, tokensWithMarketCap: tokensWithMarketCap.length };
+    return { totalVolume, avgChange, gainers, losers };
   }, [allMarketData]);
 
   const exportData = () => {
     const csv = [
-      ["Rank", "Symbol", "Name", "Price", "24h Change", "Volume", "Market Cap", "Source"],
+      ["Rank", "Symbol", "Name", "Price", "24h Change", "Volume", "Source"],
       ...filteredAndSortedData.map(item => [
         item.rank,
         item.symbol,
@@ -240,7 +198,6 @@ const Markets = () => {
         item.price,
         item.change24h,
         item.volume24h,
-        item.marketCap || "",
         item.source,
       ]),
     ]
@@ -277,15 +234,15 @@ const Markets = () => {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: "Live Solana Markets - Real-Time Token Prices & Analysis",
-    description: "Track live Solana token prices from OKX and MoonShot. Real-time market data, 24h trading volume, price changes, and market cap for Solana tokens.",
+    description: "Track live Solana token prices from OKX. Real-time market data, 24h trading volume, price changes for Solana tokens.",
   };
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <SEO
         title="Live Solana Markets - Real-Time Token Prices & Analysis"
-        description="Track live Solana token prices from OKX and MoonShot. Real-time market data, 24h trading volume, price changes, and market cap for Solana tokens. Multi-source aggregation for best market intelligence."
-        keywords="Solana market data, live crypto prices, Solana tokens, OKX markets, MoonShot tokens, crypto trading, token prices, market analysis, Solana DEX"
+        description="Track live Solana token prices from OKX. Real-time market data, 24h trading volume, and price changes for Solana tokens."
+        keywords="Solana market data, live crypto prices, Solana tokens, OKX markets, crypto trading, token prices, market analysis, Solana DEX"
         url="/markets"
         structuredData={marketStructuredData}
       />
@@ -313,7 +270,7 @@ const Markets = () => {
                     </Badge>
                     <Badge variant="outline" className="gap-1">
                       <Globe className="w-3 h-3" />
-                      Multi-source
+                      OKX
                     </Badge>
                   </div>
                 </div>
@@ -342,58 +299,39 @@ const Markets = () => {
           </CardHeader>
         </Card>
 
-        {/* Loaded Tokens Stats */}
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-            {globalStats.hasMarketCapData && (
-              <div className="p-4 bg-card rounded-xl border border-border">
-                <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="w-4 h-4 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">
-                    Market Cap ({globalStats.tokensWithMarketCap} tokens)
-                  </p>
-                </div>
-                <p className="text-xl font-bold">
-                  ${globalStats.totalMarketCap >= 1e9 
-                    ? (globalStats.totalMarketCap / 1e9).toFixed(2) + 'B' 
-                    : globalStats.totalMarketCap >= 1e6 
-                    ? (globalStats.totalMarketCap / 1e6).toFixed(2) + 'M' 
-                    : globalStats.totalMarketCap.toFixed(0)}
-                </p>
-              </div>
-            )}
-            <div className="p-4 bg-card rounded-xl border border-border">
-              <div className="flex items-center gap-2 mb-2">
-                <BarChart3 className="w-4 h-4 text-muted-foreground" />
-                <p className="text-xs text-muted-foreground">24h Volume</p>
-              </div>
-              <p className="text-xl font-bold">
-                ${(globalStats.totalVolume / 1e9).toFixed(2)}B
-              </p>
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 bg-card rounded-xl border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <BarChart3 className="w-4 h-4 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">24h Volume</p>
             </div>
-            <div className="p-4 bg-card rounded-xl border border-border">
-              <div className="flex items-center gap-2 mb-2">
-                <Activity className="w-4 h-4 text-muted-foreground" />
-                <p className="text-xs text-muted-foreground">Avg Change</p>
-              </div>
-              <p className={`text-xl font-bold ${globalStats.avgChange >= 0 ? "text-green-500" : "text-red-500"}`}>
-                {globalStats.avgChange >= 0 ? "+" : ""}{globalStats.avgChange.toFixed(2)}%
-              </p>
+            <p className="text-xl font-bold">
+              ${(globalStats.totalVolume / 1e9).toFixed(2)}B
+            </p>
+          </div>
+          <div className="p-4 bg-card rounded-xl border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <Activity className="w-4 h-4 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">Avg Change</p>
             </div>
-            <div className="p-4 bg-card rounded-xl border border-border">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-green-500" />
-                <p className="text-xs text-muted-foreground">Gainers</p>
-              </div>
-              <p className="text-xl font-bold text-green-500">{globalStats.gainers}</p>
+            <p className={`text-xl font-bold ${globalStats.avgChange >= 0 ? "text-green-500" : "text-red-500"}`}>
+              {globalStats.avgChange >= 0 ? "+" : ""}{globalStats.avgChange.toFixed(2)}%
+            </p>
+          </div>
+          <div className="p-4 bg-card rounded-xl border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="w-4 h-4 text-green-500" />
+              <p className="text-xs text-muted-foreground">Gainers</p>
             </div>
-            <div className="p-4 bg-card rounded-xl border border-border">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingDown className="w-4 h-4 text-red-500" />
-                <p className="text-xs text-muted-foreground">Losers</p>
-              </div>
-              <p className="text-xl font-bold text-red-500">{globalStats.losers}</p>
+            <p className="text-xl font-bold text-green-500">{globalStats.gainers}</p>
+          </div>
+          <div className="p-4 bg-card rounded-xl border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingDown className="w-4 h-4 text-red-500" />
+              <p className="text-xs text-muted-foreground">Losers</p>
             </div>
+            <p className="text-xl font-bold text-red-500">{globalStats.losers}</p>
           </div>
         </div>
 
@@ -415,14 +353,11 @@ const Markets = () => {
           </CardHeader>
           
           <CardContent className="space-y-6">
-            {/* Filters */}
             <MarketFilters
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               category={category}
               onCategoryChange={setCategory}
-              exchange={exchange}
-              onExchangeChange={setExchange}
               resultsCount={filteredAndSortedData.length}
             />
 
@@ -509,13 +444,11 @@ const Markets = () => {
               <div className="flex items-center justify-between text-xs text-muted-foreground flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span>Live updates every 10s • Update #{updateCount}</span>
+                  <span>Live updates every 30s • Update #{updateCount}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span>Powered by:</span>
-                  <Badge variant="outline" className="text-[10px]">CoinGecko</Badge>
                   <Badge variant="outline" className="text-[10px]">OKX</Badge>
-                  <Badge variant="default" className="text-[10px]">🚀 MoonShot</Badge>
                 </div>
               </div>
             </div>

@@ -791,6 +791,42 @@ export type Database = {
           },
         ]
       }
+      portfolio_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          snapshot_date: string
+          sol_balance: number
+          sol_price_usd: number
+          token_count: number
+          total_value_usd: number
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          snapshot_date?: string
+          sol_balance?: number
+          sol_price_usd?: number
+          token_count?: number
+          total_value_usd?: number
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          snapshot_date?: string
+          sol_balance?: number
+          sol_price_usd?: number
+          token_count?: number
+          total_value_usd?: number
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       price_alerts: {
         Row: {
           condition: string

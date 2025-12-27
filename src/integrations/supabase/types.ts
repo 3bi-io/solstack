@@ -800,6 +800,48 @@ export type Database = {
           },
         ]
       }
+      portfolio_allocations: {
+        Row: {
+          created_at: string
+          current_percentage: number
+          deviation_threshold: number
+          id: string
+          is_active: boolean
+          target_percentage: number
+          token_mint: string | null
+          token_symbol: string
+          updated_at: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          current_percentage?: number
+          deviation_threshold?: number
+          id?: string
+          is_active?: boolean
+          target_percentage?: number
+          token_mint?: string | null
+          token_symbol: string
+          updated_at?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          current_percentage?: number
+          deviation_threshold?: number
+          id?: string
+          is_active?: boolean
+          target_percentage?: number
+          token_mint?: string | null
+          token_symbol?: string
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       portfolio_snapshots: {
         Row: {
           created_at: string
@@ -905,6 +947,42 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      rebalancing_history: {
+        Row: {
+          created_at: string
+          details: Json | null
+          id: string
+          rebalance_type: string
+          status: string
+          total_value_usd: number
+          trades_executed: number
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          rebalance_type?: string
+          status?: string
+          total_value_usd?: number
+          trades_executed?: number
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          rebalance_type?: string
+          status?: string
+          total_value_usd?: number
+          trades_executed?: number
+          user_id?: string
+          wallet_address?: string
         }
         Relationships: []
       }

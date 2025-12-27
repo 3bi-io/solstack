@@ -19,6 +19,9 @@ interface FarmPosition {
   pending_rewards: number;
   staked_at: string;
   lock_end_at: string | null;
+  auto_compound_enabled: boolean;
+  auto_compound_threshold: number;
+  last_compound_at: string | null;
 }
 
 interface FarmTransaction {
@@ -420,6 +423,125 @@ export const useFarmStaking = () => {
     }
   };
 
+  // Compound rewards (reinvest into staked amount)
+  const compound = async (
+    farmId: string,
+    farmName: string,
+    token: string
+  ): Promise<boolean> => {
+    if (!connected || !publicKey) {
+      toast({ title: "Please connect your wallet", variant: "destructive" });
+      return false;
+    }
+
+    const position = positions.find(p => p.farm_id === farmId);
+    if (!position || Number(position.pending_rewards) <= 0) {
+      toast({ title: "No rewards to compound", variant: "destructive" });
+      return false;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Please sign in to compound", variant: "destructive" });
+        return false;
+      }
+
+      const rewardAmount = Number(position.pending_rewards);
+      toast({ title: "Compounding Rewards", description: "Reinvesting your rewards..." });
+
+      // Simulate compound transaction
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const mockSignature = `compound_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+      // Update position - add rewards to staked amount
+      const newStakedAmount = Number(position.staked_amount) + rewardAmount;
+      
+      await supabase
+        .from('farm_positions')
+        .update({ 
+          staked_amount: newStakedAmount,
+          pending_rewards: 0,
+          last_harvest_at: new Date().toISOString(),
+          last_compound_at: new Date().toISOString()
+        })
+        .eq('id', position.id);
+
+      // Record transaction
+      await supabase
+        .from('farm_transactions')
+        .insert({
+          user_id: user.id,
+          wallet_address: publicKey.toBase58(),
+          farm_id: farmId,
+          farm_name: farmName,
+          transaction_type: 'compound',
+          amount: rewardAmount,
+          token,
+          transaction_signature: mockSignature,
+          status: 'completed',
+        });
+
+      toast({
+        title: "Compounded Successfully!",
+        description: `Reinvested ${rewardAmount.toFixed(6)} ${token} into your stake`,
+      });
+
+      await fetchPositions();
+      return true;
+    } catch (error: any) {
+      console.error('Compound error:', error);
+      toast({ title: "Compound Failed", description: error.message, variant: "destructive" });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Toggle auto-compound setting
+  const toggleAutoCompound = async (
+    farmId: string,
+    enabled: boolean,
+    threshold: number = 0.01
+  ): Promise<boolean> => {
+    if (!connected || !publicKey) {
+      toast({ title: "Please connect your wallet", variant: "destructive" });
+      return false;
+    }
+
+    const position = positions.find(p => p.farm_id === farmId);
+    if (!position) {
+      toast({ title: "No position found", variant: "destructive" });
+      return false;
+    }
+
+    try {
+      await supabase
+        .from('farm_positions')
+        .update({ 
+          auto_compound_enabled: enabled,
+          auto_compound_threshold: threshold
+        })
+        .eq('id', position.id);
+
+      toast({
+        title: enabled ? "Auto-Compound Enabled" : "Auto-Compound Disabled",
+        description: enabled 
+          ? `Rewards will auto-compound when they exceed ${threshold} tokens`
+          : "Your rewards will no longer auto-compound",
+      });
+
+      await fetchPositions();
+      return true;
+    } catch (error: any) {
+      console.error('Toggle auto-compound error:', error);
+      toast({ title: "Failed to update setting", description: error.message, variant: "destructive" });
+      return false;
+    }
+  };
+
   // Get position for a specific farm
   const getPosition = (farmId: string): FarmPosition | undefined => {
     return positions.find(p => p.farm_id === farmId);
@@ -432,6 +554,8 @@ export const useFarmStaking = () => {
     stake,
     withdraw,
     claim,
+    compound,
+    toggleAutoCompound,
     getPosition,
     refreshPositions: fetchPositions,
     refreshTransactions: fetchTransactions,

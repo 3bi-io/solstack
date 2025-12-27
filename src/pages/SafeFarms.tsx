@@ -129,7 +129,9 @@ const SafeFarms = () => {
     isLoading, 
     stake, 
     withdraw, 
-    claim, 
+    claim,
+    compound,
+    toggleAutoCompound,
     getPosition 
   } = useFarmStaking();
 
@@ -141,6 +143,8 @@ const SafeFarms = () => {
         ...farm,
         userStaked: position ? Number(position.staked_amount) : 0,
         pendingRewards: position ? Number(position.pending_rewards) : 0,
+        autoCompoundEnabled: position?.auto_compound_enabled || false,
+        autoCompoundThreshold: position?.auto_compound_threshold || 0.01,
       };
     });
   }, [baseFarms, positions, getPosition]);
@@ -208,6 +212,16 @@ const SafeFarms = () => {
     const farm = farms.find(f => f.id === farmId);
     if (!farm || farm.pendingRewards <= 0) return;
     await claim(farmId, farm.name, farm.rewardToken, farm.pendingRewards);
+  };
+
+  const handleCompound = async (farmId: string) => {
+    const farm = farms.find(f => f.id === farmId);
+    if (!farm) return;
+    await compound(farmId, farm.name, farm.token);
+  };
+
+  const handleToggleAutoCompound = async (farmId: string, enabled: boolean, threshold: number) => {
+    await toggleAutoCompound(farmId, enabled, threshold);
   };
 
   return (
@@ -321,6 +335,8 @@ const SafeFarms = () => {
                   onStake={handleStake}
                   onWithdraw={handleWithdraw}
                   onClaim={handleClaim}
+                  onCompound={handleCompound}
+                  onToggleAutoCompound={handleToggleAutoCompound}
                 />
               ))
             )}

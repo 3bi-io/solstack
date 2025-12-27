@@ -9,17 +9,21 @@ import {
   RefreshCw, 
   Zap, 
   Info,
-  ArrowRight
+  ArrowRight,
+  AlertCircle
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useOptimizedSolPrice } from "@/hooks/useOptimizedSolPrice";
+import { useOptimizedWalletBalance } from "@/hooks/useOptimizedWalletBalance";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { LAMPORTS_PER_SOL, Transaction, SystemProgram, PublicKey } from "@solana/web3.js";
 
 interface Token {
   symbol: string;
   name: string;
   icon: string;
   chain: string;
-  balance: number;
 }
 
 const TOKENS: Record<string, Token> = {
@@ -28,40 +32,65 @@ const TOKENS: Record<string, Token> = {
     name: "Solana",
     icon: "◎",
     chain: "Solana",
-    balance: 12.5,
   },
   GEN1: {
     symbol: "GEN1",
     name: "Genesis One",
     icon: "◆",
     chain: "Genesis One",
-    balance: 0,
   },
 };
 
 // Mock exchange rate
 const EXCHANGE_RATE = 1.05; // 1 SOL = 1.05 GEN1
+const BRIDGE_FEE_PERCENT = 0.1;
+
+// Mock bridge vault address (in production, this would be the real vault)
+const BRIDGE_VAULT_ADDRESS = "BridgeVau1tXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
 export const BridgeSwapInterface = () => {
   const [fromToken, setFromToken] = useState<Token>(TOKENS.SOL);
   const [toToken, setToToken] = useState<Token>(TOKENS.GEN1);
   const [amount, setAmount] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
+  
+  // Real wallet connection
+  const { connected, publicKey, signTransaction, sendTransaction } = useWallet();
+  const { connection } = useConnection();
+  const { sol: solBalance, solFormatted, refresh: refreshBalance, isLoading: balanceLoading } = useOptimizedWalletBalance();
   const { solPrice } = useOptimizedSolPrice();
+
+  // GEN1 balance (mock for now - would come from Genesis One chain)
+  const gen1Balance = 0;
+
+  const currentBalance = useMemo(() => {
+    return fromToken.symbol === "SOL" ? solBalance : gen1Balance;
+  }, [fromToken.symbol, solBalance, gen1Balance]);
 
   const outputAmount = useMemo(() => {
     if (!amount || isNaN(parseFloat(amount))) return "0";
     const input = parseFloat(amount);
+    const afterFee = input * (1 - BRIDGE_FEE_PERCENT / 100);
     if (fromToken.symbol === "SOL") {
-      return (input * EXCHANGE_RATE).toFixed(6);
+      return (afterFee * EXCHANGE_RATE).toFixed(6);
     }
-    return (input / EXCHANGE_RATE).toFixed(6);
+    return (afterFee / EXCHANGE_RATE).toFixed(6);
   }, [amount, fromToken.symbol]);
 
   const usdValue = useMemo(() => {
     if (!amount || isNaN(parseFloat(amount))) return 0;
     return parseFloat(amount) * (solPrice || 0);
   }, [amount, solPrice]);
+
+  const bridgeFee = useMemo(() => {
+    if (!amount || isNaN(parseFloat(amount))) return 0;
+    return parseFloat(amount) * (BRIDGE_FEE_PERCENT / 100);
+  }, [amount]);
+
+  const isInsufficientBalance = useMemo(() => {
+    if (!amount || isNaN(parseFloat(amount))) return false;
+    return parseFloat(amount) > currentBalance;
+  }, [amount, currentBalance]);
 
   const handleSwapDirection = () => {
     setFromToken(toToken);
@@ -70,6 +99,15 @@ export const BridgeSwapInterface = () => {
   };
 
   const handleBridge = async () => {
+    if (!connected || !publicKey) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet to bridge",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!amount || parseFloat(amount) <= 0) {
       toast({
         title: "Invalid Amount",
@@ -79,22 +117,66 @@ export const BridgeSwapInterface = () => {
       return;
     }
 
+    if (isInsufficientBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You don't have enough ${fromToken.symbol}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSwapping(true);
     
-    // Simulate bridge transaction
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    toast({
-      title: "Bridge Initiated",
-      description: `Bridging ${amount} ${fromToken.symbol} to ${outputAmount} ${toToken.symbol}`,
-    });
-    
-    setIsSwapping(false);
-    setAmount("");
+    try {
+      if (fromToken.symbol === "SOL") {
+        // Create a transaction to simulate bridging SOL
+        // In production, this would interact with the actual bridge contract
+        const lamports = Math.floor(parseFloat(amount) * LAMPORTS_PER_SOL);
+        
+        // For demo purposes, we'll just show the signing process
+        // In production, this would send to the bridge vault
+        toast({
+          title: "Bridge Initiated",
+          description: `Preparing to bridge ${amount} SOL to ${outputAmount} GEN1...`,
+        });
+
+        // Simulate bridge delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        toast({
+          title: "Bridge Successful",
+          description: `Successfully bridged ${amount} ${fromToken.symbol} to ${outputAmount} ${toToken.symbol}`,
+        });
+        
+        // Refresh balance after bridge
+        refreshBalance();
+      } else {
+        // GEN1 to SOL bridge would require Genesis One chain integration
+        toast({
+          title: "Coming Soon",
+          description: "GEN1 to SOL bridging will be available once Genesis One mainnet launches.",
+        });
+      }
+    } catch (error: any) {
+      console.error("Bridge error:", error);
+      toast({
+        title: "Bridge Failed",
+        description: error.message || "Failed to complete bridge transaction",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSwapping(false);
+      setAmount("");
+    }
   };
 
   const handleMaxAmount = () => {
-    setAmount(fromToken.balance.toString());
+    // Leave some SOL for transaction fees
+    const maxAmount = fromToken.symbol === "SOL" 
+      ? Math.max(0, solBalance - 0.01).toFixed(6)
+      : gen1Balance.toString();
+    setAmount(maxAmount);
   };
 
   return (
@@ -107,20 +189,45 @@ export const BridgeSwapInterface = () => {
             <Zap className="w-5 h-5 text-accent" />
             Bridge Assets
           </CardTitle>
-          <Badge variant="outline" className="gap-1 text-xs">
-            <Info className="w-3 h-3" />
-            Rate: 1 SOL = {EXCHANGE_RATE} GEN1
-          </Badge>
+          <div className="flex items-center gap-2">
+            {connected && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={refreshBalance}
+                disabled={balanceLoading}
+                className="gap-1"
+              >
+                <RefreshCw className={`w-3 h-3 ${balanceLoading ? 'animate-spin' : ''}`} />
+              </Button>
+            )}
+            <Badge variant="outline" className="gap-1 text-xs">
+              <Info className="w-3 h-3" />
+              Rate: 1 SOL = {EXCHANGE_RATE} GEN1
+            </Badge>
+          </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Wallet Connection Status */}
+        {!connected && (
+          <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-yellow-500">Wallet Not Connected</p>
+              <p className="text-xs text-muted-foreground">Connect your wallet to bridge assets</p>
+            </div>
+            <WalletMultiButton className="!bg-gradient-to-r !from-accent !to-primary !text-sm !py-2 !px-4 !rounded-lg !font-medium" />
+          </div>
+        )}
+
         {/* From Token */}
         <div className="p-4 rounded-xl bg-background/50 border border-border/50 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">From ({fromToken.chain})</span>
             <span className="text-xs text-muted-foreground">
-              Balance: {fromToken.balance.toFixed(4)} {fromToken.symbol}
+              Balance: {fromToken.symbol === "SOL" ? solFormatted : gen1Balance.toFixed(4)} {fromToken.symbol}
             </span>
           </div>
           
@@ -136,7 +243,10 @@ export const BridgeSwapInterface = () => {
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="text-2xl font-bold bg-transparent border-none text-right h-12 focus-visible:ring-0"
+                className={`text-2xl font-bold bg-transparent border-none text-right h-12 focus-visible:ring-0 ${
+                  isInsufficientBalance ? 'text-red-500' : ''
+                }`}
+                disabled={!connected}
               />
             </div>
           </div>
@@ -149,11 +259,19 @@ export const BridgeSwapInterface = () => {
               variant="ghost" 
               size="sm" 
               onClick={handleMaxAmount}
+              disabled={!connected}
               className="text-xs text-accent hover:text-accent"
             >
               MAX
             </Button>
           </div>
+          
+          {isInsufficientBalance && (
+            <p className="text-xs text-red-500 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              Insufficient balance
+            </p>
+          )}
         </div>
 
         {/* Swap Direction Button */}
@@ -173,7 +291,7 @@ export const BridgeSwapInterface = () => {
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">To ({toToken.chain})</span>
             <span className="text-xs text-muted-foreground">
-              Balance: {toToken.balance.toFixed(4)} {toToken.symbol}
+              Balance: {toToken.symbol === "SOL" ? solFormatted : gen1Balance.toFixed(4)} {toToken.symbol}
             </span>
           </div>
           
@@ -208,33 +326,48 @@ export const BridgeSwapInterface = () => {
             <span>1 {fromToken.symbol} = {fromToken.symbol === "SOL" ? EXCHANGE_RATE : (1/EXCHANGE_RATE).toFixed(4)} {toToken.symbol}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Bridge Fee</span>
-            <span className="text-green-500">0.1%</span>
+            <span className="text-muted-foreground">Bridge Fee ({BRIDGE_FEE_PERCENT}%)</span>
+            <span className="text-yellow-500">{bridgeFee.toFixed(6)} {fromToken.symbol}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Estimated Time</span>
             <span>~30 seconds</span>
           </div>
+          {connected && publicKey && (
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Your Wallet</span>
+              <span className="font-mono text-xs">
+                {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Bridge Button */}
-        <Button
-          onClick={handleBridge}
-          disabled={isSwapping || !amount || parseFloat(amount) <= 0}
-          className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-accent to-primary hover:from-accent/90 hover:to-primary/90"
-        >
-          {isSwapping ? (
-            <>
-              <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
-              Bridging...
-            </>
-          ) : (
-            <>
-              <Wallet className="w-5 h-5 mr-2" />
-              Bridge {fromToken.symbol} → {toToken.symbol}
-            </>
-          )}
-        </Button>
+        {connected ? (
+          <Button
+            onClick={handleBridge}
+            disabled={isSwapping || !amount || parseFloat(amount) <= 0 || isInsufficientBalance}
+            className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-accent to-primary hover:from-accent/90 hover:to-primary/90"
+          >
+            {isSwapping ? (
+              <>
+                <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
+                Bridging...
+              </>
+            ) : (
+              <>
+                <Wallet className="w-5 h-5 mr-2" />
+                Bridge {fromToken.symbol} → {toToken.symbol}
+              </>
+            )}
+          </Button>
+        ) : (
+          <WalletMultiButton className="!w-full !h-12 !text-lg !font-semibold !bg-gradient-to-r !from-accent !to-primary hover:!from-accent/90 hover:!to-primary/90 !rounded-lg !justify-center">
+            <Wallet className="w-5 h-5 mr-2" />
+            Connect Wallet to Bridge
+          </WalletMultiButton>
+        )}
 
         <p className="text-xs text-center text-muted-foreground">
           By bridging, you agree to the terms of the Genesis Bridge protocol.

@@ -31,6 +31,7 @@ import { MarketCard } from "@/components/markets/MarketCard";
 import { MarketFilters, FilterCategory } from "@/components/markets/MarketFilters";
 import { TokenDetailDialog } from "@/components/markets/TokenDetailDialog";
 import { MarketRiskOverview } from "@/components/markets/MarketRiskOverview";
+import { PriceAlertManager } from "@/components/PriceAlertManager";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -356,13 +357,20 @@ const Markets = () => {
           </div>
         </div>
 
-        {/* AI Risk Overview */}
-        <MarketRiskOverview 
-          riskScores={riskScores}
-          totalTokens={allMarketData.length}
-          isAnalyzing={isAnalyzing}
-          source={source}
-        />
+        {/* AI Risk Overview & Price Alerts */}
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            <MarketRiskOverview 
+              riskScores={riskScores}
+              totalTokens={allMarketData.length}
+              isAnalyzing={isAnalyzing}
+              source={source}
+            />
+          </div>
+          <div>
+            <PriceAlertManager />
+          </div>
+        </div>
 
         {/* Filters & Market List */}
         <Card>

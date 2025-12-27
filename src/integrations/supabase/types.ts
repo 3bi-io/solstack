@@ -1248,6 +1248,102 @@ export type Database = {
         }
         Relationships: []
       }
+      yield_optimization_history: {
+        Row: {
+          amount: number
+          apy_gain: number
+          created_at: string
+          from_farm_id: string
+          from_farm_name: string
+          id: string
+          new_apy: number
+          old_apy: number
+          status: string
+          to_farm_id: string
+          to_farm_name: string
+          token: string
+          transaction_signature: string | null
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          amount: number
+          apy_gain: number
+          created_at?: string
+          from_farm_id: string
+          from_farm_name: string
+          id?: string
+          new_apy: number
+          old_apy: number
+          status?: string
+          to_farm_id: string
+          to_farm_name: string
+          token: string
+          transaction_signature?: string | null
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          amount?: number
+          apy_gain?: number
+          created_at?: string
+          from_farm_id?: string
+          from_farm_name?: string
+          id?: string
+          new_apy?: number
+          old_apy?: number
+          status?: string
+          to_farm_id?: string
+          to_farm_name?: string
+          token?: string
+          transaction_signature?: string | null
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      yield_optimizer_settings: {
+        Row: {
+          check_interval_hours: number
+          created_at: string
+          id: string
+          is_enabled: boolean
+          last_optimization_at: string | null
+          max_gas_cost: number
+          min_apy_difference: number
+          risk_tolerance: string
+          updated_at: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          check_interval_hours?: number
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_optimization_at?: string | null
+          max_gas_cost?: number
+          min_apy_difference?: number
+          risk_tolerance?: string
+          updated_at?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          check_interval_hours?: number
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_optimization_at?: string | null
+          max_gas_cost?: number
+          min_apy_difference?: number
+          risk_tolerance?: string
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

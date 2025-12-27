@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useAIRiskScoring } from "@/hooks/useAIRiskScoring";
-
+import { hardRefresh } from "@/lib/hard-refresh";
 interface CryptoPrice {
   price: number | null;
   change: number;
@@ -243,9 +243,10 @@ export const MarketPreview = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={loadPriceData}
+                onClick={() => hardRefresh()}
                 disabled={refreshing}
                 className="hover:bg-primary/10"
+                title="Hard refresh"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
               </Button>

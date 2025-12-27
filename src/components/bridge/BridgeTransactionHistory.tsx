@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { hardRefresh } from "@/lib/hard-refresh";
 
 interface BridgeTransaction {
   id: string;
@@ -143,8 +144,9 @@ export const BridgeTransactionHistory = () => {
             variant="ghost" 
             size="sm" 
             className="gap-1"
-            onClick={fetchTransactions}
+            onClick={() => hardRefresh()}
             disabled={isLoading || !connected}
+            title="Hard refresh"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh

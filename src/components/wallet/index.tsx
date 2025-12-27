@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatUsd } from '@/lib/utils';
+import { hardRefresh } from '@/lib/hard-refresh';
 import type { WalletBalanceDisplayProps } from '@/types/wallet';
 
 import { BalanceCompactView } from './BalanceCompactView';
@@ -28,8 +29,7 @@ export const WalletBalanceDisplay = ({ compact = false }: WalletBalanceDisplayPr
   const solUsdValue = solPrice ? sol * solPrice : null;
 
   const handleRefresh = () => {
-    refreshBalance();
-    refreshPrice();
+    hardRefresh();
   };
 
   if (!connected) {

@@ -6,7 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GrokChatWidget } from "@/components/GrokChatWidget";
 import { PoweredByBadge } from "@/components/PoweredByBadge";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useState } from "react";
+import { OnboardingTutorial, hasCompletedOnboarding } from "@/components/onboarding/OnboardingTutorial";
+import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
+import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import LaunchCoin from "./pages/LaunchCoin";
@@ -40,10 +42,25 @@ const AppContent = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showBadge, setShowBadge] = useState(true);
   const [chatbotActive, setChatbotActive] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    // Check if user needs onboarding after a short delay
+    const timer = setTimeout(() => {
+      if (!hasCompletedOnboarding()) {
+        setShowOnboarding(true);
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleBadgeTransform = () => {
     setShowBadge(false);
     setChatbotActive(true);
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
   };
 
   return (
@@ -84,6 +101,17 @@ const AppContent = () => {
         showDefaultButton={chatbotActive}
       />
       {showBadge && <PoweredByBadge onTransform={handleBadgeTransform} />}
+      
+      {/* Onboarding Tutorial for new users */}
+      {showOnboarding && (
+        <OnboardingTutorial 
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingComplete}
+        />
+      )}
+      
+      {/* Notification permission prompt */}
+      <NotificationPrompt />
     </>
   );
 };

@@ -14,6 +14,7 @@ import {
   Settings,
   HelpCircle,
   Brain,
+  ArrowLeftRight,
   type LucideIcon
 } from "lucide-react";
 
@@ -52,6 +53,12 @@ export const mainNavItems: NavItem[] = [
     icon: Repeat, 
     label: "Swap", 
     path: "/swap" 
+  },
+  { 
+    icon: ArrowLeftRight, 
+    label: "Bridge", 
+    path: "/bridge",
+    badge: "GEN1"
   },
 ];
 

@@ -1,5 +1,6 @@
 import { Brain, Shield, Rocket, ArrowLeftRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 const tools = [
   {
@@ -8,6 +9,7 @@ const tools = [
     description: 'Real-time sentiment analysis and price predictions powered by Claude and Grok AI models.',
     gradient: 'from-primary to-purple-400',
     glowColor: 'shadow-primary/30',
+    path: '/markets',
   },
   {
     icon: Shield,
@@ -15,6 +17,7 @@ const tools = [
     description: 'Vetted Solana pools with AI-powered rug-pull risk scores. Farm with confidence.',
     gradient: 'from-green-500 to-emerald-400',
     glowColor: 'shadow-green-500/30',
+    path: '/markets',
   },
   {
     icon: Rocket,
@@ -22,6 +25,7 @@ const tools = [
     description: 'Fair SPL token creation with no mint authority. Transparent, trustless launches.',
     gradient: 'from-blue-500 to-cyan-400',
     glowColor: 'shadow-blue-500/30',
+    path: '/launch',
   },
   {
     icon: ArrowLeftRight,
@@ -29,10 +33,13 @@ const tools = [
     description: 'Secure SOL ↔ GEN1 swaps through audited vault contracts. Bridged to the First Honest Chain.',
     gradient: 'from-accent to-teal-400',
     glowColor: 'shadow-accent/30',
+    path: '/bridge',
   },
 ];
 
 export const CoreToolsSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="py-12 sm:py-16">
       <div className="text-center mb-8 sm:mb-12">
@@ -48,6 +55,7 @@ export const CoreToolsSection = () => {
         {tools.map((tool) => (
           <Card 
             key={tool.title}
+            onClick={() => navigate(tool.path)}
             className={`group relative bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg ${tool.glowColor} cursor-pointer`}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />

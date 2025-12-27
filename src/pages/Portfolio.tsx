@@ -14,6 +14,7 @@ import { PortfolioChart } from "@/components/portfolio/PortfolioChart";
 import { AssetAllocation } from "@/components/portfolio/AssetAllocation";
 import { QuickStats } from "@/components/portfolio/QuickStats";
 import { PortfolioRebalancer } from "@/components/portfolio/PortfolioRebalancer";
+import { hardRefresh } from "@/lib/hard-refresh";
 import { useMemo, useState, useCallback } from "react";
 
 export default function Portfolio() {
@@ -132,7 +133,7 @@ export default function Portfolio() {
               profitLoss={stats.profitLoss}
               profitLossPercent={stats.profitLossPercent}
               isLoading={isLoading}
-              onRefresh={refresh}
+              onRefresh={() => hardRefresh()}
             />
 
             {/* Charts Grid */}

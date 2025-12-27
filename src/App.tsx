@@ -29,6 +29,7 @@ import ApiKeys from "./pages/ApiKeys";
 import Markets from "./pages/Markets";
 import GrokAnalysis from "./pages/GrokAnalysis";
 import AdminGrokChat from "./pages/AdminGrokChat";
+import GenesisBridge from "./pages/GenesisBridge";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const AppContent = () => {
         <Route path="/api-keys" element={<ApiKeys />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/grok-chat" element={<AdminGrokChat />} />
+        <Route path="/bridge" element={<GenesisBridge />} />
         
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />

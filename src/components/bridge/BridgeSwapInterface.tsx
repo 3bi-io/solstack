@@ -27,6 +27,7 @@ import {
   TransactionMessage,
   VersionedTransaction
 } from "@solana/web3.js";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Token {
   symbol: string;
@@ -196,6 +197,24 @@ export const BridgeSwapInterface = () => {
         }
 
         setLastTxSignature(signature);
+
+        // Save transaction to Supabase
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('bridge_transactions').insert({
+            user_id: user.id,
+            wallet_address: publicKey.toBase58(),
+            from_token: fromToken.symbol,
+            to_token: toToken.symbol,
+            from_chain: fromToken.chain,
+            to_chain: toToken.chain,
+            amount: parseFloat(amount),
+            output_amount: parseFloat(outputAmount),
+            fee_amount: bridgeFee,
+            transaction_signature: signature,
+            status: 'completed'
+          });
+        }
         
         toast({
           title: "Bridge Successful!",

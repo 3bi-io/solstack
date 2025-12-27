@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,75 +12,79 @@ import {
   ExternalLink,
   RefreshCw
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 interface BridgeTransaction {
   id: string;
-  fromToken: string;
-  toToken: string;
-  fromAmount: number;
-  toAmount: number;
-  status: 'completed' | 'pending' | 'failed';
-  timestamp: Date;
-  txHash: string;
+  from_token: string;
+  to_token: string;
+  amount: number;
+  output_amount: number;
+  status: string;
+  created_at: string;
+  transaction_signature: string;
+  wallet_address: string;
 }
 
-const MOCK_TRANSACTIONS: BridgeTransaction[] = [
-  {
-    id: "1",
-    fromToken: "SOL",
-    toToken: "GEN1",
-    fromAmount: 10.5,
-    toAmount: 11.025,
-    status: "completed",
-    timestamp: new Date(Date.now() - 1000 * 60 * 5),
-    txHash: "5KtN...8xPq",
-  },
-  {
-    id: "2",
-    fromToken: "GEN1",
-    toToken: "SOL",
-    fromAmount: 25.0,
-    toAmount: 23.81,
-    status: "completed",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    txHash: "3AbC...7yZm",
-  },
-  {
-    id: "3",
-    fromToken: "SOL",
-    toToken: "GEN1",
-    fromAmount: 5.0,
-    toAmount: 5.25,
-    status: "pending",
-    timestamp: new Date(Date.now() - 1000 * 60 * 2),
-    txHash: "9XyZ...4wKn",
-  },
-  {
-    id: "4",
-    fromToken: "SOL",
-    toToken: "GEN1",
-    fromAmount: 100.0,
-    toAmount: 105.0,
-    status: "completed",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    txHash: "7PqR...2mNb",
-  },
-  {
-    id: "5",
-    fromToken: "GEN1",
-    toToken: "SOL",
-    fromAmount: 50.0,
-    toAmount: 47.62,
-    status: "failed",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
-    txHash: "1LmN...6vQp",
-  },
-];
-
 export const BridgeTransactionHistory = () => {
-  const [transactions] = useState<BridgeTransaction[]>(MOCK_TRANSACTIONS);
+  const [transactions, setTransactions] = useState<BridgeTransaction[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { publicKey, connected } = useWallet();
 
-  const getStatusBadge = (status: BridgeTransaction['status']) => {
+  const fetchTransactions = async () => {
+    if (!publicKey) return;
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('bridge_transactions')
+        .select('*')
+        .eq('wallet_address', publicKey.toBase58())
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setTransactions(data || []);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (connected && publicKey) {
+      fetchTransactions();
+    }
+  }, [connected, publicKey]);
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    if (!publicKey) return;
+
+    const channel = supabase
+      .channel('bridge-transactions')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'bridge_transactions',
+          filter: `wallet_address=eq.${publicKey.toBase58()}`
+        },
+        (payload) => {
+          setTransactions(prev => [payload.new as BridgeTransaction, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [publicKey]);
+
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
         return (
@@ -103,10 +107,13 @@ export const BridgeTransactionHistory = () => {
             Failed
           </Badge>
         );
+      default:
+        return null;
     }
   };
 
-  const formatTimeAgo = (date: Date) => {
+  const formatTimeAgo = (dateStr: string) => {
+    const date = new Date(dateStr);
     const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
     if (seconds < 60) return `${seconds}s ago`;
     const minutes = Math.floor(seconds / 60);
@@ -120,6 +127,10 @@ export const BridgeTransactionHistory = () => {
     return symbol === "SOL" ? "◎" : "◆";
   };
 
+  const truncateSignature = (sig: string) => {
+    return `${sig.slice(0, 4)}...${sig.slice(-4)}`;
+  };
+
   return (
     <Card className="border-border/50">
       <CardHeader>
@@ -128,8 +139,14 @@ export const BridgeTransactionHistory = () => {
             <History className="w-5 h-5 text-muted-foreground" />
             Transaction History
           </CardTitle>
-          <Button variant="ghost" size="sm" className="gap-1">
-            <RefreshCw className="w-4 h-4" />
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="gap-1"
+            onClick={fetchTransactions}
+            disabled={isLoading || !connected}
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
@@ -137,7 +154,13 @@ export const BridgeTransactionHistory = () => {
 
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
-          {transactions.length === 0 ? (
+          {!connected ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <History className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>Connect wallet to view history</p>
+              <p className="text-sm">Your bridge transactions will appear here</p>
+            </div>
+          ) : transactions.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <History className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p>No transactions yet</p>
@@ -154,10 +177,10 @@ export const BridgeTransactionHistory = () => {
                     <div className="flex items-center gap-4">
                       {/* From */}
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">{getTokenIcon(tx.fromToken)}</span>
+                        <span className="text-xl">{getTokenIcon(tx.from_token)}</span>
                         <div>
-                          <p className="font-semibold">{tx.fromAmount.toFixed(4)}</p>
-                          <p className="text-xs text-muted-foreground">{tx.fromToken}</p>
+                          <p className="font-semibold">{Number(tx.amount).toFixed(4)}</p>
+                          <p className="text-xs text-muted-foreground">{tx.from_token}</p>
                         </div>
                       </div>
 
@@ -165,10 +188,10 @@ export const BridgeTransactionHistory = () => {
 
                       {/* To */}
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">{getTokenIcon(tx.toToken)}</span>
+                        <span className="text-xl">{getTokenIcon(tx.to_token)}</span>
                         <div>
-                          <p className="font-semibold">{tx.toAmount.toFixed(4)}</p>
-                          <p className="text-xs text-muted-foreground">{tx.toToken}</p>
+                          <p className="font-semibold">{Number(tx.output_amount).toFixed(4)}</p>
+                          <p className="text-xs text-muted-foreground">{tx.to_token}</p>
                         </div>
                       </div>
                     </div>
@@ -180,13 +203,19 @@ export const BridgeTransactionHistory = () => {
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {formatTimeAgo(tx.timestamp)}
+                        {formatTimeAgo(tx.created_at)}
                       </span>
-                      <span className="font-mono">{tx.txHash}</span>
+                      <span className="font-mono">{truncateSignature(tx.transaction_signature)}</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs gap-1">
-                      View <ExternalLink className="w-3 h-3" />
-                    </Button>
+                    <a 
+                      href={`https://solscan.io/tx/${tx.transaction_signature}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button variant="ghost" size="sm" className="h-6 px-2 text-xs gap-1">
+                        View <ExternalLink className="w-3 h-3" />
+                      </Button>
+                    </a>
                   </div>
                 </div>
               ))}

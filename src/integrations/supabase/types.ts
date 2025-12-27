@@ -300,6 +300,54 @@ export type Database = {
           },
         ]
       }
+      bridge_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          fee_amount: number
+          from_chain: string
+          from_token: string
+          id: string
+          output_amount: number
+          status: string
+          to_chain: string
+          to_token: string
+          transaction_signature: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          fee_amount: number
+          from_chain: string
+          from_token: string
+          id?: string
+          output_amount: number
+          status?: string
+          to_chain: string
+          to_token: string
+          transaction_signature: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          fee_amount?: number
+          from_chain?: string
+          from_token?: string
+          id?: string
+          output_amount?: number
+          status?: string
+          to_chain?: string
+          to_token?: string
+          transaction_signature?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       bundle_wallets: {
         Row: {
           allocated_amount: number

@@ -234,8 +234,16 @@ export const usePortfolioRebalancer = (portfolioAssets: PortfolioAsset[], totalV
     }
   };
 
-  // Execute rebalance (record it - actual trading would need Jupiter/swap integration)
-  const executeRebalance = async (): Promise<boolean> => {
+  // Execute rebalance with real Jupiter swaps
+  const executeRebalance = async (
+    executeSwaps: (
+      trades: RebalanceTrade[],
+      solPrice: number,
+      onProgress?: (status: string, progress: number) => void
+    ) => Promise<{ completed: number; failed: number; txIds: string[] }>,
+    solPrice: number,
+    onProgress?: (status: string, progress: number) => void
+  ): Promise<boolean> => {
     if (!publicKey || requiredTrades.length === 0) {
       toast({ title: "No rebalancing needed", variant: "destructive" });
       return false;
@@ -252,11 +260,14 @@ export const usePortfolioRebalancer = (portfolioAssets: PortfolioAsset[], totalV
 
       toast({ 
         title: "Rebalancing Portfolio", 
-        description: `Executing ${requiredTrades.length} trades...` 
+        description: `Executing ${requiredTrades.length} trades via Jupiter...` 
       });
 
-      // Simulate trade execution
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Execute real swaps through Jupiter
+      const swapResults = await executeSwaps(requiredTrades, solPrice, onProgress);
+
+      const status = swapResults.failed === 0 ? 'completed' : 
+                     swapResults.completed === 0 ? 'failed' : 'partial';
 
       // Record the rebalance
       const { error } = await supabase
@@ -264,22 +275,29 @@ export const usePortfolioRebalancer = (portfolioAssets: PortfolioAsset[], totalV
         .insert([{
           user_id: user.id,
           wallet_address: publicKey.toBase58(),
-          rebalance_type: 'manual',
-          trades_executed: requiredTrades.length,
+          rebalance_type: 'jupiter_swap',
+          trades_executed: swapResults.completed,
           total_value_usd: totalValueUsd,
-          status: 'completed',
-          details: JSON.parse(JSON.stringify({ trades: requiredTrades })),
+          status,
+          details: JSON.parse(JSON.stringify({ 
+            trades: requiredTrades,
+            txIds: swapResults.txIds,
+            completed: swapResults.completed,
+            failed: swapResults.failed,
+          })),
         }]);
 
       if (error) throw error;
 
-      toast({
-        title: "Rebalance Complete!",
-        description: `Executed ${requiredTrades.length} trades to match target allocations`,
-      });
+      if (swapResults.completed > 0) {
+        toast({
+          title: status === 'completed' ? "Rebalance Complete!" : "Rebalance Partial",
+          description: `Executed ${swapResults.completed}/${requiredTrades.length} trades successfully`,
+        });
+      }
 
       await fetchHistory();
-      return true;
+      return swapResults.completed > 0;
     } catch (error: any) {
       console.error('Rebalance error:', error);
       toast({ title: "Rebalance Failed", description: error.message, variant: "destructive" });

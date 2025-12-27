@@ -445,10 +445,13 @@ export type Database = {
       }
       farm_positions: {
         Row: {
+          auto_compound_enabled: boolean
+          auto_compound_threshold: number
           created_at: string
           farm_id: string
           farm_name: string
           id: string
+          last_compound_at: string | null
           last_harvest_at: string | null
           lock_end_at: string | null
           pending_rewards: number
@@ -460,10 +463,13 @@ export type Database = {
           wallet_address: string
         }
         Insert: {
+          auto_compound_enabled?: boolean
+          auto_compound_threshold?: number
           created_at?: string
           farm_id: string
           farm_name: string
           id?: string
+          last_compound_at?: string | null
           last_harvest_at?: string | null
           lock_end_at?: string | null
           pending_rewards?: number
@@ -475,10 +481,13 @@ export type Database = {
           wallet_address: string
         }
         Update: {
+          auto_compound_enabled?: boolean
+          auto_compound_threshold?: number
           created_at?: string
           farm_id?: string
           farm_name?: string
           id?: string
+          last_compound_at?: string | null
           last_harvest_at?: string | null
           lock_end_at?: string | null
           pending_rewards?: number

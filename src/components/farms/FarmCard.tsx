@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { 
   TrendingUp, 
   Lock, 
@@ -14,11 +15,18 @@ import {
   Zap,
   Clock,
   Coins,
-  AlertCircle
+  AlertCircle,
+  RefreshCw,
+  Settings2
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export interface Farm {
   id: string;
@@ -36,6 +44,8 @@ export interface Farm {
   isActive: boolean;
   minStake: number;
   maxStake: number;
+  autoCompoundEnabled?: boolean;
+  autoCompoundThreshold?: number;
 }
 
 interface FarmCardProps {
@@ -43,13 +53,25 @@ interface FarmCardProps {
   onStake: (farmId: string, amount: number) => void;
   onWithdraw: (farmId: string, amount: number) => void;
   onClaim: (farmId: string) => void;
+  onCompound?: (farmId: string) => void;
+  onToggleAutoCompound?: (farmId: string, enabled: boolean, threshold: number) => void;
 }
 
-export const FarmCard = ({ farm, onStake, onWithdraw, onClaim }: FarmCardProps) => {
+export const FarmCard = ({ 
+  farm, 
+  onStake, 
+  onWithdraw, 
+  onClaim,
+  onCompound,
+  onToggleAutoCompound 
+}: FarmCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [stakeAmount, setStakeAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [activeTab, setActiveTab] = useState<'stake' | 'withdraw'>('stake');
+  const [autoCompoundThreshold, setAutoCompoundThreshold] = useState(
+    farm.autoCompoundThreshold?.toString() || "0.01"
+  );
   const { connected } = useWallet();
 
   const getRiskColor = (risk: Farm['riskLevel']) => {
@@ -265,15 +287,114 @@ export const FarmCard = ({ farm, onStake, onWithdraw, onClaim }: FarmCardProps) 
                 </div>
               )}
 
-              {/* Claim Rewards Button */}
+              {/* Claim/Compound Rewards Buttons */}
               {farm.pendingRewards > 0 && (
-                <Button 
-                  onClick={() => onClaim(farm.id)}
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500"
-                >
-                  <Coins className="w-4 h-4 mr-2" />
-                  Claim {farm.pendingRewards.toFixed(6)} {farm.rewardToken}
-                </Button>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => onClaim(farm.id)}
+                      className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500"
+                    >
+                      <Coins className="w-4 h-4 mr-2" />
+                      Claim {farm.pendingRewards.toFixed(6)} {farm.rewardToken}
+                    </Button>
+                    {onCompound && (
+                      <Button 
+                        onClick={() => onCompound(farm.id)}
+                        variant="outline"
+                        className="border-accent/50 hover:bg-accent/10"
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Compound
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Auto-Compound Settings */}
+                  {onToggleAutoCompound && farm.userStaked > 0 && (
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-accent/5 border border-accent/20">
+                      <div className="flex items-center gap-2">
+                        <RefreshCw className="w-4 h-4 text-accent" />
+                        <div>
+                          <p className="text-sm font-medium">Auto-Compound</p>
+                          <p className="text-xs text-muted-foreground">
+                            {farm.autoCompoundEnabled 
+                              ? `Active (threshold: ${farm.autoCompoundThreshold} ${farm.rewardToken})`
+                              : 'Automatically reinvest rewards'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Settings2 className="w-4 h-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-64" align="end">
+                            <div className="space-y-3">
+                              <div className="space-y-1">
+                                <Label className="text-xs">Compound Threshold</Label>
+                                <Input
+                                  type="number"
+                                  value={autoCompoundThreshold}
+                                  onChange={(e) => setAutoCompoundThreshold(e.target.value)}
+                                  className="h-8"
+                                  step="0.01"
+                                  min="0.001"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                  Minimum rewards before auto-compounding
+                                </p>
+                              </div>
+                              <Button 
+                                size="sm" 
+                                className="w-full"
+                                onClick={() => {
+                                  const threshold = parseFloat(autoCompoundThreshold) || 0.01;
+                                  onToggleAutoCompound(farm.id, true, threshold);
+                                }}
+                              >
+                                Save Settings
+                              </Button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                        <Switch
+                          checked={farm.autoCompoundEnabled || false}
+                          onCheckedChange={(checked) => {
+                            const threshold = parseFloat(autoCompoundThreshold) || 0.01;
+                            onToggleAutoCompound(farm.id, checked, threshold);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Show auto-compound toggle even when no pending rewards */}
+              {farm.pendingRewards <= 0 && onToggleAutoCompound && farm.userStaked > 0 && (
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium">Auto-Compound</p>
+                      <p className="text-xs text-muted-foreground">
+                        {farm.autoCompoundEnabled 
+                          ? `Active (threshold: ${farm.autoCompoundThreshold} ${farm.rewardToken})`
+                          : 'Enable to auto-reinvest rewards'}
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={farm.autoCompoundEnabled || false}
+                    onCheckedChange={(checked) => {
+                      const threshold = parseFloat(autoCompoundThreshold) || 0.01;
+                      onToggleAutoCompound(farm.id, checked, threshold);
+                    }}
+                  />
+                </div>
               )}
             </>
           ) : (

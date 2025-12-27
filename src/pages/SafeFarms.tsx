@@ -5,6 +5,7 @@ import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { FarmCard, Farm } from "@/components/farms/FarmCard";
 import { FarmStats } from "@/components/farms/FarmStats";
 import { RewardsHistory } from "@/components/farms/RewardsHistory";
+import { YieldOptimizer } from "@/components/farms/YieldOptimizer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -16,10 +17,12 @@ import {
   TrendingUp,
   Lock,
   Sparkles,
-  Info
+  Info,
+  Zap
 } from "lucide-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useFarmStaking } from "@/hooks/useFarmStaking";
+import { useYieldOptimizer } from "@/hooks/useYieldOptimizer";
 import {
   Select,
   SelectContent,
@@ -149,6 +152,16 @@ const SafeFarms = () => {
     });
   }, [baseFarms, positions, getPosition]);
 
+  // Yield optimizer
+  const {
+    settings: optimizerSettings,
+    history: optimizerHistory,
+    suggestions: optimizerSuggestions,
+    isLoading: optimizerLoading,
+    updateSettings: updateOptimizerSettings,
+    executeOptimization,
+  } = useYieldOptimizer(baseFarms, positions);
+
   // Convert transactions to events format for RewardsHistory
   const rewardEvents = useMemo(() => {
     return transactions.map(tx => ({
@@ -224,6 +237,10 @@ const SafeFarms = () => {
     await toggleAutoCompound(farmId, enabled, threshold);
   };
 
+  const handleExecuteOptimization = async (suggestion: any) => {
+    return executeOptimization(suggestion, withdraw, stake);
+  };
+
   return (
     <>
       <Helmet>
@@ -266,6 +283,10 @@ const SafeFarms = () => {
                       <Sparkles className="w-3 h-3" />
                       Auto-Compound
                     </Badge>
+                    <Badge variant="outline" className="gap-1 border-purple-500/50 text-purple-500 bg-purple-500/10">
+                      <Zap className="w-3 h-3" />
+                      Yield Optimizer
+                    </Badge>
                   </div>
                 </div>
 
@@ -278,6 +299,16 @@ const SafeFarms = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Yield Optimizer */}
+          <YieldOptimizer
+            settings={optimizerSettings}
+            history={optimizerHistory}
+            suggestions={optimizerSuggestions}
+            isLoading={optimizerLoading || isLoading}
+            onUpdateSettings={updateOptimizerSettings}
+            onExecuteOptimization={handleExecuteOptimization}
+          />
 
           {/* Stats */}
           <FarmStats {...stats} />

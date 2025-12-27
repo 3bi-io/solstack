@@ -38,3 +38,6 @@ verify_jwt = true
 
 [functions.generate-og-image]
 verify_jwt = false
+
+[functions.token-risk-analysis]
+verify_jwt = false

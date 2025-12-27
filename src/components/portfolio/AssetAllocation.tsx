@@ -13,11 +13,13 @@ import { formatUsd } from "@/lib/utils";
 interface PortfolioAsset {
   symbol: string;
   name: string;
+  mint: string;
   balance: number;
   usdValue: number;
   percentage: number;
   change24h: number;
   color: string;
+  pricePerToken: number;
 }
 
 interface AssetAllocationProps {
@@ -80,7 +82,7 @@ export function AssetAllocation({ assets, isLoading }: AssetAllocationProps) {
             <div className="space-y-2">
               {sortedAssets.slice(0, 5).map((asset) => (
                 <div 
-                  key={asset.symbol}
+                  key={asset.mint || asset.symbol}
                   className="flex items-center justify-between p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
@@ -92,13 +94,16 @@ export function AssetAllocation({ assets, isLoading }: AssetAllocationProps) {
                       <p className="font-medium text-sm">{asset.symbol}</p>
                       <p className="text-xs text-muted-foreground">
                         {asset.balance.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                        {asset.pricePerToken > 0 && (
+                          <span className="ml-1">@ {formatUsd(asset.pricePerToken)}</span>
+                        )}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-sm">{formatUsd(asset.usdValue)}</p>
-                    <p className={`text-xs ${asset.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {asset.change24h >= 0 ? '+' : ''}{asset.change24h.toFixed(2)}%
+                    <p className="text-xs text-muted-foreground">
+                      {asset.percentage.toFixed(1)}%
                     </p>
                   </div>
                 </div>

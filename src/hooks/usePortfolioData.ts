@@ -3,18 +3,21 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useOptimizedWalletBalance } from './useOptimizedWalletBalance';
 import { useOptimizedSolPrice } from './useOptimizedSolPrice';
+import { useTokenPrices, getTokenSymbol, getTokenName } from './useTokenPrices';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { queryKeys, staleTimes } from './useApiQuery';
+import { staleTimes } from './useApiQuery';
 
 interface PortfolioAsset {
   symbol: string;
   name: string;
+  mint: string;
   balance: number;
   usdValue: number;
   percentage: number;
   change24h: number;
   color: string;
+  pricePerToken: number;
 }
 
 interface PortfolioHistory {
@@ -51,6 +54,8 @@ const ASSET_COLORS = [
   '#ec4899',
   '#06b6d4',
   '#f97316',
+  '#84cc16',
+  '#14b8a6',
 ];
 
 /**
@@ -131,7 +136,7 @@ function usePortfolioSnapshots(walletAddress: string | undefined) {
 }
 
 /**
- * Hook to calculate portfolio data from wallet balances with historical tracking
+ * Hook to calculate portfolio data from wallet balances with real token prices
  */
 export function usePortfolioData() {
   const { publicKey } = useWallet();
@@ -139,32 +144,45 @@ export function usePortfolioData() {
   const { sol, tokens, isLoading: balanceLoading, refresh } = useOptimizedWalletBalance();
   const { solPrice, sol24hChange, isLoading: priceLoading } = useOptimizedSolPrice();
   const { snapshots, isLoading: snapshotsLoading, saveSnapshot } = usePortfolioSnapshots(walletAddress);
+  
+  // Fetch real prices for all tokens in the wallet
+  const tokenMints = useMemo(() => tokens.map(t => t.mint), [tokens]);
+  const { prices, isLoading: pricesLoading, getPrice } = useTokenPrices(tokenMints);
 
   const portfolioData = useMemo(() => {
     const solUsdValue = sol * (solPrice || 0);
     
-    // Calculate token values (mock prices for demo - in production, fetch from API)
-    const tokenAssets: PortfolioAsset[] = tokens.map((token, index) => ({
-      symbol: token.symbol,
-      name: token.mint.slice(0, 8) + '...',
-      balance: token.balance,
-      usdValue: token.balance * 0.001, // Mock value - replace with real prices
-      percentage: 0,
-      change24h: Math.random() * 10 - 5, // Mock change
-      color: ASSET_COLORS[(index + 1) % ASSET_COLORS.length],
-    }));
+    // Calculate token values using real Jupiter prices
+    const tokenAssets: PortfolioAsset[] = tokens.map((token, index) => {
+      const tokenPrice = getPrice(token.mint);
+      const usdValue = tokenPrice !== null ? token.balance * tokenPrice : 0;
+      
+      return {
+        symbol: getTokenSymbol(token.mint),
+        name: getTokenName(token.mint),
+        mint: token.mint,
+        balance: token.balance,
+        usdValue,
+        percentage: 0,
+        change24h: 0, // Jupiter doesn't provide 24h change, would need historical data
+        color: ASSET_COLORS[(index + 1) % ASSET_COLORS.length],
+        pricePerToken: tokenPrice || 0,
+      };
+    });
 
     const assets: PortfolioAsset[] = [
       {
         symbol: 'SOL',
         name: 'Solana',
+        mint: 'So11111111111111111111111111111111111111112',
         balance: sol,
         usdValue: solUsdValue,
         percentage: 0,
         change24h: sol24hChange || 0,
         color: ASSET_COLORS[0],
+        pricePerToken: solPrice || 0,
       },
-      ...tokenAssets,
+      ...tokenAssets.filter(t => t.usdValue > 0.01), // Filter out dust
     ];
 
     const totalValue = assets.reduce((sum, asset) => sum + asset.usdValue, 0);
@@ -187,12 +205,13 @@ export function usePortfolioData() {
       if (yesterdaySnapshot && yesterdaySnapshot.total_value_usd > 0) {
         totalChange24h = totalValue - yesterdaySnapshot.total_value_usd;
         totalChangePercent = (totalChange24h / yesterdaySnapshot.total_value_usd) * 100;
-      } else {
-        // Fallback to weighted calculation
-        totalChange24h = assets.reduce((sum, asset) => {
-          return sum + (asset.usdValue * (asset.change24h / 100));
-        }, 0);
-        totalChangePercent = totalValue > 0 ? (totalChange24h / (totalValue - totalChange24h)) * 100 : 0;
+      } else if (snapshots.length > 1) {
+        // Use most recent previous snapshot
+        const prevSnapshot = snapshots[snapshots.length - 2];
+        if (prevSnapshot && prevSnapshot.total_value_usd > 0) {
+          totalChange24h = totalValue - prevSnapshot.total_value_usd;
+          totalChangePercent = (totalChange24h / prevSnapshot.total_value_usd) * 100;
+        }
       }
     }
 
@@ -205,7 +224,7 @@ export function usePortfolioData() {
       value: snapshot.total_value_usd,
     }));
 
-    // Add current value as latest point if we have data
+    // Add current value as latest point
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     if (history.length === 0 || history[history.length - 1].date !== today) {
       history.push({ date: today, value: totalValue });
@@ -234,13 +253,14 @@ export function usePortfolioData() {
     };
 
     return { assets, history, stats, tokenCount: tokens.length };
-  }, [sol, tokens, solPrice, sol24hChange, snapshots]);
+  }, [sol, tokens, solPrice, sol24hChange, snapshots, prices, getPrice]);
 
   // Auto-save snapshot when portfolio data changes
   useEffect(() => {
     if (
       !balanceLoading && 
       !priceLoading && 
+      !pricesLoading &&
       walletAddress && 
       portfolioData.stats.totalValue > 0 &&
       solPrice
@@ -252,13 +272,14 @@ export function usePortfolioData() {
           solPrice,
           portfolioData.tokenCount
         );
-      }, 2000);
+      }, 3000);
 
       return () => clearTimeout(debounceTimer);
     }
   }, [
     balanceLoading, 
-    priceLoading, 
+    priceLoading,
+    pricesLoading,
     walletAddress, 
     portfolioData.stats.totalValue, 
     sol, 
@@ -271,7 +292,7 @@ export function usePortfolioData() {
     assets: portfolioData.assets,
     history: portfolioData.history,
     stats: portfolioData.stats,
-    isLoading: balanceLoading || priceLoading || snapshotsLoading,
+    isLoading: balanceLoading || priceLoading || snapshotsLoading || pricesLoading,
     refresh,
   };
 }

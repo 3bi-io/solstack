@@ -791,6 +791,42 @@ export type Database = {
           },
         ]
       }
+      price_alerts: {
+        Row: {
+          condition: string
+          created_at: string
+          id: string
+          is_active: boolean
+          target_price: number
+          token_symbol: string
+          triggered_at: string | null
+          user_id: string
+          wallet_address: string | null
+        }
+        Insert: {
+          condition: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          target_price: number
+          token_symbol?: string
+          triggered_at?: string | null
+          user_id: string
+          wallet_address?: string | null
+        }
+        Update: {
+          condition?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          target_price?: number
+          token_symbol?: string
+          triggered_at?: string | null
+          user_id?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           ai_access_tier: string | null

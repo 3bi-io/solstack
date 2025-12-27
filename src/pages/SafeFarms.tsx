@@ -1,12 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { AppHeader } from "@/components/AppHeader";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { FarmCard, Farm } from "@/components/farms/FarmCard";
 import { FarmStats } from "@/components/farms/FarmStats";
 import { RewardsHistory } from "@/components/farms/RewardsHistory";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { 
@@ -19,8 +18,8 @@ import {
   Sparkles,
   Info
 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useFarmStaking } from "@/hooks/useFarmStaking";
 import {
   Select,
   SelectContent,
@@ -118,43 +117,46 @@ const MOCK_FARMS: Farm[] = [
   },
 ];
 
-// Mock reward events
-const MOCK_EVENTS = [
-  {
-    id: "1",
-    type: "claim" as const,
-    farmName: "SOL Staking",
-    amount: 0.0234,
-    token: "SOL",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    txHash: "5KtN...8xPq",
-  },
-  {
-    id: "2",
-    type: "stake" as const,
-    farmName: "GEN1/SOL LP",
-    amount: 100,
-    token: "LP",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    txHash: "3AbC...7yZm",
-  },
-  {
-    id: "3",
-    type: "withdraw" as const,
-    farmName: "Stable Vault",
-    amount: 500,
-    token: "USDC",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    txHash: "9XyZ...4wKn",
-  },
-];
-
 const SafeFarms = () => {
-  const [farms, setFarms] = useState<Farm[]>(MOCK_FARMS);
+  const [baseFarms] = useState<Farm[]>(MOCK_FARMS);
   const [searchQuery, setSearchQuery] = useState("");
   const [riskFilter, setRiskFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("apy");
   const { connected } = useWallet();
+  const { 
+    positions, 
+    transactions, 
+    isLoading, 
+    stake, 
+    withdraw, 
+    claim, 
+    getPosition 
+  } = useFarmStaking();
+
+  // Merge base farms with user positions
+  const farms = useMemo(() => {
+    return baseFarms.map(farm => {
+      const position = getPosition(farm.id);
+      return {
+        ...farm,
+        userStaked: position ? Number(position.staked_amount) : 0,
+        pendingRewards: position ? Number(position.pending_rewards) : 0,
+      };
+    });
+  }, [baseFarms, positions, getPosition]);
+
+  // Convert transactions to events format for RewardsHistory
+  const rewardEvents = useMemo(() => {
+    return transactions.map(tx => ({
+      id: tx.id,
+      type: tx.transaction_type as 'stake' | 'withdraw' | 'claim',
+      farmName: tx.farm_name,
+      amount: Number(tx.amount),
+      token: tx.token,
+      timestamp: new Date(tx.created_at),
+      txHash: tx.transaction_signature || undefined,
+    }));
+  }, [transactions]);
 
   const filteredFarms = useMemo(() => {
     let result = farms.filter(farm => {
@@ -164,7 +166,6 @@ const SafeFarms = () => {
       return matchesSearch && matchesRisk;
     });
 
-    // Sort
     result.sort((a, b) => {
       switch (sortBy) {
         case "apy":
@@ -191,61 +192,22 @@ const SafeFarms = () => {
     return { totalTvl, totalStaked, totalRewards, activeFarms, averageApy };
   }, [farms]);
 
-  const handleStake = (farmId: string, amount: number) => {
-    if (!connected) {
-      toast({ title: "Please connect your wallet", variant: "destructive" });
-      return;
-    }
-    
-    setFarms(prev => prev.map(farm => 
-      farm.id === farmId 
-        ? { ...farm, userStaked: farm.userStaked + amount }
-        : farm
-    ));
-    
-    toast({
-      title: "Stake Successful",
-      description: `Staked ${amount} tokens in the farm`,
-    });
-  };
-
-  const handleWithdraw = (farmId: string, amount: number) => {
-    if (!connected) {
-      toast({ title: "Please connect your wallet", variant: "destructive" });
-      return;
-    }
-    
-    setFarms(prev => prev.map(farm => 
-      farm.id === farmId 
-        ? { ...farm, userStaked: Math.max(0, farm.userStaked - amount) }
-        : farm
-    ));
-    
-    toast({
-      title: "Withdrawal Successful",
-      description: `Withdrew ${amount} tokens from the farm`,
-    });
-  };
-
-  const handleClaim = (farmId: string) => {
-    if (!connected) {
-      toast({ title: "Please connect your wallet", variant: "destructive" });
-      return;
-    }
-    
+  const handleStake = async (farmId: string, amount: number) => {
     const farm = farms.find(f => f.id === farmId);
-    if (farm && farm.pendingRewards > 0) {
-      setFarms(prev => prev.map(f => 
-        f.id === farmId 
-          ? { ...f, pendingRewards: 0 }
-          : f
-      ));
-      
-      toast({
-        title: "Rewards Claimed!",
-        description: `Claimed ${farm.pendingRewards.toFixed(6)} ${farm.rewardToken}`,
-      });
-    }
+    if (!farm) return;
+    await stake(farmId, farm.name, farm.token, amount, farm.lockPeriod);
+  };
+
+  const handleWithdraw = async (farmId: string, amount: number) => {
+    const farm = farms.find(f => f.id === farmId);
+    if (!farm) return;
+    await withdraw(farmId, farm.name, farm.token, amount);
+  };
+
+  const handleClaim = async (farmId: string) => {
+    const farm = farms.find(f => f.id === farmId);
+    if (!farm || farm.pendingRewards <= 0) return;
+    await claim(farmId, farm.name, farm.rewardToken, farm.pendingRewards);
   };
 
   return (
@@ -365,7 +327,7 @@ const SafeFarms = () => {
           </div>
 
           {/* Rewards History */}
-          <RewardsHistory events={MOCK_EVENTS} />
+          <RewardsHistory events={rewardEvents} />
         </main>
 
         <TelegramNavigation />

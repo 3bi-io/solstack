@@ -443,6 +443,96 @@ export type Database = {
         }
         Relationships: []
       }
+      farm_positions: {
+        Row: {
+          created_at: string
+          farm_id: string
+          farm_name: string
+          id: string
+          last_harvest_at: string | null
+          lock_end_at: string | null
+          pending_rewards: number
+          staked_amount: number
+          staked_at: string
+          token: string
+          updated_at: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          farm_id: string
+          farm_name: string
+          id?: string
+          last_harvest_at?: string | null
+          lock_end_at?: string | null
+          pending_rewards?: number
+          staked_amount?: number
+          staked_at?: string
+          token: string
+          updated_at?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          farm_id?: string
+          farm_name?: string
+          id?: string
+          last_harvest_at?: string | null
+          lock_end_at?: string | null
+          pending_rewards?: number
+          staked_amount?: number
+          staked_at?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      farm_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          farm_id: string
+          farm_name: string
+          id: string
+          status: string
+          token: string
+          transaction_signature: string | null
+          transaction_type: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          farm_id: string
+          farm_name: string
+          id?: string
+          status?: string
+          token: string
+          transaction_signature?: string | null
+          transaction_type: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          farm_id?: string
+          farm_name?: string
+          id?: string
+          status?: string
+          token?: string
+          transaction_signature?: string | null
+          transaction_type?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       market_analysis: {
         Row: {
           ai_model: string

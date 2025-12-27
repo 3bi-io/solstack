@@ -1,0 +1,439 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import {
+  LAMPORTS_PER_SOL,
+  SystemProgram,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction
+} from '@solana/web3.js';
+
+interface FarmPosition {
+  id: string;
+  farm_id: string;
+  farm_name: string;
+  token: string;
+  staked_amount: number;
+  pending_rewards: number;
+  staked_at: string;
+  lock_end_at: string | null;
+}
+
+interface FarmTransaction {
+  id: string;
+  farm_id: string;
+  farm_name: string;
+  transaction_type: string;
+  amount: number;
+  token: string;
+  transaction_signature: string | null;
+  status: string;
+  created_at: string;
+}
+
+// Mock staking vault address - in production this would be the real staking program
+const STAKING_VAULT_ADDRESS = new PublicKey("StakeVau1tXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1");
+
+export const useFarmStaking = () => {
+  const [positions, setPositions] = useState<FarmPosition[]>([]);
+  const [transactions, setTransactions] = useState<FarmTransaction[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { connected, publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
+
+  // Fetch user positions
+  const fetchPositions = useCallback(async () => {
+    if (!publicKey) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('farm_positions')
+        .select('*')
+        .eq('wallet_address', publicKey.toBase58())
+        .order('staked_at', { ascending: false });
+
+      if (error) throw error;
+      setPositions(data || []);
+    } catch (error) {
+      console.error('Error fetching positions:', error);
+    }
+  }, [publicKey]);
+
+  // Fetch user transactions
+  const fetchTransactions = useCallback(async () => {
+    if (!publicKey) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('farm_transactions')
+        .select('*')
+        .eq('wallet_address', publicKey.toBase58())
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setTransactions(data || []);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
+  }, [publicKey]);
+
+  // Load data when wallet connects
+  useEffect(() => {
+    if (connected && publicKey) {
+      fetchPositions();
+      fetchTransactions();
+    }
+  }, [connected, publicKey, fetchPositions, fetchTransactions]);
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    if (!publicKey) return;
+
+    const positionsChannel = supabase
+      .channel('farm-positions')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'farm_positions',
+          filter: `wallet_address=eq.${publicKey.toBase58()}`
+        },
+        () => fetchPositions()
+      )
+      .subscribe();
+
+    const transactionsChannel = supabase
+      .channel('farm-transactions')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'farm_transactions',
+          filter: `wallet_address=eq.${publicKey.toBase58()}`
+        },
+        (payload) => {
+          setTransactions(prev => [payload.new as FarmTransaction, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(positionsChannel);
+      supabase.removeChannel(transactionsChannel);
+    };
+  }, [publicKey, fetchPositions]);
+
+  // Stake tokens
+  const stake = async (
+    farmId: string,
+    farmName: string,
+    token: string,
+    amount: number,
+    lockDays: number
+  ): Promise<boolean> => {
+    if (!connected || !publicKey) {
+      toast({ title: "Please connect your wallet", variant: "destructive" });
+      return false;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Please sign in to stake", variant: "destructive" });
+        return false;
+      }
+
+      // Build and send transaction
+      const lamports = Math.floor(amount * LAMPORTS_PER_SOL);
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+
+      const transferInstruction = SystemProgram.transfer({
+        fromPubkey: publicKey,
+        toPubkey: STAKING_VAULT_ADDRESS,
+        lamports,
+      });
+
+      const messageV0 = new TransactionMessage({
+        payerKey: publicKey,
+        recentBlockhash: blockhash,
+        instructions: [transferInstruction],
+      }).compileToV0Message();
+
+      const transaction = new VersionedTransaction(messageV0);
+
+      toast({ title: "Awaiting Signature", description: "Please approve in your wallet..." });
+
+      const signature = await sendTransaction(transaction, connection, {
+        skipPreflight: false,
+        preflightCommitment: 'confirmed',
+      });
+
+      toast({ title: "Transaction Submitted", description: "Waiting for confirmation..." });
+
+      const confirmation = await connection.confirmTransaction({
+        signature,
+        blockhash,
+        lastValidBlockHeight,
+      }, 'confirmed');
+
+      if (confirmation.value.err) {
+        throw new Error('Transaction failed');
+      }
+
+      // Calculate lock end date
+      const lockEndAt = lockDays > 0 
+        ? new Date(Date.now() + lockDays * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+
+      // Update or create position in database
+      const existingPosition = positions.find(p => p.farm_id === farmId);
+      
+      if (existingPosition) {
+        await supabase
+          .from('farm_positions')
+          .update({
+            staked_amount: Number(existingPosition.staked_amount) + amount,
+            lock_end_at: lockEndAt,
+          })
+          .eq('id', existingPosition.id);
+      } else {
+        await supabase
+          .from('farm_positions')
+          .insert({
+            user_id: user.id,
+            wallet_address: publicKey.toBase58(),
+            farm_id: farmId,
+            farm_name: farmName,
+            token,
+            staked_amount: amount,
+            lock_end_at: lockEndAt,
+          });
+      }
+
+      // Record transaction
+      await supabase
+        .from('farm_transactions')
+        .insert({
+          user_id: user.id,
+          wallet_address: publicKey.toBase58(),
+          farm_id: farmId,
+          farm_name: farmName,
+          transaction_type: 'stake',
+          amount,
+          token,
+          transaction_signature: signature,
+          status: 'completed',
+        });
+
+      toast({
+        title: "Stake Successful!",
+        description: `Staked ${amount} ${token} in ${farmName}`,
+      });
+
+      await fetchPositions();
+      return true;
+    } catch (error: any) {
+      console.error('Stake error:', error);
+      const errorMessage = error.message?.includes('User rejected') 
+        ? 'Transaction rejected by user'
+        : error.message || 'Failed to stake';
+      toast({ title: "Stake Failed", description: errorMessage, variant: "destructive" });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Withdraw tokens
+  const withdraw = async (
+    farmId: string,
+    farmName: string,
+    token: string,
+    amount: number
+  ): Promise<boolean> => {
+    if (!connected || !publicKey) {
+      toast({ title: "Please connect your wallet", variant: "destructive" });
+      return false;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Please sign in to withdraw", variant: "destructive" });
+        return false;
+      }
+
+      const position = positions.find(p => p.farm_id === farmId);
+      if (!position || Number(position.staked_amount) < amount) {
+        toast({ title: "Insufficient staked balance", variant: "destructive" });
+        return false;
+      }
+
+      // Check lock period
+      if (position.lock_end_at && new Date(position.lock_end_at) > new Date()) {
+        toast({ 
+          title: "Tokens are locked", 
+          description: `Unlock date: ${new Date(position.lock_end_at).toLocaleDateString()}`,
+          variant: "destructive" 
+        });
+        return false;
+      }
+
+      // In production, this would call the staking program to release tokens
+      // For now, we simulate the withdrawal
+
+      toast({ title: "Processing Withdrawal", description: "Please wait..." });
+
+      // Simulate transaction delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const mockSignature = `withdraw_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+      // Update position in database
+      const newAmount = Number(position.staked_amount) - amount;
+      if (newAmount <= 0) {
+        await supabase
+          .from('farm_positions')
+          .delete()
+          .eq('id', position.id);
+      } else {
+        await supabase
+          .from('farm_positions')
+          .update({ staked_amount: newAmount })
+          .eq('id', position.id);
+      }
+
+      // Record transaction
+      await supabase
+        .from('farm_transactions')
+        .insert({
+          user_id: user.id,
+          wallet_address: publicKey.toBase58(),
+          farm_id: farmId,
+          farm_name: farmName,
+          transaction_type: 'withdraw',
+          amount,
+          token,
+          transaction_signature: mockSignature,
+          status: 'completed',
+        });
+
+      toast({
+        title: "Withdrawal Successful!",
+        description: `Withdrew ${amount} ${token} from ${farmName}`,
+      });
+
+      await fetchPositions();
+      return true;
+    } catch (error: any) {
+      console.error('Withdraw error:', error);
+      toast({ title: "Withdrawal Failed", description: error.message, variant: "destructive" });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Claim rewards
+  const claim = async (
+    farmId: string,
+    farmName: string,
+    rewardToken: string,
+    rewardAmount: number
+  ): Promise<boolean> => {
+    if (!connected || !publicKey) {
+      toast({ title: "Please connect your wallet", variant: "destructive" });
+      return false;
+    }
+
+    if (rewardAmount <= 0) {
+      toast({ title: "No rewards to claim", variant: "destructive" });
+      return false;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: "Please sign in to claim", variant: "destructive" });
+        return false;
+      }
+
+      const position = positions.find(p => p.farm_id === farmId);
+      if (!position) {
+        toast({ title: "No position found", variant: "destructive" });
+        return false;
+      }
+
+      toast({ title: "Claiming Rewards", description: "Please wait..." });
+
+      // Simulate claim transaction
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const mockSignature = `claim_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+      // Update position - reset pending rewards
+      await supabase
+        .from('farm_positions')
+        .update({ 
+          pending_rewards: 0,
+          last_harvest_at: new Date().toISOString()
+        })
+        .eq('id', position.id);
+
+      // Record transaction
+      await supabase
+        .from('farm_transactions')
+        .insert({
+          user_id: user.id,
+          wallet_address: publicKey.toBase58(),
+          farm_id: farmId,
+          farm_name: farmName,
+          transaction_type: 'claim',
+          amount: rewardAmount,
+          token: rewardToken,
+          transaction_signature: mockSignature,
+          status: 'completed',
+        });
+
+      toast({
+        title: "Rewards Claimed!",
+        description: `Claimed ${rewardAmount.toFixed(6)} ${rewardToken}`,
+      });
+
+      await fetchPositions();
+      return true;
+    } catch (error: any) {
+      console.error('Claim error:', error);
+      toast({ title: "Claim Failed", description: error.message, variant: "destructive" });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Get position for a specific farm
+  const getPosition = (farmId: string): FarmPosition | undefined => {
+    return positions.find(p => p.farm_id === farmId);
+  };
+
+  return {
+    positions,
+    transactions,
+    isLoading,
+    stake,
+    withdraw,
+    claim,
+    getPosition,
+    refreshPositions: fetchPositions,
+    refreshTransactions: fetchTransactions,
+  };
+};

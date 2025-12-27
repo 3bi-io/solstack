@@ -8,9 +8,13 @@ import {
   TrendingUp,
   Droplets,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Wallet
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useOptimizedWalletBalance } from "@/hooks/useOptimizedWalletBalance";
+import { useOptimizedSolPrice } from "@/hooks/useOptimizedSolPrice";
 
 interface VaultData {
   solLocked: number;
@@ -31,6 +35,12 @@ const VAULT_DATA: VaultData = {
 };
 
 export const VaultStatus = () => {
+  const { connected, publicKey } = useWallet();
+  const { sol: solBalance, solFormatted } = useOptimizedWalletBalance();
+  const { solPrice } = useOptimizedSolPrice();
+
+  const walletValueUsd = connected ? solBalance * (solPrice || 0) : 0;
+
   const statusColor = {
     healthy: 'text-green-500 border-green-500/50 bg-green-500/10',
     warning: 'text-yellow-500 border-yellow-500/50 bg-yellow-500/10',
@@ -62,6 +72,25 @@ export const VaultStatus = () => {
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Your Wallet */}
+        {connected && publicKey && (
+          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Wallet className="w-4 h-4 text-primary" />
+              <span className="text-sm text-muted-foreground">Your Wallet</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xl font-bold font-mono">{solFormatted} SOL</p>
+                <p className="text-xs text-muted-foreground">≈ ${walletValueUsd.toFixed(2)} USD</p>
+              </div>
+              <Badge variant="secondary" className="text-xs font-mono">
+                {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}
+              </Badge>
+            </div>
+          </div>
+        )}
+
         {/* TVL */}
         <div className="p-4 rounded-xl bg-background/50 border border-border/50">
           <div className="flex items-center gap-2 mb-2">

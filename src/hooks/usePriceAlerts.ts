@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useOptimizedSolPrice } from '@/hooks/useOptimizedSolPrice';
+import { notificationService } from '@/lib/notifications';
 
 interface PriceAlert {
   id: string;
@@ -170,7 +171,10 @@ export const usePriceAlerts = () => {
           duration: 10000,
         });
 
-        // Play notification sound (optional)
+        // Send push notification
+        await notificationService.showPriceAlert('SOL', alert.condition, targetPrice, currentPrice);
+
+        // Play notification sound
         try {
           const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleVMjPIXO5erVsW1CIDT+');
           audio.volume = 0.3;

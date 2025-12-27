@@ -230,58 +230,84 @@ export const MarketPreview = () => {
 
         {/* OKX Top Pairs */}
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-semibold text-muted-foreground">
+          <p className="text-xs font-mono font-semibold text-muted-foreground uppercase tracking-wider">
             Top Trading Pairs by Volume
           </p>
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs font-mono">
             {filteredOkx.length} pairs
           </Badge>
         </div>
+
+        {/* Table Header */}
+        <div className="grid grid-cols-12 gap-2 px-3 py-2 text-xs font-mono text-muted-foreground uppercase tracking-wider border-b border-border/50 mb-2">
+          <div className="col-span-1">#</div>
+          <div className="col-span-4">Pair</div>
+          <div className="col-span-2 text-right">Price</div>
+          <div className="col-span-2 text-right">24h</div>
+          <div className="col-span-2 text-right">Volume</div>
+          <div className="col-span-1 text-center">Risk</div>
+        </div>
+
         <ScrollArea className="h-[350px] pr-4">
-          <div className="space-y-2">
+          <div className="space-y-1">
             {filteredOkx.slice(0, 20).map((pair, index) => {
               const priceChange = pair.ticker
                 ? calculatePriceChange(pair.ticker.last, pair.ticker.open24h)
                 : 0;
               
+              // Mock AI risk scoring based on volatility and volume
+              const getAIRisk = (change: number, vol: number) => {
+                const absChange = Math.abs(change);
+                if (absChange > 10) return { level: 'High', color: 'bg-destructive/20 text-destructive' };
+                if (absChange > 5 || vol < 100000) return { level: 'Med', color: 'bg-yellow-500/20 text-yellow-400' };
+                return { level: 'Low', color: 'bg-green-500/20 text-green-400' };
+              };
+              const risk = getAIRisk(priceChange, pair.ticker?.vol24h || 0);
+              
               return (
                 <div
                   key={pair.instId}
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-all cursor-pointer group border border-transparent hover:border-primary/20"
+                  className="grid grid-cols-12 gap-2 items-center p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-all cursor-pointer group border border-transparent hover:border-primary/20"
                   onClick={() => navigate("/markets")}
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <span className="text-xs text-muted-foreground font-mono w-6 flex-shrink-0">
-                      #{index + 1}
-                    </span>
+                  <span className="col-span-1 text-xs text-muted-foreground font-mono">
+                    {index + 1}
+                  </span>
+                  <div className="col-span-4 flex items-center gap-2 min-w-0">
                     <img
                       src={`https://www.cryptocompare.com/media/37746251/${(pair.baseCcy || pair.instId.split("-")[0]).toLowerCase()}.png`}
                       alt={pair.instId}
-                      className="w-8 h-8 rounded-full flex-shrink-0"
+                      className="w-6 h-6 rounded-full flex-shrink-0"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}
                     />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
-                        {pair.instId}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>Vol: {pair.ticker ? parseFloat(pair.ticker.vol24h).toLocaleString(undefined, {maximumFractionDigits: 0}) : "---"}</span>
-                      </div>
-                    </div>
+                    <span className="text-sm font-mono font-semibold truncate group-hover:text-primary transition-colors">
+                      {pair.instId}
+                    </span>
                   </div>
-                  <div className="text-right flex-shrink-0 ml-2">
-                    <p className="text-sm font-semibold whitespace-nowrap">
+                  <div className="col-span-2 text-right">
+                    <span className="text-sm font-mono font-semibold">
                       ${pair.ticker ? formatOKXPrice(pair.ticker.last) : "---"}
-                    </p>
+                    </span>
+                  </div>
+                  <div className="col-span-2 text-right">
                     <Badge
                       variant={priceChange >= 0 ? "default" : "destructive"}
-                      className="text-[10px] h-5 mt-1"
+                      className="text-[10px] h-5 font-mono"
                     >
-                      {priceChange >= 0 ? "+" : ""}
-                      {priceChange.toFixed(2)}%
+                      {priceChange >= 0 ? "+" : ""}{priceChange.toFixed(2)}%
                     </Badge>
+                  </div>
+                  <div className="col-span-2 text-right">
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {pair.ticker ? (parseFloat(pair.ticker.vol24h) / 1000).toFixed(0) + 'K' : "---"}
+                    </span>
+                  </div>
+                  <div className="col-span-1 text-center">
+                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${risk.color}`}>
+                      {risk.level}
+                    </span>
                   </div>
                 </div>
               );

@@ -1,32 +1,22 @@
 import { useEffect, useState } from "react";
 import { Hero } from "@/components/Hero";
 import { AppHeader } from "@/components/AppHeader";
-import { QuickActions } from "@/components/QuickActions";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { MarketPreview } from "@/components/MarketPreview";
-import { FeaturesShowcase } from "@/components/FeaturesShowcase";
-import { AICapabilitiesCard } from "@/components/AICapabilitiesCard";
-import { AdvancedFeaturesGrid } from "@/components/AdvancedFeaturesGrid";
-import { RecentBundles } from "@/components/RecentBundles";
+import { CoreToolsSection } from "@/components/CoreToolsSection";
+import { WhySolstackSection } from "@/components/WhySolstackSection";
+import { LandingFooter } from "@/components/LandingFooter";
 import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "@/hooks/useTelegram";
 import { 
-  Sparkles,
-  Rocket,
-  Gift,
-  TrendingUp,
-  CheckCircle,
-  Users,
-  Globe,
-  ChartCandlestick,
-  ArrowRight
+  Wallet,
+  ArrowRight,
+  Zap,
 } from "lucide-react";
 
 const Index = () => {
@@ -41,12 +31,6 @@ const Index = () => {
     }
     setIsVisible(true);
   }, [isInTelegram, hapticFeedback]);
-
-  const trustSignals = [
-    { icon: CheckCircle, text: "Blockchain Verified" },
-    { icon: Users, text: "Trusted Platform" },
-    { icon: Globe, text: "Global Network" },
-  ];
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -64,200 +48,102 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background pb-20 sm:pb-24 overflow-hidden">
       <SEO
-        title="SOL Stack - AI-Powered Solana DeFi Platform | Token Launch & Trading"
-        description="Experience the cutting edge of AI-driven Solana trading. Revolutionary token launches, intelligent market analysis, and automated DeFi strategies powered by advanced machine learning. Launch tokens, distribute airdrops, and trade with Jupiter integration."
-        keywords="Solana token launch, AI crypto trading, Solana bundler, crypto airdrop, DeFi platform, Jupiter aggregator, pump.fun alternative, Solana DeFi, blockchain trading, crypto market analysis"
+        title="SOLSTACK - AI-Driven DeFi on Solana | Bridged to Genesis One"
+        description="No rugs. No hype. Just verifiable yields and tools. Trade, farm, bridge with AI scam guards and on-chain transparency. The first honest DeFi platform on Solana."
+        keywords="Solana DeFi, Genesis One bridge, AI scam detection, safe farming, SPL token launch, Solana trading, crypto security, rug-pull protection"
         url="/"
         structuredData={breadcrumbSchema}
       />
       <AppHeader />
       
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
-        <div className="space-y-8 sm:space-y-12">
-          {/* Hero Section */}
+        <div className="space-y-12 sm:space-y-16">
+          {/* Hero Section - Full viewport */}
           <div className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <Hero />
           </div>
 
-          {/* CTA Section for Non-Connected Users */}
-          {!connected && (
-            <div className={`transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <Card className="relative overflow-hidden p-6 sm:p-8 md:p-10 bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 text-center group hover:border-primary/40 transition-all">
-                {/* Animated Background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div className="relative z-10 max-w-3xl mx-auto space-y-4 sm:space-y-5">
-                  <Badge className="mb-2 bg-primary/20 hover:bg-primary/30 text-primary-foreground border-0">
-                    <Sparkles className="w-3 h-3 mr-1 animate-pulse" />
-                    AI-Powered Solana Platform
-                  </Badge>
-                  
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
-                    Build, Analyze & Trade with AI
-                  </h2>
-                  
-                  <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-                    Launch tokens, manage airdrops, and leverage AI-powered market analysis with Claude, GPT-4, Perplexity, and Grok
-                  </p>
-                  
-                  {/* Trust Signals */}
-                  <div className="flex flex-wrap items-center justify-center gap-4 pt-2 pb-4">
-                    {trustSignals.map((signal, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <signal.icon className="w-4 h-4 text-accent" />
-                        <span>{signal.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="flex justify-center pt-2">
-                    <Button 
-                      size="lg" 
-                      variant="outline"
-                      onClick={() => navigate("/help")}
-                      className="border-primary/20 hover:border-primary/40 hover:bg-primary/5 min-h-[44px]"
-                    >
-                      Learn More
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {/* Quick Actions */}
-          <div className={`transition-all duration-700 delay-150 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <QuickActions />
+          {/* Core Tools Section */}
+          <div 
+            id="core-tools"
+            className={`transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+          >
+            <CoreToolsSection />
           </div>
 
-          {/* Recent Bundles */}
-          {connected && (
-            <div className={`transition-all duration-700 delay-175 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <RecentBundles />
-            </div>
-          )}
-
-          <Separator className="my-8" />
-
-          {/* AI Capabilities Highlight */}
+          {/* Live Markets with AI Risk */}
           <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <AICapabilitiesCard />
-          </div>
-
-          <Separator className="my-8" />
-
-          {/* Core Features */}
-          <div className={`transition-all duration-700 delay-250 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <div className="text-center space-y-3 mb-8">
-              <Badge variant="outline" className="border-primary/30 text-primary">
-                Platform Capabilities
+            <div className="text-center mb-6">
+              <Badge variant="outline" className="border-accent/30 text-accent font-mono mb-3">
+                Live Data
               </Badge>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-                Everything You Need
+              <h2 className="text-2xl sm:text-3xl font-mono font-bold text-foreground">
+                Live Markets
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Comprehensive toolkit for building, trading, and analyzing on Solana
+              <p className="text-muted-foreground font-mono text-sm mt-2">
+                Top pairs with AI risk scoring • Real-time from OKX
               </p>
             </div>
-            <FeaturesShowcase />
+            <MarketPreview />
           </div>
 
-          <Separator className="my-8" />
-
-          {/* Advanced Features */}
+          {/* Why SolStack Section */}
           <div className={`transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <AdvancedFeaturesGrid />
+            <WhySolstackSection />
           </div>
 
-          <Separator className="my-8" />
-
-          {/* Market Intelligence */}
-          <div className={`transition-all duration-700 delay-350 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <Card className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-background border-blue-500/20">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none" />
-              <div className="relative z-10 p-6 sm:p-8 text-center space-y-4">
-                <div className="flex items-center justify-center gap-3">
-                  <ChartCandlestick className="w-8 h-8 text-blue-500" />
-                  <TrendingUp className="w-6 h-6 text-purple-500" />
-                </div>
-                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 hover:bg-blue-500/30">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  Multi-Source Market Data
+          {/* Get Started Section */}
+          <div className={`transition-all duration-700 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <Card className="relative overflow-hidden p-8 sm:p-10 md:p-12 bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 text-center">
+              {/* Glow effects */}
+              <div className="absolute top-0 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-[100px]" />
+              <div className="absolute bottom-0 right-1/4 w-48 h-48 bg-accent/15 rounded-full blur-[80px]" />
+              
+              <div className="relative z-10 max-w-2xl mx-auto space-y-6">
+                <Badge className="bg-primary/20 text-primary-foreground border-0 font-mono">
+                  <Zap className="w-3 h-3 mr-1" />
+                  Get Started
                 </Badge>
-                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  Real-Time Market Intelligence
+                
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-foreground">
+                  Connect Wallet → Dashboard
                 </h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Track markets from OKX with live updates every 30 seconds, advanced filtering and favorites
+                
+                <p className="text-muted-foreground font-sans text-lg">
+                  Access Swaps (Jupiter integration), Farms, Bridge, and AI Chat.
                 </p>
-                <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <CheckCircle className="w-4 h-4 text-accent" />
-                    <span>Real-Time Data</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <CheckCircle className="w-4 h-4 text-accent" />
-                    <span>Live Updates</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <CheckCircle className="w-4 h-4 text-accent" />
-                    <span>AI Analysis</span>
-                  </div>
+                
+                <div className="inline-block px-4 py-2 bg-muted/50 rounded-lg border border-border/50">
+                  <p className="text-sm font-mono text-accent">
+                    No tiers. No fees beyond Solana gas.
+                  </p>
                 </div>
-                <Button
-                  size="lg"
-                  onClick={() => navigate("/markets")}
-                  className="gap-2 mt-4"
-                >
-                  Explore Markets
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                  <Button
+                    size="lg"
+                    onClick={() => navigate('/wallet')}
+                    className="font-mono text-lg px-8 py-6 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 shadow-lg shadow-primary/30"
+                  >
+                    <Wallet className="w-5 h-5 mr-2" />
+                    Connect Wallet
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => navigate('/help')}
+                    className="font-mono text-lg px-8 py-6 border-accent/50 text-accent hover:bg-accent/10"
+                  >
+                    Learn More
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </div>
               </div>
             </Card>
           </div>
 
-          {/* Market Preview */}
-          <div className={`transition-all duration-700 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <MarketPreview />
-          </div>
-
-          {/* Bottom CTA for Connected Users */}
-          {connected && (
-            <div className={`transition-all duration-700 delay-450 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <Card className="relative overflow-hidden p-6 sm:p-8 bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20 text-center group hover:border-primary/40 transition-all">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                
-                <div className="relative z-10 space-y-4">
-                  <Rocket className="w-12 h-12 mx-auto text-primary animate-pulse" />
-                  <h3 className="text-xl sm:text-2xl font-bold">Ready to Build?</h3>
-                  <p className="text-muted-foreground max-w-md mx-auto">
-                    Launch tokens, distribute airdrops, or explore AI-powered market analysis
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                    <Button 
-                      size="lg"
-                      onClick={() => navigate("/launch")}
-                      className="gap-2 shadow-lg hover:shadow-primary/20 min-h-[44px]"
-                    >
-                      <Rocket className="w-4 h-4" />
-                      Launch Token
-                    </Button>
-                    <Button 
-                      size="lg"
-                      variant="outline" 
-                      onClick={() => navigate("/airdrop")}
-                      className="gap-2 border-primary/20 hover:border-primary/40 min-h-[44px]"
-                    >
-                      <Gift className="w-4 h-4" />
-                      Create Airdrop
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )}
+          {/* Footer */}
+          <LandingFooter />
         </div>
       </div>
       

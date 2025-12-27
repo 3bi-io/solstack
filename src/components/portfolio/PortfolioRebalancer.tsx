@@ -64,6 +64,8 @@ interface PortfolioRebalancerProps {
   onSetTarget: (symbol: string, percentage: number) => Promise<boolean>;
   onSetAllAllocations: (allocations: { symbol: string; percentage: number }[]) => Promise<boolean>;
   onExecuteRebalance: () => Promise<boolean>;
+  swapProgress?: number;
+  swapStep?: string;
 }
 
 export const PortfolioRebalancer = ({
@@ -77,6 +79,8 @@ export const PortfolioRebalancer = ({
   onSetTarget,
   onSetAllAllocations,
   onExecuteRebalance,
+  swapProgress = 0,
+  swapStep = '',
 }: PortfolioRebalancerProps) => {
   const { connected } = useWallet();
   const [editingToken, setEditingToken] = useState<string | null>(null);
@@ -320,13 +324,24 @@ export const PortfolioRebalancer = ({
               </div>
             ))}
 
+            {/* Swap Progress */}
+            {isLoading && swapProgress > 0 && (
+              <div className="space-y-2 p-3 rounded-lg border border-primary/30 bg-primary/5">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-primary">{swapStep || 'Processing...'}</span>
+                  <span className="text-muted-foreground">{Math.round(swapProgress)}%</span>
+                </div>
+                <Progress value={swapProgress} className="h-2" />
+              </div>
+            )}
+
             <Button
               onClick={onExecuteRebalance}
               disabled={isLoading}
               className="w-full gap-2"
             >
               <Scale className="w-4 h-4" />
-              Execute Rebalance
+              {isLoading ? (swapStep || 'Rebalancing...') : 'Execute Rebalance via Jupiter'}
             </Button>
           </div>
         )}

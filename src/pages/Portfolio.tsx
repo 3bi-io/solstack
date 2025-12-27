@@ -7,16 +7,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Wallet, BarChart3 } from "lucide-react";
 import { usePortfolioData } from "@/hooks/usePortfolioData";
 import { usePortfolioRebalancer } from "@/hooks/usePortfolioRebalancer";
+import { useJupiterRebalance } from "@/hooks/useJupiterRebalance";
+import { useOptimizedSolPrice } from "@/hooks/useOptimizedSolPrice";
 import { PortfolioValueCard } from "@/components/portfolio/PortfolioValueCard";
 import { PortfolioChart } from "@/components/portfolio/PortfolioChart";
 import { AssetAllocation } from "@/components/portfolio/AssetAllocation";
 import { QuickStats } from "@/components/portfolio/QuickStats";
 import { PortfolioRebalancer } from "@/components/portfolio/PortfolioRebalancer";
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 
 export default function Portfolio() {
   const { connected } = useWallet();
   const { assets, history, stats, isLoading, refresh } = usePortfolioData();
+  const { solPrice } = useOptimizedSolPrice();
+  const { executeRebalanceSwaps, isLoading: swapLoading, currentStep } = useJupiterRebalance();
+  const [rebalanceProgress, setRebalanceProgress] = useState(0);
 
   // Convert assets to format expected by rebalancer
   const portfolioAssets = useMemo(() => {
@@ -39,6 +44,23 @@ export default function Portfolio() {
     setAllAllocations,
     executeRebalance,
   } = usePortfolioRebalancer(portfolioAssets, stats.totalValue);
+
+  // Wrapper to execute rebalance with Jupiter swaps
+  const handleExecuteRebalance = useCallback(async () => {
+    setRebalanceProgress(0);
+    const result = await executeRebalance(
+      executeRebalanceSwaps,
+      solPrice,
+      (status, progress) => {
+        setRebalanceProgress(progress);
+      }
+    );
+    setRebalanceProgress(0);
+    if (result) {
+      refresh(); // Refresh portfolio data after successful rebalance
+    }
+    return result;
+  }, [executeRebalance, executeRebalanceSwaps, solPrice, refresh]);
 
   const bestPerformer = assets.length > 0 
     ? assets.reduce((best, asset) => asset.change24h > best.change24h ? asset : best)
@@ -124,13 +146,15 @@ export default function Portfolio() {
               allocations={allocations}
               requiredTrades={requiredTrades}
               history={rebalanceHistory}
-              isLoading={rebalancerLoading || isLoading}
+              isLoading={rebalancerLoading || isLoading || swapLoading}
               needsRebalancing={needsRebalancing}
               totalDeviation={totalDeviation}
               totalValueUsd={stats.totalValue}
               onSetTarget={setTargetAllocation}
               onSetAllAllocations={setAllAllocations}
-              onExecuteRebalance={executeRebalance}
+              onExecuteRebalance={handleExecuteRebalance}
+              swapProgress={rebalanceProgress}
+              swapStep={currentStep}
             />
           </div>
         )}

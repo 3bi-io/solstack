@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,14 +10,23 @@ import {
   Zap, 
   Info,
   ArrowRight,
-  AlertCircle
+  AlertCircle,
+  ExternalLink,
+  CheckCircle2
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useOptimizedSolPrice } from "@/hooks/useOptimizedSolPrice";
 import { useOptimizedWalletBalance } from "@/hooks/useOptimizedWalletBalance";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { LAMPORTS_PER_SOL, Transaction, SystemProgram, PublicKey } from "@solana/web3.js";
+import { 
+  LAMPORTS_PER_SOL, 
+  Transaction, 
+  SystemProgram, 
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction
+} from "@solana/web3.js";
 
 interface Token {
   symbol: string;
@@ -45,14 +54,16 @@ const TOKENS: Record<string, Token> = {
 const EXCHANGE_RATE = 1.05; // 1 SOL = 1.05 GEN1
 const BRIDGE_FEE_PERCENT = 0.1;
 
-// Mock bridge vault address (in production, this would be the real vault)
-const BRIDGE_VAULT_ADDRESS = "BridgeVau1tXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+// Bridge vault address - in production this would be a real program-controlled vault
+// Using a valid base58 address format
+const BRIDGE_VAULT_ADDRESS = new PublicKey("BridgeVau1tXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1");
 
 export const BridgeSwapInterface = () => {
   const [fromToken, setFromToken] = useState<Token>(TOKENS.SOL);
   const [toToken, setToToken] = useState<Token>(TOKENS.GEN1);
   const [amount, setAmount] = useState("");
   const [isSwapping, setIsSwapping] = useState(false);
+  const [lastTxSignature, setLastTxSignature] = useState<string | null>(null);
   
   // Real wallet connection
   const { connected, publicKey, signTransaction, sendTransaction } = useWallet();
@@ -127,30 +138,84 @@ export const BridgeSwapInterface = () => {
     }
 
     setIsSwapping(true);
+    setLastTxSignature(null);
     
     try {
       if (fromToken.symbol === "SOL") {
-        // Create a transaction to simulate bridging SOL
-        // In production, this would interact with the actual bridge contract
         const lamports = Math.floor(parseFloat(amount) * LAMPORTS_PER_SOL);
         
-        // For demo purposes, we'll just show the signing process
-        // In production, this would send to the bridge vault
         toast({
-          title: "Bridge Initiated",
-          description: `Preparing to bridge ${amount} SOL to ${outputAmount} GEN1...`,
+          title: "Preparing Transaction",
+          description: "Building bridge transaction...",
         });
 
-        // Simulate bridge delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Get the latest blockhash for transaction
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+
+        // Create the transfer instruction to bridge vault
+        const transferInstruction = SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: BRIDGE_VAULT_ADDRESS,
+          lamports: lamports,
+        });
+
+        // Create a versioned transaction for better compatibility
+        const messageV0 = new TransactionMessage({
+          payerKey: publicKey,
+          recentBlockhash: blockhash,
+          instructions: [transferInstruction],
+        }).compileToV0Message();
+
+        const transaction = new VersionedTransaction(messageV0);
+
+        toast({
+          title: "Awaiting Signature",
+          description: "Please approve the transaction in your wallet...",
+        });
+
+        // Send the transaction using the wallet adapter
+        const signature = await sendTransaction(transaction, connection, {
+          skipPreflight: false,
+          preflightCommitment: 'confirmed',
+        });
+
+        toast({
+          title: "Transaction Submitted",
+          description: "Waiting for confirmation...",
+        });
+
+        // Wait for confirmation
+        const confirmation = await connection.confirmTransaction({
+          signature,
+          blockhash,
+          lastValidBlockHeight,
+        }, 'confirmed');
+
+        if (confirmation.value.err) {
+          throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
+        }
+
+        setLastTxSignature(signature);
         
         toast({
-          title: "Bridge Successful",
-          description: `Successfully bridged ${amount} ${fromToken.symbol} to ${outputAmount} ${toToken.symbol}`,
+          title: "Bridge Successful!",
+          description: (
+            <div className="flex flex-col gap-2">
+              <span>Successfully bridged {amount} SOL to {outputAmount} GEN1</span>
+              <a 
+                href={`https://solscan.io/tx/${signature}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline flex items-center gap-1"
+              >
+                View on Solscan <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          ),
         });
         
-        // Refresh balance after bridge
-        refreshBalance();
+        // Refresh balance after successful bridge
+        setTimeout(() => refreshBalance(), 2000);
       } else {
         // GEN1 to SOL bridge would require Genesis One chain integration
         toast({
@@ -160,9 +225,19 @@ export const BridgeSwapInterface = () => {
       }
     } catch (error: any) {
       console.error("Bridge error:", error);
+      
+      let errorMessage = "Failed to complete bridge transaction";
+      if (error.message?.includes("User rejected")) {
+        errorMessage = "Transaction was rejected by user";
+      } else if (error.message?.includes("insufficient")) {
+        errorMessage = "Insufficient SOL for transaction fees";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Bridge Failed",
-        description: error.message || "Failed to complete bridge transaction",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -319,6 +394,25 @@ export const BridgeSwapInterface = () => {
           </div>
         </div>
 
+        {/* Last Transaction */}
+        {lastTxSignature && (
+          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 space-y-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <span className="text-sm font-medium text-green-500">Last Transaction Confirmed</span>
+            </div>
+            <a 
+              href={`https://solscan.io/tx/${lastTxSignature}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-mono text-muted-foreground hover:text-accent flex items-center gap-1 break-all"
+            >
+              {lastTxSignature.slice(0, 20)}...{lastTxSignature.slice(-20)}
+              <ExternalLink className="w-3 h-3 flex-shrink-0" />
+            </a>
+          </div>
+        )}
+
         {/* Bridge Details */}
         <div className="p-3 rounded-lg bg-muted/30 space-y-2 text-sm">
           <div className="flex items-center justify-between">
@@ -332,6 +426,18 @@ export const BridgeSwapInterface = () => {
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Estimated Time</span>
             <span>~30 seconds</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Bridge Vault</span>
+            <a 
+              href={`https://solscan.io/account/${BRIDGE_VAULT_ADDRESS.toBase58()}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-xs hover:text-accent flex items-center gap-1"
+            >
+              {BRIDGE_VAULT_ADDRESS.toBase58().slice(0, 4)}...{BRIDGE_VAULT_ADDRESS.toBase58().slice(-4)}
+              <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
           {connected && publicKey && (
             <div className="flex items-center justify-between">

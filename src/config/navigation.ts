@@ -15,6 +15,7 @@ import {
   HelpCircle,
   Brain,
   ArrowLeftRight,
+  Sprout,
   type LucideIcon
 } from "lucide-react";
 
@@ -59,6 +60,12 @@ export const mainNavItems: NavItem[] = [
     label: "Bridge", 
     path: "/bridge",
     badge: "GEN1"
+  },
+  { 
+    icon: Sprout, 
+    label: "Farms", 
+    path: "/farms",
+    badge: "NEW"
   },
 ];
 

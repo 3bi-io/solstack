@@ -16,6 +16,7 @@ import {
   Brain,
   ArrowLeftRight,
   Sprout,
+  BarChart3,
   type LucideIcon
 } from "lucide-react";
 
@@ -71,11 +72,17 @@ export const mainNavItems: NavItem[] = [
 
 export const toolsNavItems: NavItem[] = [
   { 
+    icon: BarChart3, 
+    label: "Portfolio", 
+    path: "/portfolio",
+    badge: "NEW"
+  },
+  { 
     icon: Wallet, 
     label: "Wallet", 
     path: "/wallet" 
   },
-  { 
+  {
     icon: TrendingUp, 
     label: "Transactions", 
     path: "/transactions",

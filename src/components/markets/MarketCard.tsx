@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   TrendingUp,
   TrendingDown,
@@ -10,10 +11,19 @@ import {
   ExternalLink,
   Bell,
   Share2,
-  Eye
+  Eye,
+  Shield,
+  AlertTriangle
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+
+interface RiskAnalysis {
+  level: 'Low' | 'Med' | 'High';
+  score: number;
+  factors: string[];
+  summary: string;
+}
 
 interface MarketCardProps {
   id: string;
@@ -29,6 +39,7 @@ interface MarketCardProps {
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
   onViewDetails?: () => void;
+  riskAnalysis?: RiskAnalysis | null;
 }
 
 export const MarketCard = ({
@@ -45,9 +56,19 @@ export const MarketCard = ({
   isFavorite = false,
   onToggleFavorite,
   onViewDetails,
+  riskAnalysis,
 }: MarketCardProps) => {
   const navigate = useNavigate();
   const [showActions, setShowActions] = useState(false);
+
+  const getRiskColor = (level?: 'Low' | 'Med' | 'High') => {
+    switch (level) {
+      case 'Low': return 'text-green-500 bg-green-500/10 border-green-500/30';
+      case 'Med': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/30';
+      case 'High': return 'text-red-500 bg-red-500/10 border-red-500/30';
+      default: return 'text-muted-foreground bg-muted/50 border-border';
+    }
+  };
 
   const handleTrade = () => {
     navigate(`/swap?token=${symbol}`);
@@ -171,6 +192,41 @@ export const MarketCard = ({
               </p>
             )}
           </div>
+          
+          {/* AI Risk Badge */}
+          {riskAnalysis && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className={`min-w-[70px] justify-center gap-1 px-2 py-1 ${getRiskColor(riskAnalysis.level)}`}
+                  >
+                    {riskAnalysis.level === 'High' ? (
+                      <AlertTriangle className="w-3 h-3" />
+                    ) : (
+                      <Shield className="w-3 h-3" />
+                    )}
+                    <span className="text-xs font-medium">{riskAnalysis.level}</span>
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs">
+                  <div className="space-y-1">
+                    <p className="font-semibold">AI Risk Score: {riskAnalysis.score}/100</p>
+                    <p className="text-xs">{riskAnalysis.summary}</p>
+                    {riskAnalysis.factors.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {riskAnalysis.factors.map((f, i) => (
+                          <Badge key={i} variant="secondary" className="text-[10px]">{f}</Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          
           <Badge
             variant={change24h >= 0 ? "default" : "destructive"}
             className="min-w-[80px] justify-center gap-1 px-3 py-1"

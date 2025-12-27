@@ -4,6 +4,15 @@ import { Separator } from "@/components/ui/separator";
 import { TrendingUp, TrendingDown, DollarSign, BarChart3 } from "lucide-react";
 import { AIMarketAnalysis } from "@/components/AIMarketAnalysis";
 import { TokenSEO } from "@/components/TokenSEO";
+import { RiskBreakdownChart } from "./RiskBreakdownChart";
+import { RiskTrendChart } from "./RiskTrendChart";
+
+interface RiskAnalysis {
+  level: 'Low' | 'Med' | 'High';
+  score: number;
+  factors: string[];
+  summary: string;
+}
 
 interface TokenDetailDialogProps {
   open: boolean;
@@ -19,9 +28,17 @@ interface TokenDetailDialogProps {
     marketCap?: number;
     source: string;
   } | null;
+  riskAnalysis?: RiskAnalysis | null;
+  isAnalyzingRisk?: boolean;
 }
 
-export const TokenDetailDialog = ({ open, onOpenChange, token }: TokenDetailDialogProps) => {
+export const TokenDetailDialog = ({ 
+  open, 
+  onOpenChange, 
+  token, 
+  riskAnalysis,
+  isAnalyzingRisk 
+}: TokenDetailDialogProps) => {
   if (!token) return null;
 
   const formatPrice = (price: number) => {
@@ -59,78 +76,94 @@ export const TokenDetailDialog = ({ open, onOpenChange, token }: TokenDetailDial
       />
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            {token.image && (
-              <img src={token.image} alt={token.name} className="w-8 h-8 rounded-full" />
-            )}
-            <div>
-              <div className="flex items-center gap-2">
-                <span>{token.name}</span>
-                <Badge variant="secondary">{token.symbol.toUpperCase()}</Badge>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              {token.image && (
+                <img src={token.image} alt={token.name} className="w-8 h-8 rounded-full" />
+              )}
+              <div>
+                <div className="flex items-center gap-2">
+                  <span>{token.name}</span>
+                  <Badge variant="secondary">{token.symbol.toUpperCase()}</Badge>
+                </div>
+                <div className="text-sm font-normal text-muted-foreground">
+                  via {token.source}
+                </div>
               </div>
-              <div className="text-sm font-normal text-muted-foreground">
-                via {token.source}
-              </div>
-            </div>
-          </DialogTitle>
-        </DialogHeader>
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Price Overview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 bg-card rounded-xl border">
-              <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="w-4 h-4 text-muted-foreground" />
-                <p className="text-xs text-muted-foreground">Price</p>
-              </div>
-              <p className="text-xl font-bold">{formatPrice(token.price)}</p>
-            </div>
-
-            <div className="p-4 bg-card rounded-xl border">
-              <div className="flex items-center gap-2 mb-2">
-                {token.change24h >= 0 ? (
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="w-4 h-4 text-red-500" />
-                )}
-                <p className="text-xs text-muted-foreground">24h Change</p>
-              </div>
-              <p className={`text-xl font-bold ${token.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%
-              </p>
-            </div>
-
-            <div className="p-4 bg-card rounded-xl border">
-              <div className="flex items-center gap-2 mb-2">
-                <BarChart3 className="w-4 h-4 text-muted-foreground" />
-                <p className="text-xs text-muted-foreground">Volume 24h</p>
-              </div>
-              <p className="text-xl font-bold">{formatVolume(token.volume24h)}</p>
-            </div>
-
-            {token.marketCap && (
+          <div className="space-y-6">
+            {/* Price Overview */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-4 bg-card rounded-xl border">
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="w-4 h-4 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">Market Cap</p>
+                  <p className="text-xs text-muted-foreground">Price</p>
                 </div>
-                <p className="text-xl font-bold">{formatVolume(token.marketCap)}</p>
+                <p className="text-xl font-bold">{formatPrice(token.price)}</p>
               </div>
-            )}
+
+              <div className="p-4 bg-card rounded-xl border">
+                <div className="flex items-center gap-2 mb-2">
+                  {token.change24h >= 0 ? (
+                    <TrendingUp className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <TrendingDown className="w-4 h-4 text-red-500" />
+                  )}
+                  <p className="text-xs text-muted-foreground">24h Change</p>
+                </div>
+                <p className={`text-xl font-bold ${token.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%
+                </p>
+              </div>
+
+              <div className="p-4 bg-card rounded-xl border">
+                <div className="flex items-center gap-2 mb-2">
+                  <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">Volume 24h</p>
+                </div>
+                <p className="text-xl font-bold">{formatVolume(token.volume24h)}</p>
+              </div>
+
+              {token.marketCap && (
+                <div className="p-4 bg-card rounded-xl border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <DollarSign className="w-4 h-4 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">Market Cap</p>
+                  </div>
+                  <p className="text-xl font-bold">{formatVolume(token.marketCap)}</p>
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* AI Risk Analysis Charts */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <RiskBreakdownChart 
+                riskAnalysis={riskAnalysis || null} 
+                tokenSymbol={token.symbol}
+                isLoading={isAnalyzingRisk}
+              />
+              <RiskTrendChart 
+                riskAnalysis={riskAnalysis || null}
+                tokenSymbol={token.symbol}
+                priceChange24h={token.change24h}
+              />
+            </div>
+
+            <Separator />
+
+            {/* AI Analysis */}
+            <AIMarketAnalysis
+              tokenAddress={token.id}
+              tokenSymbol={token.symbol}
+              marketData={marketData}
+            />
           </div>
-
-          <Separator />
-
-          {/* AI Analysis */}
-          <AIMarketAnalysis
-            tokenAddress={token.id}
-            tokenSymbol={token.symbol}
-            marketData={marketData}
-          />
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

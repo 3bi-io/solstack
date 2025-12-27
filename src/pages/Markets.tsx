@@ -21,16 +21,20 @@ import {
   Globe,
   Sparkles,
   Coins,
-  Filter
+  Filter,
+  Brain,
+  Shield
 } from "lucide-react";
 import { getTopTradingPairs, formatOKXPrice, calculatePriceChange, getTokenLogoUrl } from "@/lib/okx";
 import { toast } from "@/hooks/use-toast";
 import { MarketCard } from "@/components/markets/MarketCard";
 import { MarketFilters, FilterCategory } from "@/components/markets/MarketFilters";
 import { TokenDetailDialog } from "@/components/markets/TokenDetailDialog";
+import { MarketRiskOverview } from "@/components/markets/MarketRiskOverview";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useAIRiskScoring } from "@/hooks/useAIRiskScoring";
 
 interface MarketData {
   id: string;
@@ -62,6 +66,9 @@ const Markets = () => {
   const [selectedToken, setSelectedToken] = useState<MarketData | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const { isAdmin } = useAdminCheck();
+  
+  // AI Risk Scoring
+  const { riskScores, isAnalyzing, analyzeTokens, getRiskForToken, source } = useAIRiskScoring();
 
   const loadMarketData = async () => {
     setRefreshing(true);
@@ -134,6 +141,20 @@ const Markets = () => {
 
     return okxData;
   }, [okxPairs]);
+
+  // Trigger AI risk analysis when market data changes
+  useEffect(() => {
+    if (allMarketData.length > 0 && !isAnalyzing) {
+      const tokensForAnalysis = allMarketData.slice(0, 20).map(token => ({
+        symbol: token.symbol,
+        instId: token.id,
+        price: token.price,
+        priceChange24h: token.change24h,
+        volume24h: token.volume24h,
+      }));
+      analyzeTokens(tokensForAnalysis);
+    }
+  }, [allMarketData.length]);
 
   const filteredAndSortedData = useMemo(() => {
     let filtered = allMarketData;
@@ -335,6 +356,14 @@ const Markets = () => {
           </div>
         </div>
 
+        {/* AI Risk Overview */}
+        <MarketRiskOverview 
+          riskScores={riskScores}
+          totalTokens={allMarketData.length}
+          isAnalyzing={isAnalyzing}
+          source={source}
+        />
+
         {/* Filters & Market List */}
         <Card>
           <CardHeader>
@@ -433,6 +462,7 @@ const Markets = () => {
                         setSelectedToken(item);
                         setDetailDialogOpen(true);
                       }}
+                      riskAnalysis={getRiskForToken(item.id)}
                     />
                   ))
                 )}
@@ -460,6 +490,8 @@ const Markets = () => {
         open={detailDialogOpen}
         onOpenChange={setDetailDialogOpen}
         token={selectedToken}
+        riskAnalysis={selectedToken ? getRiskForToken(selectedToken.id) : null}
+        isAnalyzingRisk={isAnalyzing}
       />
 
       <TelegramNavigation />

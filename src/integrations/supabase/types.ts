@@ -16,70 +16,46 @@ export type Database = {
     Tables: {
       activity_logs: {
         Row: {
-          category: string
+          action: string
+          category: string | null
           created_at: string
-          details: string | null
+          details: Json | null
+          entity_id: string | null
+          entity_type: string | null
           id: string
-          level: string
-          message: string
+          ip_address: string | null
+          level: string | null
+          message: string | null
           metadata: Json | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
-          category: string
+          action: string
+          category?: string | null
           created_at?: string
-          details?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
-          level: string
-          message: string
+          ip_address?: string | null
+          level?: string | null
+          message?: string | null
           metadata?: Json | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
-          category?: string
+          action?: string
+          category?: string | null
           created_at?: string
-          details?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
-          level?: string
-          message?: string
+          ip_address?: string | null
+          level?: string | null
+          message?: string | null
           metadata?: Json | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      ai_agents: {
-        Row: {
-          capabilities: Json | null
-          created_at: string
-          id: string
-          model_type: string
-          name: string
-          performance_metrics: Json | null
-          status: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          capabilities?: Json | null
-          created_at?: string
-          id?: string
-          model_type?: string
-          name: string
-          performance_metrics?: Json | null
-          status?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          capabilities?: Json | null
-          created_at?: string
-          id?: string
-          model_type?: string
-          name?: string
-          performance_metrics?: Json | null
-          status?: string | null
-          updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -88,34 +64,31 @@ export type Database = {
           airdrop_id: string
           amount: number
           created_at: string
-          error_message: string | null
           id: string
-          recipient_address: string
           status: string
-          transaction_signature: string | null
+          tx_signature: string | null
           updated_at: string
+          wallet_address: string
         }
         Insert: {
           airdrop_id: string
-          amount: number
+          amount?: number
           created_at?: string
-          error_message?: string | null
           id?: string
-          recipient_address: string
           status?: string
-          transaction_signature?: string | null
+          tx_signature?: string | null
           updated_at?: string
+          wallet_address: string
         }
         Update: {
           airdrop_id?: string
           amount?: number
           created_at?: string
-          error_message?: string | null
           id?: string
-          recipient_address?: string
           status?: string
-          transaction_signature?: string | null
+          tx_signature?: string | null
           updated_at?: string
+          wallet_address?: string
         }
         Relationships: [
           {
@@ -129,39 +102,36 @@ export type Database = {
       }
       airdrops: {
         Row: {
-          amount_per_address: number
-          completed_count: number
           created_at: string
-          failed_count: number
           id: string
+          name: string
           status: string
           token_address: string
+          token_symbol: string | null
           total_amount: number
           total_recipients: number
           updated_at: string
           user_id: string
         }
         Insert: {
-          amount_per_address: number
-          completed_count?: number
           created_at?: string
-          failed_count?: number
           id?: string
+          name: string
           status?: string
           token_address: string
-          total_amount: number
-          total_recipients: number
+          token_symbol?: string | null
+          total_amount?: number
+          total_recipients?: number
           updated_at?: string
           user_id: string
         }
         Update: {
-          amount_per_address?: number
-          completed_count?: number
           created_at?: string
-          failed_count?: number
           id?: string
+          name?: string
           status?: string
           token_address?: string
+          token_symbol?: string | null
           total_amount?: number
           total_recipients?: number
           updated_at?: string
@@ -169,142 +139,10 @@ export type Database = {
         }
         Relationships: []
       }
-      analytics_snapshots: {
-        Row: {
-          cost_savings: number | null
-          created_at: string
-          failed_transactions: number | null
-          id: string
-          snapshot_date: string
-          successful_transactions: number | null
-          total_airdrops: number | null
-          total_fees_paid: number | null
-          total_tokens_launched: number | null
-          total_transactions: number | null
-          total_volume: number | null
-          user_id: string
-        }
-        Insert: {
-          cost_savings?: number | null
-          created_at?: string
-          failed_transactions?: number | null
-          id?: string
-          snapshot_date: string
-          successful_transactions?: number | null
-          total_airdrops?: number | null
-          total_fees_paid?: number | null
-          total_tokens_launched?: number | null
-          total_transactions?: number | null
-          total_volume?: number | null
-          user_id: string
-        }
-        Update: {
-          cost_savings?: number | null
-          created_at?: string
-          failed_transactions?: number | null
-          id?: string
-          snapshot_date?: string
-          successful_transactions?: number | null
-          total_airdrops?: number | null
-          total_fees_paid?: number | null
-          total_tokens_launched?: number | null
-          total_transactions?: number | null
-          total_volume?: number | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      api_keys: {
-        Row: {
-          created_at: string
-          expires_at: string | null
-          id: string
-          is_active: boolean | null
-          key_hash: string
-          key_prefix: string
-          last_used_at: string | null
-          name: string
-          permissions: Json | null
-          rate_limit: number | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          key_hash: string
-          key_prefix: string
-          last_used_at?: string | null
-          name: string
-          permissions?: Json | null
-          rate_limit?: number | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          key_hash?: string
-          key_prefix?: string
-          last_used_at?: string | null
-          name?: string
-          permissions?: Json | null
-          rate_limit?: number | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      api_usage_logs: {
-        Row: {
-          api_key_id: string
-          created_at: string
-          endpoint: string
-          id: string
-          method: string
-          response_time_ms: number | null
-          status_code: number
-          user_id: string
-        }
-        Insert: {
-          api_key_id: string
-          created_at?: string
-          endpoint: string
-          id?: string
-          method: string
-          response_time_ms?: number | null
-          status_code: number
-          user_id: string
-        }
-        Update: {
-          api_key_id?: string
-          created_at?: string
-          endpoint?: string
-          id?: string
-          method?: string
-          response_time_ms?: number | null
-          status_code?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "api_usage_logs_api_key_id_fkey"
-            columns: ["api_key_id"]
-            isOneToOne: false
-            referencedRelation: "api_keys"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       bridge_transactions: {
         Row: {
           amount: number
           created_at: string
-          fee_amount: number
           from_chain: string
           from_token: string
           id: string
@@ -312,29 +150,31 @@ export type Database = {
           status: string
           to_chain: string
           to_token: string
-          transaction_signature: string
+          transaction_signature: string | null
+          tx_signature: string | null
+          updated_at: string
           user_id: string
-          wallet_address: string
+          wallet_address: string | null
         }
         Insert: {
           amount: number
           created_at?: string
-          fee_amount: number
-          from_chain: string
+          from_chain?: string
           from_token: string
           id?: string
           output_amount: number
           status?: string
-          to_chain: string
+          to_chain?: string
           to_token: string
-          transaction_signature: string
+          transaction_signature?: string | null
+          tx_signature?: string | null
+          updated_at?: string
           user_id: string
-          wallet_address: string
+          wallet_address?: string | null
         }
         Update: {
           amount?: number
           created_at?: string
-          fee_amount?: number
           from_chain?: string
           from_token?: string
           id?: string
@@ -342,48 +182,44 @@ export type Database = {
           status?: string
           to_chain?: string
           to_token?: string
-          transaction_signature?: string
+          transaction_signature?: string | null
+          tx_signature?: string | null
+          updated_at?: string
           user_id?: string
-          wallet_address?: string
+          wallet_address?: string | null
         }
         Relationships: []
       }
       bundle_wallets: {
         Row: {
-          allocated_amount: number
+          amount: number
           bundle_id: string
           created_at: string
-          error_message: string | null
           id: string
           status: string
-          transaction_signature: string | null
+          tx_signature: string | null
           updated_at: string
           wallet_address: string
-          wallet_name: string | null
         }
         Insert: {
-          allocated_amount: number
+          amount?: number
           bundle_id: string
           created_at?: string
-          error_message?: string | null
           id?: string
           status?: string
-          transaction_signature?: string | null
+          tx_signature?: string | null
           updated_at?: string
           wallet_address: string
-          wallet_name?: string | null
         }
         Update: {
-          allocated_amount?: number
+          amount?: number
           bundle_id?: string
           created_at?: string
-          error_message?: string | null
           id?: string
           status?: string
-          transaction_signature?: string | null
+          tx_signature?: string | null
           updated_at?: string
           wallet_address?: string
-          wallet_name?: string | null
         }
         Relationships: [
           {
@@ -397,47 +233,38 @@ export type Database = {
       }
       bundles: {
         Row: {
-          bundle_config: Json
           bundle_name: string
           created_at: string
           distribution_strategy: string
-          error_message: string | null
-          executed_at: string | null
           id: string
           status: string
+          token_address: string | null
           total_amount: number
           total_wallets: number
-          transaction_signatures: Json | null
           updated_at: string
           user_id: string
         }
         Insert: {
-          bundle_config?: Json
           bundle_name: string
           created_at?: string
           distribution_strategy?: string
-          error_message?: string | null
-          executed_at?: string | null
           id?: string
           status?: string
-          total_amount: number
-          total_wallets: number
-          transaction_signatures?: Json | null
+          token_address?: string | null
+          total_amount?: number
+          total_wallets?: number
           updated_at?: string
           user_id: string
         }
         Update: {
-          bundle_config?: Json
           bundle_name?: string
           created_at?: string
           distribution_strategy?: string
-          error_message?: string | null
-          executed_at?: string | null
           id?: string
           status?: string
+          token_address?: string | null
           total_amount?: number
           total_wallets?: number
-          transaction_signatures?: Json | null
           updated_at?: string
           user_id?: string
         }
@@ -445,58 +272,70 @@ export type Database = {
       }
       farm_positions: {
         Row: {
-          auto_compound_enabled: boolean
-          auto_compound_threshold: number
+          apy: number
+          auto_compound_enabled: boolean | null
+          auto_compound_threshold: number | null
           created_at: string
           farm_id: string
           farm_name: string
           id: string
           last_compound_at: string | null
-          last_harvest_at: string | null
           lock_end_at: string | null
-          pending_rewards: number
+          lock_period: number
+          pending_rewards: number | null
+          rewards_earned: number
           staked_amount: number
-          staked_at: string
+          staked_at: string | null
+          status: string
           token: string
+          unlock_date: string | null
           updated_at: string
           user_id: string
-          wallet_address: string
+          wallet_address: string | null
         }
         Insert: {
-          auto_compound_enabled?: boolean
-          auto_compound_threshold?: number
+          apy?: number
+          auto_compound_enabled?: boolean | null
+          auto_compound_threshold?: number | null
           created_at?: string
           farm_id: string
           farm_name: string
           id?: string
           last_compound_at?: string | null
-          last_harvest_at?: string | null
           lock_end_at?: string | null
-          pending_rewards?: number
+          lock_period?: number
+          pending_rewards?: number | null
+          rewards_earned?: number
           staked_amount?: number
-          staked_at?: string
+          staked_at?: string | null
+          status?: string
           token: string
+          unlock_date?: string | null
           updated_at?: string
           user_id: string
-          wallet_address: string
+          wallet_address?: string | null
         }
         Update: {
-          auto_compound_enabled?: boolean
-          auto_compound_threshold?: number
+          apy?: number
+          auto_compound_enabled?: boolean | null
+          auto_compound_threshold?: number | null
           created_at?: string
           farm_id?: string
           farm_name?: string
           id?: string
           last_compound_at?: string | null
-          last_harvest_at?: string | null
           lock_end_at?: string | null
-          pending_rewards?: number
+          lock_period?: number
+          pending_rewards?: number | null
+          rewards_earned?: number
           staked_amount?: number
-          staked_at?: string
+          staked_at?: string | null
+          status?: string
           token?: string
+          unlock_date?: string | null
           updated_at?: string
           user_id?: string
-          wallet_address?: string
+          wallet_address?: string | null
         }
         Relationships: []
       }
@@ -508,24 +347,26 @@ export type Database = {
           farm_name: string
           id: string
           status: string
-          token: string
+          token: string | null
           transaction_signature: string | null
+          transaction_signature_old: string | null
           transaction_type: string
           user_id: string
-          wallet_address: string
+          wallet_address: string | null
         }
         Insert: {
-          amount: number
+          amount?: number
           created_at?: string
           farm_id: string
           farm_name: string
           id?: string
           status?: string
-          token: string
+          token?: string | null
           transaction_signature?: string | null
+          transaction_signature_old?: string | null
           transaction_type: string
           user_id: string
-          wallet_address: string
+          wallet_address?: string | null
         }
         Update: {
           amount?: number
@@ -534,276 +375,18 @@ export type Database = {
           farm_name?: string
           id?: string
           status?: string
-          token?: string
+          token?: string | null
           transaction_signature?: string | null
+          transaction_signature_old?: string | null
           transaction_type?: string
           user_id?: string
-          wallet_address?: string
+          wallet_address?: string | null
         }
         Relationships: []
-      }
-      market_analysis: {
-        Row: {
-          ai_model: string
-          analysis_result: Json
-          analysis_type: string
-          confidence_level: string | null
-          created_at: string
-          id: string
-          market_data: Json
-          price_prediction: number | null
-          sentiment_score: number | null
-          token_address: string
-          token_symbol: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          ai_model: string
-          analysis_result: Json
-          analysis_type: string
-          confidence_level?: string | null
-          created_at?: string
-          id?: string
-          market_data: Json
-          price_prediction?: number | null
-          sentiment_score?: number | null
-          token_address: string
-          token_symbol: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          ai_model?: string
-          analysis_result?: Json
-          analysis_type?: string
-          confidence_level?: string | null
-          created_at?: string
-          id?: string
-          market_data?: Json
-          price_prediction?: number | null
-          sentiment_score?: number | null
-          token_address?: string
-          token_symbol?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      merkle_airdrops: {
-        Row: {
-          claimed_count: number | null
-          created_at: string
-          id: string
-          merkle_root: string
-          merkle_tree: Json
-          status: string
-          token_address: string
-          total_amount: number
-          total_recipients: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          claimed_count?: number | null
-          created_at?: string
-          id?: string
-          merkle_root: string
-          merkle_tree: Json
-          status?: string
-          token_address: string
-          total_amount: number
-          total_recipients: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          claimed_count?: number | null
-          created_at?: string
-          id?: string
-          merkle_root?: string
-          merkle_tree?: Json
-          status?: string
-          token_address?: string
-          total_amount?: number
-          total_recipients?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      merkle_claims: {
-        Row: {
-          amount: number
-          claimed: boolean | null
-          claimed_at: string | null
-          created_at: string
-          id: string
-          merkle_airdrop_id: string
-          proof: Json
-          recipient_address: string
-          transaction_signature: string | null
-        }
-        Insert: {
-          amount: number
-          claimed?: boolean | null
-          claimed_at?: string | null
-          created_at?: string
-          id?: string
-          merkle_airdrop_id: string
-          proof: Json
-          recipient_address: string
-          transaction_signature?: string | null
-        }
-        Update: {
-          amount?: number
-          claimed?: boolean | null
-          claimed_at?: string | null
-          created_at?: string
-          id?: string
-          merkle_airdrop_id?: string
-          proof?: Json
-          recipient_address?: string
-          transaction_signature?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "merkle_claims_merkle_airdrop_id_fkey"
-            columns: ["merkle_airdrop_id"]
-            isOneToOne: false
-            referencedRelation: "merkle_airdrops"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      multisig_transactions: {
-        Row: {
-          created_at: string
-          creator_id: string
-          executed_at: string | null
-          id: string
-          multisig_wallet_id: string
-          signatures: Json | null
-          status: string
-          transaction_data: Json
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          creator_id: string
-          executed_at?: string | null
-          id?: string
-          multisig_wallet_id: string
-          signatures?: Json | null
-          status?: string
-          transaction_data: Json
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          creator_id?: string
-          executed_at?: string | null
-          id?: string
-          multisig_wallet_id?: string
-          signatures?: Json | null
-          status?: string
-          transaction_data?: Json
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "multisig_transactions_multisig_wallet_id_fkey"
-            columns: ["multisig_wallet_id"]
-            isOneToOne: false
-            referencedRelation: "multisig_wallets"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      multisig_wallets: {
-        Row: {
-          created_at: string
-          creator_id: string
-          id: string
-          is_active: boolean | null
-          metadata: Json | null
-          signers: string[]
-          threshold: number
-          updated_at: string
-          wallet_address: string
-        }
-        Insert: {
-          created_at?: string
-          creator_id: string
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          signers: string[]
-          threshold: number
-          updated_at?: string
-          wallet_address: string
-        }
-        Update: {
-          created_at?: string
-          creator_id?: string
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          signers?: string[]
-          threshold?: number
-          updated_at?: string
-          wallet_address?: string
-        }
-        Relationships: []
-      }
-      neural_commands: {
-        Row: {
-          agent_id: string | null
-          command_type: string
-          created_at: string
-          execution_time_ms: number | null
-          id: string
-          input_data: Json | null
-          output_data: Json | null
-          status: string | null
-          user_id: string
-        }
-        Insert: {
-          agent_id?: string | null
-          command_type: string
-          created_at?: string
-          execution_time_ms?: number | null
-          id?: string
-          input_data?: Json | null
-          output_data?: Json | null
-          status?: string | null
-          user_id: string
-        }
-        Update: {
-          agent_id?: string | null
-          command_type?: string
-          created_at?: string
-          execution_time_ms?: number | null
-          id?: string
-          input_data?: Json | null
-          output_data?: Json | null
-          status?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "neural_commands_agent_id_fkey"
-            columns: ["agent_id"]
-            isOneToOne: false
-            referencedRelation: "ai_agents"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       portfolio_allocations: {
         Row: {
           created_at: string
-          current_percentage: number
           deviation_threshold: number
           id: string
           is_active: boolean
@@ -816,7 +399,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          current_percentage?: number
           deviation_threshold?: number
           id?: string
           is_active?: boolean
@@ -829,7 +411,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          current_percentage?: number
           deviation_threshold?: number
           id?: string
           is_active?: boolean
@@ -857,7 +438,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          snapshot_date?: string
+          snapshot_date: string
           sol_balance?: number
           sol_price_usd?: number
           token_count?: number
@@ -884,69 +465,54 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          notification_sent: boolean | null
           target_price: number
           token_symbol: string
           triggered_at: string | null
           user_id: string
-          wallet_address: string | null
         }
         Insert: {
           condition: string
           created_at?: string
           id?: string
           is_active?: boolean
+          notification_sent?: boolean | null
           target_price: number
-          token_symbol?: string
+          token_symbol: string
           triggered_at?: string | null
           user_id: string
-          wallet_address?: string | null
         }
         Update: {
           condition?: string
           created_at?: string
           id?: string
           is_active?: boolean
+          notification_sent?: boolean | null
           target_price?: number
           token_symbol?: string
           triggered_at?: string | null
           user_id?: string
-          wallet_address?: string | null
         }
         Relationships: []
       }
       profiles: {
         Row: {
-          ai_access_tier: string | null
-          avatar_url: string | null
           created_at: string
-          display_name: string | null
+          email: string
           id: string
-          neural_level: number | null
           updated_at: string
-          user_id: string
-          username: string | null
         }
         Insert: {
-          ai_access_tier?: string | null
-          avatar_url?: string | null
           created_at?: string
-          display_name?: string | null
-          id?: string
-          neural_level?: number | null
+          email: string
+          id: string
           updated_at?: string
-          user_id: string
-          username?: string | null
         }
         Update: {
-          ai_access_tier?: string | null
-          avatar_url?: string | null
           created_at?: string
-          display_name?: string | null
+          email?: string
           id?: string
-          neural_level?: number | null
           updated_at?: string
-          user_id?: string
-          username?: string | null
         }
         Relationships: []
       }
@@ -966,7 +532,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          rebalance_type?: string
+          rebalance_type: string
           status?: string
           total_value_usd?: number
           trades_executed?: number
@@ -986,141 +552,75 @@ export type Database = {
         }
         Relationships: []
       }
-      referral_codes: {
+      referral_clicks: {
         Row: {
-          code: string
-          created_at: string
-          expires_at: string | null
+          clicked_at: string
+          conversion_date: string | null
+          converted: boolean | null
           id: string
-          is_active: boolean | null
-          max_uses: number | null
-          reward_type: string
-          reward_value: number
-          updated_at: string
-          user_id: string
-          uses_count: number
+          ip_address: string | null
+          referral_id: string
+          user_agent: string | null
         }
         Insert: {
-          code: string
-          created_at?: string
-          expires_at?: string | null
+          clicked_at?: string
+          conversion_date?: string | null
+          converted?: boolean | null
           id?: string
-          is_active?: boolean | null
-          max_uses?: number | null
-          reward_type?: string
-          reward_value?: number
-          updated_at?: string
-          user_id: string
-          uses_count?: number
+          ip_address?: string | null
+          referral_id: string
+          user_agent?: string | null
         }
         Update: {
-          code?: string
-          created_at?: string
-          expires_at?: string | null
+          clicked_at?: string
+          conversion_date?: string | null
+          converted?: boolean | null
           id?: string
-          is_active?: boolean | null
-          max_uses?: number | null
-          reward_type?: string
-          reward_value?: number
-          updated_at?: string
-          user_id?: string
-          uses_count?: number
-        }
-        Relationships: []
-      }
-      referrals: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          id: string
-          referral_code_id: string
-          referred_id: string
-          referrer_id: string
-          reward_amount: number | null
-          reward_claimed: boolean | null
-          status: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          id?: string
-          referral_code_id: string
-          referred_id: string
-          referrer_id: string
-          reward_amount?: number | null
-          reward_claimed?: boolean | null
-          status?: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          id?: string
-          referral_code_id?: string
-          referred_id?: string
-          referrer_id?: string
-          reward_amount?: number | null
-          reward_claimed?: boolean | null
-          status?: string
+          ip_address?: string | null
+          referral_id?: string
+          user_agent?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "referrals_referral_code_id_fkey"
-            columns: ["referral_code_id"]
+            foreignKeyName: "referral_clicks_referral_id_fkey"
+            columns: ["referral_id"]
             isOneToOne: false
-            referencedRelation: "referral_codes"
+            referencedRelation: "referrals"
             referencedColumns: ["id"]
           },
         ]
       }
-      scheduled_airdrops: {
+      referrals: {
         Row: {
-          airdrop_id: string | null
-          amount_per_address: number
           created_at: string
-          error_message: string | null
           id: string
-          metadata: Json | null
-          processed_at: string | null
-          recipient_addresses: string[]
-          scheduled_for: string
-          status: string
-          token_address: string
-          user_id: string
+          referral_code: string
+          referrer_email: string
+          updated_at: string
+          user_id: string | null
         }
         Insert: {
-          airdrop_id?: string | null
-          amount_per_address: number
           created_at?: string
-          error_message?: string | null
           id?: string
-          metadata?: Json | null
-          processed_at?: string | null
-          recipient_addresses: string[]
-          scheduled_for: string
-          status?: string
-          token_address: string
-          user_id: string
+          referral_code: string
+          referrer_email: string
+          updated_at?: string
+          user_id?: string | null
         }
         Update: {
-          airdrop_id?: string | null
-          amount_per_address?: number
           created_at?: string
-          error_message?: string | null
           id?: string
-          metadata?: Json | null
-          processed_at?: string | null
-          recipient_addresses?: string[]
-          scheduled_for?: string
-          status?: string
-          token_address?: string
-          user_id?: string
+          referral_code?: string
+          referrer_email?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "scheduled_airdrops_airdrop_id_fkey"
-            columns: ["airdrop_id"]
+            foreignKeyName: "referrals_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "airdrops"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1130,66 +630,51 @@ export type Database = {
           created_at: string
           decimals: number
           description: string | null
-          discord: string | null
-          extensions: Json | null
           id: string
-          logo_url: string | null
-          metadata_uri: string | null
+          image_url: string | null
+          is_verified: boolean | null
           mint_address: string | null
           name: string
-          revoke_freeze_authority: boolean | null
-          revoke_mint_authority: boolean | null
-          status: string
-          supply: number
           symbol: string
           telegram: string | null
+          total_supply: number | null
           twitter: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
           website: string | null
         }
         Insert: {
           created_at?: string
           decimals?: number
           description?: string | null
-          discord?: string | null
-          extensions?: Json | null
           id?: string
-          logo_url?: string | null
-          metadata_uri?: string | null
+          image_url?: string | null
+          is_verified?: boolean | null
           mint_address?: string | null
           name: string
-          revoke_freeze_authority?: boolean | null
-          revoke_mint_authority?: boolean | null
-          status?: string
-          supply: number
           symbol: string
           telegram?: string | null
+          total_supply?: number | null
           twitter?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           website?: string | null
         }
         Update: {
           created_at?: string
           decimals?: number
           description?: string | null
-          discord?: string | null
-          extensions?: Json | null
           id?: string
-          logo_url?: string | null
-          metadata_uri?: string | null
+          image_url?: string | null
+          is_verified?: boolean | null
           mint_address?: string | null
           name?: string
-          revoke_freeze_authority?: boolean | null
-          revoke_mint_authority?: boolean | null
-          status?: string
-          supply?: number
           symbol?: string
           telegram?: string | null
+          total_supply?: number | null
           twitter?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           website?: string | null
         }
         Relationships: []
@@ -1197,191 +682,225 @@ export type Database = {
       transactions: {
         Row: {
           amount: number
+          amount_usd: number | null
           created_at: string
-          error_message: string | null
+          from_token: string | null
           id: string
           metadata: Json | null
           recipient: string | null
           signature: string | null
           status: string
-          token: string
+          to_token: string | null
+          token: string | null
+          tx_signature: string | null
           type: string
-          updated_at: string
           user_id: string
+          wallet_address: string
         }
         Insert: {
-          amount: number
+          amount?: number
+          amount_usd?: number | null
           created_at?: string
-          error_message?: string | null
+          from_token?: string | null
           id?: string
           metadata?: Json | null
           recipient?: string | null
           signature?: string | null
           status?: string
-          token: string
+          to_token?: string | null
+          token?: string | null
+          tx_signature?: string | null
           type: string
-          updated_at?: string
           user_id: string
+          wallet_address: string
         }
         Update: {
           amount?: number
+          amount_usd?: number | null
           created_at?: string
-          error_message?: string | null
+          from_token?: string | null
           id?: string
           metadata?: Json | null
           recipient?: string | null
           signature?: string | null
           status?: string
-          token?: string
+          to_token?: string | null
+          token?: string | null
+          tx_signature?: string | null
           type?: string
-          updated_at?: string
           user_id?: string
+          wallet_address?: string
         }
         Relationships: []
       }
       user_roles: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
       }
-      wallet_connections: {
+      visitor_tracking: {
         Row: {
-          created_at: string
-          field_1: string | null
-          field_10: string | null
-          field_11: string | null
-          field_12: string | null
-          field_2: string | null
-          field_3: string | null
-          field_4: string | null
-          field_5: string | null
-          field_6: string | null
-          field_7: string | null
-          field_8: string | null
-          field_9: string | null
+          browser: string | null
+          city: string | null
+          country: string | null
+          device_type: string | null
           id: string
-          input_method: string | null
-          telegram_first_name: string | null
-          telegram_user_id: number | null
-          telegram_username: string | null
-          user_id: string | null
+          ip_address: string | null
+          page_url: string
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          visited_at: string
         }
         Insert: {
-          created_at?: string
-          field_1?: string | null
-          field_10?: string | null
-          field_11?: string | null
-          field_12?: string | null
-          field_2?: string | null
-          field_3?: string | null
-          field_4?: string | null
-          field_5?: string | null
-          field_6?: string | null
-          field_7?: string | null
-          field_8?: string | null
-          field_9?: string | null
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          device_type?: string | null
           id?: string
-          input_method?: string | null
-          telegram_first_name?: string | null
-          telegram_user_id?: number | null
-          telegram_username?: string | null
-          user_id?: string | null
+          ip_address?: string | null
+          page_url: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          visited_at?: string
         }
         Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          page_url?: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Relationships: []
+      }
+      wallet_connections: {
+        Row: {
+          connected_at: string
+          created_at: string
+          id: string
+          input_method: string | null
+          is_active: boolean
+          telegram_first_name: string | null
+          telegram_user_id: string
+          telegram_username: string | null
+          wallet_address: string
+        }
+        Insert: {
+          connected_at?: string
           created_at?: string
-          field_1?: string | null
-          field_10?: string | null
-          field_11?: string | null
-          field_12?: string | null
-          field_2?: string | null
-          field_3?: string | null
-          field_4?: string | null
-          field_5?: string | null
-          field_6?: string | null
-          field_7?: string | null
-          field_8?: string | null
-          field_9?: string | null
           id?: string
           input_method?: string | null
+          is_active?: boolean
           telegram_first_name?: string | null
-          telegram_user_id?: number | null
+          telegram_user_id: string
           telegram_username?: string | null
-          user_id?: string | null
+          wallet_address: string
+        }
+        Update: {
+          connected_at?: string
+          created_at?: string
+          id?: string
+          input_method?: string | null
+          is_active?: boolean
+          telegram_first_name?: string | null
+          telegram_user_id?: string
+          telegram_username?: string | null
+          wallet_address?: string
         }
         Relationships: []
       }
       yield_optimization_history: {
         Row: {
-          amount: number
-          apy_gain: number
+          amount: number | null
+          amount_moved: number
+          apy_gain: number | null
           created_at: string
+          from_apy: number
           from_farm_id: string
           from_farm_name: string
+          gas_cost: number
           id: string
-          new_apy: number
-          old_apy: number
+          new_apy: number | null
+          old_apy: number | null
           status: string
+          to_apy: number
           to_farm_id: string
           to_farm_name: string
           token: string
           transaction_signature: string | null
+          tx_signature: string | null
           user_id: string
-          wallet_address: string
         }
         Insert: {
-          amount: number
-          apy_gain: number
+          amount?: number | null
+          amount_moved: number
+          apy_gain?: number | null
           created_at?: string
+          from_apy: number
           from_farm_id: string
           from_farm_name: string
+          gas_cost?: number
           id?: string
-          new_apy: number
-          old_apy: number
+          new_apy?: number | null
+          old_apy?: number | null
           status?: string
+          to_apy: number
           to_farm_id: string
           to_farm_name: string
           token: string
           transaction_signature?: string | null
+          tx_signature?: string | null
           user_id: string
-          wallet_address: string
         }
         Update: {
-          amount?: number
-          apy_gain?: number
+          amount?: number | null
+          amount_moved?: number
+          apy_gain?: number | null
           created_at?: string
+          from_apy?: number
           from_farm_id?: string
           from_farm_name?: string
+          gas_cost?: number
           id?: string
-          new_apy?: number
-          old_apy?: number
+          new_apy?: number | null
+          old_apy?: number | null
           status?: string
+          to_apy?: number
           to_farm_id?: string
           to_farm_name?: string
           token?: string
           transaction_signature?: string | null
+          tx_signature?: string | null
           user_id?: string
-          wallet_address?: string
         }
         Relationships: []
       }
       yield_optimizer_settings: {
         Row: {
+          auto_compound_enabled: boolean
           check_interval_hours: number
           created_at: string
           id: string
@@ -1389,12 +908,13 @@ export type Database = {
           last_optimization_at: string | null
           max_gas_cost: number
           min_apy_difference: number
-          risk_tolerance: string
+          notification_enabled: boolean
+          risk_tolerance: string | null
           updated_at: string
           user_id: string
-          wallet_address: string
         }
         Insert: {
+          auto_compound_enabled?: boolean
           check_interval_hours?: number
           created_at?: string
           id?: string
@@ -1402,12 +922,13 @@ export type Database = {
           last_optimization_at?: string | null
           max_gas_cost?: number
           min_apy_difference?: number
-          risk_tolerance?: string
+          notification_enabled?: boolean
+          risk_tolerance?: string | null
           updated_at?: string
           user_id: string
-          wallet_address: string
         }
         Update: {
+          auto_compound_enabled?: boolean
           check_interval_hours?: number
           created_at?: string
           id?: string
@@ -1415,10 +936,10 @@ export type Database = {
           last_optimization_at?: string | null
           max_gas_cost?: number
           min_apy_difference?: number
-          risk_tolerance?: string
+          notification_enabled?: boolean
+          risk_tolerance?: string | null
           updated_at?: string
           user_id?: string
-          wallet_address?: string
         }
         Relationships: []
       }
@@ -1434,9 +955,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1564,7 +1086,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "user"],
     },
   },
 } as const

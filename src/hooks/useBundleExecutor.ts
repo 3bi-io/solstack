@@ -255,12 +255,13 @@ export function useBundleExecutor(): UseBundleExecutorReturn {
       if (user) {
         await supabase.from('activity_logs').insert({
           user_id: user.id,
+          action: 'bundle_execution',
           category: 'bundle',
           level: allSuccess ? 'info' : 'error',
           message: `SOL bundle ${finalStatus}: ${results.filter(r => r.status === 'success').length}/${wallets.length} transfers completed`,
           details: `Recipient: ${recipient}`,
           metadata: { bundleId, signatures },
-        });
+        } as any);
       }
 
       return results;
@@ -465,12 +466,13 @@ export function useBundleExecutor(): UseBundleExecutorReturn {
       if (user) {
         await supabase.from('activity_logs').insert({
           user_id: user.id,
+          action: 'token_bundle_execution',
           category: 'bundle',
           level: allSuccess ? 'info' : 'error',
           message: `Token bundle ${finalStatus}: ${results.filter(r => r.status === 'success').length}/${wallets.length} transfers completed`,
           details: `Token: ${tokenMint}, Recipient: ${recipient}`,
           metadata: { bundleId, tokenMint, signatures },
-        });
+        } as any);
       }
 
       return results;

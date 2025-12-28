@@ -47,11 +47,11 @@ const Logs = () => {
         if (data) {
           const formatted: LogEntry[] = data.map(log => ({
             id: log.id,
-            level: log.level as any,
-            message: log.message,
+            level: (log.level || 'info') as LogEntry['level'],
+            message: log.message || log.action || '',
             timestamp: new Date(log.created_at),
-            category: log.category,
-            details: log.details || undefined,
+            category: log.category || 'general',
+            details: typeof log.details === 'string' ? log.details : JSON.stringify(log.details || ''),
           }));
           setLogs(formatted);
         }

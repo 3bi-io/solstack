@@ -21,7 +21,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 // Only display non-sensitive metadata - no seed phrases
 interface WalletConnectionMetadata {
   id: string;
-  telegram_user_id: number | null;
+  telegram_user_id: string | null;
   telegram_username: string | null;
   telegram_first_name: string | null;
   created_at: string;

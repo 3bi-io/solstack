@@ -39,10 +39,14 @@ interface FarmTransaction {
 }
 
 // Platform staking vault - receives staked funds
-// In production, this should be a Squads multisig or your program's vault PDA
-const STAKING_VAULT_ADDRESS = new PublicKey(
-  import.meta.env.VITE_STAKING_VAULT || "91qsL8vgzqYNfqcnKXqGEVHdFxe3eGJnmGBDqNR6mPBZ"
-);
+// SECURITY: Must be explicitly configured - no fallback to prevent fund loss
+const getStakingVaultAddress = (): PublicKey => {
+  const vaultAddress = import.meta.env.VITE_STAKING_VAULT;
+  if (!vaultAddress) {
+    throw new Error('VITE_STAKING_VAULT must be configured. Staking is disabled until a secure vault address is set.');
+  }
+  return new PublicKey(vaultAddress);
+};
 
 export const useFarmStaking = () => {
   const [positions, setPositions] = useState<FarmPosition[]>([]);
@@ -164,7 +168,7 @@ export const useFarmStaking = () => {
 
       const transferInstruction = SystemProgram.transfer({
         fromPubkey: publicKey,
-        toPubkey: STAKING_VAULT_ADDRESS,
+        toPubkey: getStakingVaultAddress(),
         lamports,
       });
 
@@ -308,7 +312,7 @@ export const useFarmStaking = () => {
       // Create a transfer from vault to user (requires vault authority signature)
       // This is a placeholder - in production use your program's withdraw instruction
       const transferInstruction = SystemProgram.transfer({
-        fromPubkey: STAKING_VAULT_ADDRESS,
+        fromPubkey: getStakingVaultAddress(),
         toPubkey: publicKey,
         lamports,
       });
@@ -429,7 +433,7 @@ export const useFarmStaking = () => {
 
       // In production, this would be a call to your staking program's claim instruction
       const claimInstruction = SystemProgram.transfer({
-        fromPubkey: STAKING_VAULT_ADDRESS,
+        fromPubkey: getStakingVaultAddress(),
         toPubkey: publicKey,
         lamports,
       });

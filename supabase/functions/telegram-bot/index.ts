@@ -3,10 +3,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.74.0';
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const telegramBotToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
+const telegramWebhookSecret = Deno.env.get('TELEGRAM_WEBHOOK_SECRET');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-telegram-bot-api-secret-token',
 };
 
 interface TelegramUpdate {
@@ -23,6 +24,21 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // SECURITY: Verify the request comes from Telegram using the secret token
+    // This prevents attackers from sending fake webhook updates
+    if (telegramWebhookSecret) {
+      const providedToken = req.headers.get('X-Telegram-Bot-Api-Secret-Token');
+      if (!providedToken || providedToken !== telegramWebhookSecret) {
+        console.warn('Telegram webhook: Invalid or missing secret token');
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    } else {
+      console.warn('TELEGRAM_WEBHOOK_SECRET not configured - webhook authentication disabled');
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const update: TelegramUpdate = await req.json();
 

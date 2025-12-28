@@ -9,42 +9,31 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Shield, Download, Users, Eye, Trash2, Brain } from "lucide-react";
+import { Search, Shield, Users, Trash2, Brain, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { AdminStats } from "@/components/admin/AdminStats";
-import { SubmissionDetailDialog } from "@/components/admin/SubmissionDetailDialog";
 import { DeleteConfirmDialog } from "@/components/admin/DeleteConfirmDialog";
 import { TokenPredictions } from "@/components/admin/TokenPredictions";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-interface WalletConnection {
+// Only display non-sensitive metadata - no seed phrases
+interface WalletConnectionMetadata {
   id: string;
   telegram_user_id: number | null;
   telegram_username: string | null;
   telegram_first_name: string | null;
   created_at: string;
-  field_1: string;
-  field_2: string;
-  field_3: string;
-  field_4: string;
-  field_5: string;
-  field_6: string;
-  field_7: string;
-  field_8: string;
-  field_9: string;
-  field_10: string;
-  field_11: string;
-  field_12: string;
+  input_method: string | null;
 }
 
 const Admin = () => {
   const { isAdmin, isLoading } = useAdminCheck();
-  const [connections, setConnections] = useState<WalletConnection[]>([]);
-  const [filteredConnections, setFilteredConnections] = useState<WalletConnection[]>([]);
+  const [connections, setConnections] = useState<WalletConnectionMetadata[]>([]);
+  const [filteredConnections, setFilteredConnections] = useState<WalletConnectionMetadata[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedSubmission, setSelectedSubmission] = useState<WalletConnection | null>(null);
   const [deleteSubmissionId, setDeleteSubmissionId] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -69,9 +58,10 @@ const Admin = () => {
 
   const fetchConnections = async () => {
     try {
+      // Only fetch non-sensitive metadata - exclude field_1 through field_12
       const { data, error } = await supabase
         .from("wallet_connections")
-        .select("*")
+        .select("id, telegram_user_id, telegram_username, telegram_first_name, created_at, input_method")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -82,58 +72,6 @@ const Admin = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const exportToCSV = () => {
-    if (!window.confirm("⚠️ WARNING: This CSV contains sensitive Solana wallet seed phrases. Ensure secure handling and storage. Continue?")) {
-      return;
-    }
-
-    const headers = [
-      "ID",
-      "Telegram User ID",
-      "Username",
-      "First Name",
-      "Created At",
-      ...Array.from({ length: 12 }, (_, i) => `Seed Word ${i + 1}`)
-    ];
-
-    const csvData = filteredConnections.map(conn => [
-      conn.id,
-      conn.telegram_user_id || "",
-      conn.telegram_username || "",
-      conn.telegram_first_name || "",
-      format(new Date(conn.created_at), "yyyy-MM-dd HH:mm:ss"),
-      conn.field_1,
-      conn.field_2,
-      conn.field_3,
-      conn.field_4,
-      conn.field_5,
-      conn.field_6,
-      conn.field_7,
-      conn.field_8,
-      conn.field_9,
-      conn.field_10,
-      conn.field_11,
-      conn.field_12,
-    ]);
-
-    const csv = [headers, ...csvData]
-      .map(row => row.map(cell => `"${cell}"`).join(","))
-      .join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `SENSITIVE-wallet-data-${format(new Date(), "yyyy-MM-dd")}.csv`;
-    a.click();
-    
-    toast({
-      title: "Export Complete",
-      description: "Remember to store this file securely and delete it when no longer needed.",
-      variant: "destructive",
-    });
   };
 
   const handleDelete = async () => {
@@ -214,6 +152,16 @@ const Admin = () => {
           </CardHeader>
         </Card>
 
+        {/* Security Notice */}
+        <Alert className="mb-6 border-yellow-500/50 bg-yellow-500/10">
+          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+          <AlertTitle className="text-yellow-500">Security Notice</AlertTitle>
+          <AlertDescription className="text-muted-foreground">
+            Sensitive data (seed phrases) is no longer accessible through this interface. 
+            Users should connect their wallets using the Solana Wallet Adapter for security.
+          </AlertDescription>
+        </Alert>
+
         {/* Stats */}
         <div className="mb-6">
           <AdminStats
@@ -247,9 +195,6 @@ const Admin = () => {
                         className="pl-8"
                       />
                     </div>
-                    <Button onClick={exportToCSV} variant="outline" size="icon">
-                      <Download className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -262,7 +207,7 @@ const Admin = () => {
                         <TableHead>User ID</TableHead>
                         <TableHead>Created At</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Completion</TableHead>
+                        <TableHead>Input Method</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -305,31 +250,19 @@ const Admin = () => {
                                 <Badge variant="secondary">Unverified</Badge>
                               )}
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell>
                               <Badge variant="outline">
-                                {[conn.field_1, conn.field_2, conn.field_3, conn.field_4, 
-                                  conn.field_5, conn.field_6, conn.field_7, conn.field_8,
-                                  conn.field_9, conn.field_10, conn.field_11, conn.field_12]
-                                  .filter(f => f?.trim()).length} / 12
+                                {conn.input_method || "unknown"}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => setSelectedSubmission(conn)}
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => setDeleteSubmissionId(conn.id)}
-                                >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setDeleteSubmissionId(conn.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))
@@ -348,13 +281,6 @@ const Admin = () => {
       </div>
       
       <TelegramNavigation />
-
-      {/* Modals */}
-      <SubmissionDetailDialog
-        submission={selectedSubmission}
-        open={!!selectedSubmission}
-        onClose={() => setSelectedSubmission(null)}
-      />
       
       <DeleteConfirmDialog
         open={!!deleteSubmissionId}

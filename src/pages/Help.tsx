@@ -135,19 +135,19 @@ const Help = () => {
               <AccordionItem value="item-5">
                 <AccordionTrigger className="text-sm">How do I connect my wallet?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  Go to the Wallet tab and click "Connect Wallet". You'll need to enter your 12-word recovery phrase
-                  (seed phrase) to link your Solana wallet. Your recovery phrase is encrypted using industry-standard
-                  encryption before storage. Never share your recovery phrase with anyone else.
+                  Click the "Connect Wallet" button in the header. You can connect using popular Solana wallets like 
+                  Phantom, Solflare, Backpack, or other supported wallet adapters. Your wallet remains secure as you 
+                  only approve specific transactions - we never have access to your private keys or seed phrases.
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="item-6">
                 <AccordionTrigger className="text-sm">Is my wallet secure?</AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground">
-                  Yes. We use bank-grade encryption for all sensitive data, including your recovery phrase. Our database
-                  implements Row Level Security (RLS) policies ensuring only you can access your wallet information. All
-                  connections are encrypted with TLS. However, always practice good security hygiene and never share
-                  your recovery phrase.
+                  Yes. We use the Solana Wallet Adapter standard which means your private keys never leave your wallet 
+                  application. You approve each transaction individually in your wallet. We only store your public wallet 
+                  address for display purposes. All connections are encrypted with TLS. Never share your seed phrase with 
+                  any website or application.
                 </AccordionContent>
               </AccordionItem>
 

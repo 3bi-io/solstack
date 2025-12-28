@@ -136,12 +136,12 @@ export function useAirdrop(): UseAirdropReturn {
           .from('airdrops')
           .insert({
             user_id: user.id,
+            name: `Airdrop ${new Date().toISOString()}`,
             token_address: tokenMint,
-            amount_per_address: amountPerRecipient,
             total_recipients: recipients.length,
             total_amount: amountPerRecipient * recipients.length,
             status: 'processing',
-          })
+          } as any)
           .select()
           .single();
 
@@ -273,11 +273,11 @@ export function useAirdrop(): UseAirdropReturn {
             if (airdropId && user) {
               await supabase.from('airdrop_recipients').insert({
                 airdrop_id: airdropId,
-                recipient_address: recipient.address,
+                wallet_address: recipient.address,
                 amount: amountPerRecipient,
                 status: 'completed',
-                transaction_signature: signature,
-              });
+                tx_signature: signature,
+              } as any);
             }
           }
 
@@ -304,11 +304,10 @@ export function useAirdrop(): UseAirdropReturn {
               if (airdropId && user) {
                 await supabase.from('airdrop_recipients').insert({
                   airdrop_id: airdropId,
-                  recipient_address: batchRecipients[i],
+                  wallet_address: batchRecipients[i],
                   amount: amountPerRecipient,
                   status: 'failed',
-                  error_message: (error as Error).message,
-                });
+                } as any);
               }
             }
           }

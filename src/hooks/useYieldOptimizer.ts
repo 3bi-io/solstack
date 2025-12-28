@@ -248,18 +248,20 @@ export const useYieldOptimizer = (farms: Farm[], positions: FarmPosition[]) => {
         .from('yield_optimization_history')
         .insert({
           user_id: user.id,
-          wallet_address: publicKey.toBase58(),
           from_farm_id: suggestion.fromFarm.id,
           from_farm_name: suggestion.fromFarm.name,
           to_farm_id: suggestion.toFarm.id,
           to_farm_name: suggestion.toFarm.name,
+          amount_moved: amount,
           amount,
           token: suggestion.position.token,
+          from_apy: suggestion.fromFarm.apy,
+          to_apy: suggestion.toFarm.apy,
           old_apy: suggestion.fromFarm.apy,
           new_apy: suggestion.toFarm.apy,
           apy_gain: suggestion.apyGain,
           status: 'pending',
-        })
+        } as any)
         .select()
         .single();
 

@@ -4,8 +4,10 @@
  */
 
 // RPC Endpoint for frontend wallet connections
-// Backend edge functions use the SOLANA_RPC_URL secret in Supabase
-export const SOLANA_RPC_ENDPOINT = 'https://magical-convincing-sun.solana-mainnet.quiknode.pro/ffea6c68c8d168b0c2e2bcacbfe1c7cf676da07e/';
+// Uses public RPC for client-side operations (read-only, rate-limited)
+// Backend edge functions use the SOLANA_RPC_URL secret in Supabase for write operations
+// For production, consider using a proxy endpoint to hide API keys
+export const SOLANA_RPC_ENDPOINT = import.meta.env.VITE_SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
 
 // Token Program IDs
 export const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';

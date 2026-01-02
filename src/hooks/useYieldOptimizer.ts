@@ -75,10 +75,10 @@ export const useYieldOptimizer = (farms: Farm[], positions: FarmPosition[]) => {
     if (!publicKey) return;
 
     try {
-      const { data, error } = await supabase
-        .from('yield_optimizer_settings')
+      const { data, error } = await (supabase
+        .from('yield_optimizer_settings') as any)
         .select('*')
-        .eq('wallet_address', publicKey.toBase58())
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
         .maybeSingle();
 
       if (error) throw error;
@@ -96,10 +96,13 @@ export const useYieldOptimizer = (farms: Farm[], positions: FarmPosition[]) => {
     if (!publicKey) return;
 
     try {
-      const { data, error } = await supabase
-        .from('yield_optimization_history')
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await (supabase
+        .from('yield_optimization_history') as any)
         .select('*')
-        .eq('wallet_address', publicKey.toBase58())
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20);
 
